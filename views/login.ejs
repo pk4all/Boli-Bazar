@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log In | BoliBazar | Factory to Shop</title>
+    
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d90429',
+                        secondary: '#001f3f',
+                        'secondary-dark': '#001021',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #001f3f 0%, #001021 100%);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .login-container {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <div class="flex flex-col lg:flex-row login-container">
+        
+        <!-- Left Side: Branding & Info -->
+        <div class="lg:w-3/5 hero-gradient text-white p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+            <!-- Background Decoration -->
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full -mr-64 -mt-64"></div>
+            
+            <div class="z-10">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 mb-16">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <i class="fas fa-gavel text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">BoliBazar</h1>
+                        <p class="text-[10px] font-bold text-primary tracking-widest uppercase text-right">Factory to Shop Platform</p>
+                    </div>
+                </div>
+
+                <!-- Main Punchline -->
+                <h2 class="text-5xl lg:text-7xl font-black mb-8 leading-[1.1] font-heading tracking-tight">
+                    The longer you wait, <br>
+                    <span class="text-primary italic">The more you pay.</span>
+                </h2>
+                <p class="text-lg text-gray-400 mb-12 max-w-xl leading-relaxed">
+                    India's #1 live bidding platform. No middleman — buy directly from manufacturers and save on every purchase.
+                </p>
+
+                <!-- Feature Grid: Trust-focused Redesign -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-industry text-primary"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Factory Direct</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Zero Middlemen. Buy straight from the manufacturing floor to maximize your retail margins.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-check-double text-green-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Verified Quality</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Every lot is physically inspected and certified by our quality experts before it goes live.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-shield-heart text-blue-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Safe Booking</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Secure high-demand stock with just a 10% token. Your money stays in escrow until confirmation.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-truck-fast text-yellow-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Priority Shipping</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Our dedicated logistics network ensures your factory-direct goods reach your shop within 48 hours.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="flex items-center space-x-12 mb-12 border-t border-white/10 pt-8">
+                    <div>
+                        <p class="text-3xl font-black">12,400+</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Bidders</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-black">₹4.2Cr</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Monthly GMV</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-black">340+</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Lots Per Day</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Policy Alert -->
+            <div class="z-10 bg-white/5 border border-white/10 p-6 rounded-3xl flex items-start space-x-4">
+                <div class="w-10 h-10 bg-yellow-400/20 text-yellow-400 rounded-xl flex flex-shrink-0 items-center justify-center text-xl">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div>
+                    <h5 class="font-black text-xs uppercase mb-1 tracking-wider">How the Token System works?</h5>
+                    <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                        Pay only a 10% advance token to confirm your booking. Full payment qualifies for FREE delivery. Cash on Delivery (COD) available with a 10% extra delivery charge on the balance.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="lg:w-2/5 bg-white p-8 lg:p-16 flex flex-col justify-center items-center">
+            <div class="w-full max-w-sm">
+                
+                <!-- Toggle Tabs -->
+                <div class="bg-gray-100 p-1 rounded-2xl flex mb-12">
+                    <button class="flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm text-primary">Login</button>
+                    <a href="/register" class="flex-1 py-3 text-sm font-bold rounded-xl text-gray-400 hover:text-secondary transition text-center">Register</a>
+                </div>
+
+                <!-- Welcome Text -->
+                <div class="mb-10">
+                    <h3 class="text-4xl font-black mb-2 font-heading tracking-tight">Welcome back!</h3>
+                    <p class="text-gray-400 text-sm font-medium">Please enter your details to login.</p>
+                </div>
+
+                <% if (error) { %>
+                    <div class="bg-red-50 text-red-600 text-xs font-bold p-4 rounded-xl mb-6 flex items-center">
+                        <i class="fas fa-exclamation-circle mr-2"></i> <%= error %>
+                    </div>
+                <% } %>
+
+                <!-- Form -->
+                <form action="/login" method="POST" class="space-y-6">
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2 ml-2 tracking-widest">Email Address</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" id="email" name="email" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-12 py-4 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="name@company.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2 ml-2 tracking-widest">Password</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input type="password" id="password" name="password" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-12 py-4 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="••••••••">
+                            <button type="button" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-secondary">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs font-bold">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary">
+                            <span class="text-gray-500">Remember me</span>
+                        </label>
+                        <a href="#" class="text-primary hover:underline">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-100 flex items-center justify-center group">
+                        Sign In Now <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition"></i>
+                    </button>
+                </form>
+
+                <!-- Demo Credentials Section -->
+                <div class="mt-12 p-6 bg-yellow-50 rounded-3xl border border-yellow-100">
+                    <div class="flex items-center space-x-2 text-[10px] font-black text-yellow-600 uppercase mb-4 tracking-widest">
+                        <i class="fas fa-key"></i>
+                        <span>Demo Credentials — Click to autofill</span>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="autofill('retailer@bolibazar.com', 'retailer123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
+                            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Retailer</p>
+                            <p class="text-xs font-bold text-secondary">retailer@bolibazar.com / retailer123</p>
+                        </button>
+                        <button onclick="autofill('admin@bolibazar.com', 'admin123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
+                            <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Administrator</p>
+                            <p class="text-xs font-bold text-secondary">admin@bolibazar.com / admin123</p>
+                        </button>
+                    </div>
+                </div>
+
+                <p class="mt-12 text-center text-xs font-bold text-gray-400">
+                    Need a new account? <a href="/register" class="text-primary hover:underline">Create Account</a>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function autofill(email, pass) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = pass;
+        }
+    </script>
+
+</body>
+</html>

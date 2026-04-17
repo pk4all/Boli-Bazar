@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= auction.title %> | BoliBazar Auction</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white text-secondary">
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-secondary border-b border-white/10 shadow-lg text-white">
+        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
+            <div class="flex items-center space-x-6">
+                <a href="/" class="text-xs font-bold opacity-70 hover:opacity-100 uppercase transition">Back to Auctions</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex space-x-2 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+            <a href="/" class="hover:text-primary transition">Auctions</a>
+            <span>/</span>
+            <span class="text-secondary"><%= auction.category || 'General' %></span>
+            <span>/</span>
+            <span class="text-secondary opacity-50"><%= auction.title %></span>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <!-- Left: Image Gallery -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="bg-gray-100 rounded-[40px] overflow-hidden aspect-video relative group">
+                    <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="aspect-square bg-gray-100 rounded-2xl border-2 border-primary overflow-hidden">
+                        <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="pt-8">
+                    <h2 class="text-2xl font-black mb-4">Description</h2>
+                    <p class="text-gray-500 leading-relaxed mb-8">
+                        <%= auction.description || 'Premium factory-direct lot. No middleman — sourced directly from the manufacturer for maximum retail margins. Inspected and verified by BoliBazar quality team.' %>
+                    </p>
+
+                    <h2 class="text-2xl font-black mb-4">Lot Specifications</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-2xl flex items-center space-x-4">
+                            <i class="fas fa-boxes text-primary"></i>
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase">Total Quantity</p>
+                                <p class="text-sm font-bold"><%= auction.lotSize %> Units</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl flex items-center space-x-4">
+                            <i class="fas fa-pallet text-blue-500"></i>
+                            <div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase">MOQ</p>
+                                <p class="text-sm font-bold"><%= auction.moq || 1 %> Lot</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Bidding Dashboard -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24 space-y-6">
+                    
+                    <!-- Bidding Card -->
+                    <div class="bg-white rounded-[40px] p-8 shadow-2xl shadow-red-100 border border-red-50">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h1 class="text-3xl font-black mb-1"><%= auction.title %></h1>
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest"><%= auction.category || 'General' %> Group</p>
+                            </div>
+                            <div class="badge-live px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase">Live</div>
+                        </div>
+
+                        <!-- Price Section -->
+                        <div class="bg-bg-light rounded-3xl p-6 mb-8 border border-gray-100">
+                            <div class="flex justify-between items-end mb-4">
+                                <div>
+                                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Current Highest Bid</p>
+                                    <p class="text-5xl font-black tracking-tight">₹<%= auction.currentBid || auction.initialPrice %></p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] font-black text-green-500 uppercase flex items-center justify-end">
+                                        <i class="fas fa-chart-line mr-1"></i> Up 12%
+                                    </p>
+                                    <p class="text-sm font-bold text-gray-400">Total Bids: 24</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bid Input -->
+                        <% if (user) { %>
+                            <% if (user.isRegistered) { %>
+                                <form action="/place-bid" method="POST" class="space-y-4">
+                                    <input type="hidden" name="auctionId" value="<%= auction._id %>">
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2">Your Bid (Min Increase: ₹100)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-gray-300">₹</span>
+                                            <input type="number" step="100" min="<%= (auction.currentBid || auction.initialPrice) + 100 %>" name="bidAmount" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-10 py-5 text-xl font-black focus:outline-none focus:border-secondary transition" placeholder="<%= (auction.currentBid || auction.initialPrice) + 500 %>">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full btn-primary py-5 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-900/40">
+                                        Confirm Bid <i class="fas fa-bolt ml-2 text-yellow-300"></i>
+                                    </button>
+                                    <p class="text-[10px] text-center text-gray-400 font-bold px-8 leading-relaxed">
+                                        By placing a bid, you agree to pay <span class="text-primary italic">10% Advance (₹<%= ((auction.currentBid || auction.initialPrice) * 0.1).toFixed(0) %>)</span> within 2 hours of winning.
+                                    </p>
+                                </form>
+                            <% } else { %>
+                                <div class="bg-red-50 p-6 rounded-3xl border border-red-100 text-center">
+                                    <p class="text-red-600 font-black text-xs uppercase mb-4">Registration Required</p>
+                                    <p class="text-gray-500 text-xs mb-6">Complete your ₹999 retailer verification to start bidding on live lots.</p>
+                                    <a href="/dashboard" class="inline-block btn-primary px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest">Complete Registration</a>
+                                </div>
+                            <% } %>
+                        <% } else { %>
+                            <a href="/login" class="block w-full border-2 border-secondary text-secondary py-5 rounded-2xl text-sm font-black text-center uppercase tracking-widest hover:bg-secondary hover:text-white transition">
+                                Login to Participate
+                            </a>
+                        <% } %>
+
+                    </div>
+
+                    <!-- Policy Box -->
+                    <div class="bg-[var(--hero-gradient)] rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-secondary/50">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                        <h4 class="text-lg font-black mb-4 font-heading tracking-tight">Delivery & Payments</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start space-x-3 text-xs opacity-70">
+                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
+                                <span>10% advance payment confirmed within 2 hours of winning.</span>
+                            </li>
+                            <li class="flex items-start space-x-3 text-xs opacity-70">
+                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
+                                <span>Free shipping for 100% prepaid orders.</span>
+                            </li>
+                            <li class="flex items-start space-x-3 text-xs opacity-70">
+                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
+                                <span>Balance payment via RTGS/NEFT/IMPS/COD.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

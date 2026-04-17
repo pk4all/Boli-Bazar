@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | BoliBazar</title>
+    
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d90429',
+                        secondary: '#001f3f',
+                        'secondary-dark': '#001021',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #001f3f 0%, #001021 100%);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .login-container {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+    <div class="flex flex-col lg:flex-row login-container">
+        
+        <!-- Left Side: Branding & Info (Same as Login) -->
+        <div class="lg:w-3/5 hero-gradient text-white p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full -mr-64 -mt-64"></div>
+            
+            <div class="z-10">
+                <div class="flex items-center space-x-3 mb-16">
+                    <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <i class="fas fa-gavel text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">BoliBazar</h1>
+                        <p class="text-[10px] font-bold text-primary tracking-widest uppercase">Wholesale Live Auction</p>
+                    </div>
+                </div>
+
+                <h2 class="text-5xl lg:text-7xl font-black mb-8 leading-[1.1] font-heading tracking-tight">
+                    Join India's <br>
+                    <span class="text-primary italic">#1 Retail Network.</span>
+                </h2>
+                <!-- Feature Grid: Trust-focused Redesign -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-industry text-primary"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Factory Direct</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Zero Middlemen. Buy straight from the manufacturing floor to maximize your retail margins.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-check-double text-green-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Verified Quality</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Every lot is physically inspected and certified by our quality experts before it goes live.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-shield-heart text-blue-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Safe Booking</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Secure high-demand stock with just a 10% token. Your money stays in escrow until confirmation.
+                        </p>
+                    </div>
+                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
+                        <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
+                            <i class="fas fa-truck-fast text-yellow-500"></i>
+                        </div>
+                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Priority Shipping</h4>
+                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                            Our dedicated logistics network ensures your factory-direct goods reach your shop within 48 hours.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Trust Badge -->
+                <div class="flex items-center space-x-6 mb-12 border-t border-white/10 pt-8">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
+                            <i class="fas fa-certificate text-yellow-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-tighter">ISO Certified</p>
+                            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-1">Quality Guaranteed</p>
+                        </div>
+                    </div>
+                    <div class="h-8 w-px bg-white/10"></div>
+                    <div class="flex flex-col">
+                        <div class="flex -space-x-2 mb-1">
+                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-600"></div>
+                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-500"></div>
+                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-400"></div>
+                        </div>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">12,000+ Active Retailers</p>
+                    </div>
+                </div>
+
+            <div class="z-10 bg-white/5 border border-white/10 p-6 rounded-3xl">
+                <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                    By registering, you agree to our Retailer Policy and the mandatory ₹999 lifetime registration fee for business verification.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side: Registration Form -->
+        <div class="lg:w-2/5 bg-white p-8 lg:p-16 flex flex-col justify-center items-center">
+            <div class="w-full max-w-sm">
+                
+                <div class="bg-gray-100 p-1 rounded-2xl flex mb-12">
+                    <a href="/login" class="flex-1 py-3 text-sm font-bold rounded-xl text-gray-400 hover:text-secondary transition text-center">Login</a>
+                    <button class="flex-1 py-3 text-sm font-bold rounded-xl bg-white shadow-sm text-primary">Register</button>
+                </div>
+
+                <div class="mb-10">
+                    <h3 class="text-4xl font-black mb-2 font-heading tracking-tight">Get Started</h3>
+                    <p class="text-gray-400 text-sm font-medium">Create your business account today.</p>
+                </div>
+
+                <% if (error) { %>
+                    <div class="bg-red-50 text-red-600 text-xs font-bold p-4 rounded-xl mb-6">
+                        <%= error %>
+                    </div>
+                <% } %>
+
+                <form action="/register" method="POST" class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Full Name</label>
+                        <input type="text" name="username" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Email Address</label>
+                        <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="john@store.com">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Phone Number</label>
+                        <input type="tel" name="phone" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="+91 98765 43210">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Create Password</label>
+                        <input type="password" name="password" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-100 mt-4">
+                        Register Account
+                    </button>
+                </form>
+
+                <p class="mt-8 text-center text-xs font-bold text-gray-400 leading-relaxed">
+                    Already have an account? <a href="/login" class="text-primary hover:underline">Sign In</a>
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Panel | BoliBazar</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 bg-secondary text-white flex-shrink-0 flex flex-col">
+            <div class="p-6 border-b border-white/10">
+                <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
+                <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Admin Panel</p>
+            </div>
+            <nav class="flex-grow p-4 space-y-2">
+                <a href="/admin" class="flex items-center space-x-3 p-3 bg-primary rounded-xl text-sm font-bold">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#products" class="flex items-center space-x-3 p-3 hover:bg-white/5 rounded-xl text-sm font-bold text-gray-400">
+                    <i class="fas fa-boxes w-5"></i>
+                    <span>Manage Auctions</span>
+                </a>
+                <a href="#users" class="flex items-center space-x-3 p-3 hover:bg-white/5 rounded-xl text-sm font-bold text-gray-400">
+                    <i class="fas fa-users w-5"></i>
+                    <span>Retailers</span>
+                </a>
+            </nav>
+            <div class="p-6 border-t border-white/10">
+                <a href="/logout" class="text-xs font-bold text-red-500 uppercase flex items-center space-x-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout Admin</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-grow overflow-y-auto p-8">
+            
+            <!-- Welcome -->
+            <div class="flex justify-between items-center mb-10">
+                <h1 class="text-3xl font-black font-heading">System <span class="text-red-600">Overview</span></h1>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <p class="text-xs font-bold text-gray-400 uppercase">Server Status</p>
+                        <p class="text-sm font-black text-green-600">Operational</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Active Lots</p>
+                    <p class="text-3xl font-black"><%= auctions.length %></p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Retailers</p>
+                    <p class="text-3xl font-black"><%= users.length %></p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Bids Today</p>
+                    <p class="text-3xl font-black text-primary">42</p>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Revenue Forecast</p>
+                    <p class="text-3xl font-black text-green-600">₹8.4L</p>
+                </div>
+            </div>
+
+            <!-- Management Sections -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                
+                <!-- Add New Product -->
+                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
+                    <h2 class="text-2xl font-black mb-6 font-heading">Launch New <span class="text-primary">Auction</span></h2>
+                    <form action="/admin/add-product" method="POST" class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Product Title</label>
+                            <input type="text" name="title" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Basmati Rice Premium 50kg">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Initial Price (₹)</label>
+                                <input type="number" name="initialPrice" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Lot Size / Units</label>
+                                <input type="number" name="lotSize" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Category</label>
+                            <select name="category" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                <option>Grocery</option>
+                                <option>Beverages</option>
+                                <option>Personal Care</option>
+                                <option>Snacks</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Image URL</label>
+                            <input type="text" name="imageUrl" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="/lot1.png">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Description</label>
+                            <textarea name="description" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"></textarea>
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-xs uppercase tracking-widest font-black shadow-lg shadow-red-100">
+                            Launch Lot Live <i class="fas fa-rocket ml-2"></i>
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Product List -->
+                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
+                    <h2 class="text-2xl font-black mb-6">Active <span class="text-gray-400">Inventory</span></h2>
+                    <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        <% auctions.forEach(auction => { %>
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-200">
+                                        <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-secondary"><%= auction.title %></p>
+                                        <p class="text-[10px] text-gray-400 uppercase">Base: ₹<%= auction.initialPrice %> | Live: <span class="text-red-600">₹<%= auction.currentBid || auction.initialPrice %></span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <form action="/admin/delete-product/<%= auction._id %>" method="POST">
+                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

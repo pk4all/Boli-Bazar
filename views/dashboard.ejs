@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retailer Dashboard | BoliBazar</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Simple Nav -->
+    <nav class="bg-secondary border-b border-white/10 py-4 px-6 sticky top-0 z-50 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
+            <div class="flex items-center space-x-6">
+                <a href="/" class="text-sm font-bold opacity-70 hover:opacity-100 transition">Back to Auctions</a>
+                <a href="/logout" class="text-xs font-bold text-primary uppercase">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- Sidebar / Stats -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Profile Card -->
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
+                    <div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-primary/20">
+                        <%= user.username.charAt(0).toUpperCase() %>
+                    </div>
+                    <h2 class="text-xl font-black font-heading"><%= user.username %></h2>
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">Verified Retailer</p>
+                    <div class="flex justify-center items-center space-x-2">
+                        <span class="status-dot"></span>
+                        <span class="text-xs font-bold text-green-600">Active Account</span>
+                    </div>
+                </div>
+
+                <!-- Wallet Card -->
+                <div class="bg-[var(--hero-gradient)] rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12"></div>
+                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">My Balance</p>
+                    <h3 class="text-3xl font-black mb-4">₹<%= user.walletBalance || 0 %></h3>
+                    <button class="w-full btn-primary py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-red-900/40">
+                        Top Up Wallet
+                    </button>
+                </div>
+
+                <!-- Registration Status -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-black text-gray-400 uppercase">Lifetime Reg.</span>
+                        <% if (user.isRegistered) { %>
+                            <span class="text-[10px] font-black text-green-600 uppercase">Paid</span>
+                        <% } else { %>
+                            <span class="text-[10px] font-black text-red-600 uppercase">Pending</span>
+                        <% } %>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-100 rounded-full">
+                        <div class="h-full bg-green-500 rounded-full" style="width: <%= user.isRegistered ? '100%' : '0%' %>"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3 space-y-12">
+                
+                <!-- Active Bids -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-black font-heading">Active <span class="text-primary italic">Bids</span></h3>
+                        <span class="bg-gray-200 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"><%= user.bids.length %> Items</span>
+                    </div>
+
+                    <% if (user.bids.length > 0) { %>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <% user.bids.forEach(bid => { %>
+                                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center space-x-6 hover:border-primary transition group">
+                                    <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                                        <img src="<%= bid.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h4 class="font-bold text-gray-900"><%= bid.title %></h4>
+                                        <p class="text-xs text-gray-400 mb-2">Current Bid: <span class="text-primary font-black">₹<%= bid.currentBid || bid.initialPrice %></span></p>
+                                        <div class="flex space-x-2">
+                                            <a href="/product/<%= bid._id %>" class="text-[10px] font-black uppercase text-secondary hover:text-primary transition tracking-widest">View Auction →</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-gray-100">
+                            <i class="fas fa-gavel text-3xl text-gray-200 mb-4"></i>
+                            <p class="text-gray-400 text-sm font-bold">You haven't placed any bids yet.</p>
+                            <a href="/" class="text-primary text-xs font-black uppercase mt-4 block hover:underline">Explore Auctions</a>
+                        </div>
+                    <% } %>
+                </section>
+
+                <!-- Won Auctions -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-black font-heading">Won <span class="text-green-600 italic">Lots</span></h3>
+                        <span class="bg-gray-200 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase"><%= user.wonAuctions.length %> Items</span>
+                    </div>
+
+                    <% if (user.wonAuctions.length > 0) { %>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <% user.wonAuctions.forEach(lot => { %>
+                                <div class="bg-white rounded-2xl p-6 shadow-sm border border-green-100 border-l-4 border-l-green-500">
+                                    <h4 class="font-bold text-gray-900"><%= lot.title %></h4>
+                                    <p class="text-xs text-gray-400 mb-4">Purchased for: <span class="text-green-600 font-black">₹<%= lot.currentBid %></span></p>
+                                    <button class="w-full bg-gray-50 text-gray-500 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                        View Invoice
+                                    </button>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-gray-100">
+                            <i class="fas fa-trophy text-3xl text-gray-200 mb-4"></i>
+                            <p class="text-gray-400 text-sm font-bold">Winning lots will appear here.</p>
+                        </div>
+                    <% } %>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>
