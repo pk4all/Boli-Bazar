@@ -147,6 +147,60 @@
 
             </div>
 
+            <!-- Banner Management Section -->
+            <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
+                
+                <!-- Upload New Banner -->
+                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
+                    <h2 class="text-2xl font-black mb-6 font-heading">Upload Hero <span class="text-primary">Banner</span></h2>
+                    <form action="/admin/banners/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Banner Title (Optional)</label>
+                            <input type="text" name="title" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Summer Sale 2026">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Select Banner Image (1200x400)</label>
+                            <input type="file" name="bannerImage" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                        </div>
+                        <button type="submit" class="w-full bg-secondary text-white py-4 rounded-2xl text-xs uppercase tracking-widest font-black shadow-lg shadow-blue-100 hover:bg-black transition">
+                            Upload Banner <i class="fas fa-upload ml-2 text-primary"></i>
+                        </button>
+                    </form>
+                </section>
+
+                <!-- Current Banners List -->
+                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
+                    <h2 class="text-2xl font-black mb-6">Live <span class="text-gray-400">Banners</span></h2>
+                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                        <% if (typeof banners !== 'undefined' && banners.length > 0) { %>
+                            <% banners.forEach(banner => { %>
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-24 h-12 rounded-lg overflow-hidden bg-gray-200 border border-gray-200">
+                                            <img src="<%= banner.imageUrl %>" class="w-full h-full object-cover">
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-secondary"><%= banner.title || 'Untitled Banner' %></p>
+                                        </div>
+                                    </div>
+                                    <form action="/admin/banners/delete/<%= banner._id %>" method="POST">
+                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition group">
+                                            <i class="fas fa-trash-alt text-xs group-hover:scale-110"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-10">
+                                <i class="fas fa-images text-4xl text-gray-200 mb-3 block"></i>
+                                <p class="text-xs font-black text-gray-300 uppercase tracking-widest">No Banners</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+
+            </div>
+
         </main>
     </div>
 
