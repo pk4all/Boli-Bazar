@@ -62,14 +62,31 @@ app.get('/register', (req, res) => res.render('register', { error: null }));
 
 // Register Logic
 app.post('/register', async (req, res) => {
-    const { username, email, phone, password } = req.body;
+    const { username, email, phone, password, shopName, address, city, state, pincode } = req.body;
     try {
-        const newUser = new User({ username, email, phone, password });
+        const newUser = new User({ 
+            username, 
+            email, 
+            phone, 
+            password, 
+            shopName, 
+            address, 
+            city, 
+            state, 
+            pincode 
+        });
         await newUser.save();
-        req.session.user = { id: newUser._id, username: newUser.username, isRegistered: newUser.isRegistered, role: newUser.role };
+        req.session.user = { 
+            id: newUser._id, 
+            username: newUser.username, 
+            isRegistered: true, 
+            role: newUser.role,
+            shopName: newUser.shopName
+        };
         res.redirect('/');
     } catch (err) {
-        res.render('register', { error: 'Registration failed. Username or email might be taken.' });
+        console.error('Registration Error:', err);
+        res.render('register', { error: 'Registration failed. Email might already be registered.' });
     }
 });
 
@@ -124,19 +141,6 @@ app.get('/product/:id', async (req, res) => {
     }
 });
 
-// Simulate Payment
-app.post('/simulate-payment', async (req, res) => {
-    if (!req.session.user) return res.redirect('/login');
-    try {
-        const user = await User.findById(req.session.user.id);
-        user.isRegistered = true;
-        await user.save();
-        req.session.user.isRegistered = true;
-        res.redirect('/');
-    } catch (err) {
-        res.status(500).send('Payment Error');
-    }
-});
 
 // Admin: Add Product
 app.post('/admin/add-product', isAdmin, async (req, res) => {

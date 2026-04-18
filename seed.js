@@ -59,7 +59,7 @@ mongoose.connect(MONGO_URI)
     .then(async () => {
         console.log('Clearing existing data...');
         await Auction.deleteMany({});
-        await User.deleteMany({ role: 'admin' });
+        await User.deleteMany({ email: { $in: ['admin@bolibazar.com', 'retailer@bolibazar.com'] } });
 
         console.log('Seeding products...');
         await Auction.insertMany(seedAuctions);
@@ -70,14 +70,37 @@ mongoose.connect(MONGO_URI)
             email: 'admin@bolibazar.com',
             phone: '9999999999',
             password: 'admin123',
+            shopName: 'BoliBazar Head Office',
+            address: 'Industrial Area, Phase 2',
+            city: 'Lucknow',
+            state: 'Uttar Pradesh',
+            pincode: '226001',
             role: 'admin',
             isRegistered: true
         });
         await admin.save();
+        
+        console.log('Seeding Demo Retailer...');
+        const retailer = new User({
+            username: 'Retailer',
+            email: 'retailer@bolibazar.com',
+            phone: '9876543210',
+            password: 'retailer123',
+            shopName: 'Suraj Kirana Store',
+            address: 'Shop No. 42, Main Market',
+            city: 'Lucknow',
+            state: 'Uttar Pradesh',
+            pincode: '226001',
+            role: 'retailer',
+            isRegistered: true
+        });
+        await retailer.save();
 
         console.log('Database Seeded Successfully!');
         console.log('Admin Email: admin@bolibazar.com');
         console.log('Admin Password: admin123');
+        console.log('Retailer Email: retailer@bolibazar.com');
+        console.log('Retailer Password: retailer123');
         process.exit();
     })
     .catch(err => {

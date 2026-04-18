@@ -2,14 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true }, // Changed unique: true to false to allow shop-driven naming, or use email as primary unique
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     password: { type: String, required: true },
+    shopName: { type: String, required: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    pincode: { type: String, required: true },
     role: { type: String, enum: ['retailer', 'admin'], default: 'retailer' },
-    isRegistered: { type: Boolean, default: false }, // ₹999 registration status
+    isRegistered: { type: Boolean, default: true }, // Registration is now free by default
     walletBalance: { type: Number, default: 0 },
-    tokens: { type: Number, default: 0 },
     bids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Auction' }],
     wonAuctions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Auction' }]
 }, { timestamps: true });

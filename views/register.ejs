@@ -39,10 +39,10 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <div class="flex flex-col lg:flex-row login-container">
+    <div class="flex flex-col md:flex-row h-screen overflow-hidden">
         
-        <!-- Left Side: Branding & Info (Same as Login) -->
-        <div class="lg:w-3/5 hero-gradient text-white p-8 lg:p-16 flex flex-col justify-between relative overflow-hidden">
+        <!-- Left Side: Branding & Info -->
+        <div class="md:w-1/2 lg:w-3/5 hero-gradient text-white p-8 lg:p-16 flex flex-col justify-between relative overflow-y-auto">
             <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full -mr-64 -mt-64"></div>
             
             <div class="z-10">
@@ -52,85 +52,69 @@
                     </div>
                     <div>
                         <h1 class="text-2xl font-black tracking-tighter uppercase leading-none">BoliBazar</h1>
-                        <p class="text-[10px] font-bold text-primary tracking-widest uppercase">Wholesale Live Auction</p>
+                        <p class="text-[10px] font-bold text-primary tracking-widest uppercase text-right">Factory to Retailer Platform</p>
                     </div>
                 </div>
 
-                <h2 class="text-5xl lg:text-7xl font-black mb-8 leading-[1.1] font-heading tracking-tight">
-                    Join India's <br>
-                    <span class="text-primary italic">#1 Retail Network.</span>
-                </h2>
-                <!-- Feature Grid: Trust-focused Redesign -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
-                        <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-industry text-primary"></i>
+                    <h2 class="text-4xl lg:text-6xl font-black mb-6 font-heading leading-tight underline decoration-primary decoration-4 underline-offset-8 text-white">
+                        Join the <br><span class="text-primary italic">Retail Revolution.</span>
+                    </h2>
+                    <p class="text-lg text-blue-100 max-w-md mb-8 font-medium">
+                        BoliBazar connects you directly to the source. No agents, no heavy commissions—just pure profit for your shop.
+                    </p>
+
+                    <!-- Trust Points -->
+                    <div class="space-y-6 mb-12">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-md border border-white/20">
+                                <i class="fas fa-industry text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Direct from Factory</h4>
+                                <p class="text-sm text-blue-200">Bypass 3-4 layers of wholesalers. Buy inventory at the price they buy.</p>
+                            </div>
                         </div>
-                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Factory Direct</h4>
-                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                            Zero Middlemen. Buy straight from the manufacturing floor to maximize your retail margins.
-                        </p>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-md border border-white/20">
+                                <i class="fas fa-shield-alt text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Verified Bidding</h4>
+                                <p class="text-sm text-blue-200">Only genuine manufacturers list their stock. Secured with 10% token protection.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center flex-shrink-0 backdrop-blur-md border border-white/20">
+                                <i class="fas fa-truck-loading text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Doorstep Delivery</h4>
+                                <p class="text-sm text-blue-200">Across 150+ cities in India. We handle the logistics while you run your business.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
-                        <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-check-double text-green-500"></i>
+
+                    <!-- Trust Stats -->
+                    <div class="flex items-center space-x-6 mb-12 border-t border-white/10 pt-8">
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full border border-secondary bg-gray-600 transition hover:z-10 hover:scale-110"></div>
+                            <div class="w-8 h-8 rounded-full border border-secondary bg-gray-500 transition hover:z-10 hover:scale-110"></div>
+                            <div class="w-8 h-8 rounded-full border border-secondary bg-gray-400 transition hover:z-10 hover:scale-110"></div>
                         </div>
-                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Verified Quality</h4>
-                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                            Every lot is physically inspected and certified by our quality experts before it goes live.
-                        </p>
-                    </div>
-                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
-                        <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-shield-heart text-blue-500"></i>
-                        </div>
-                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Safe Booking</h4>
-                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                            Secure high-demand stock with just a 10% token. Your money stays in escrow until confirmation.
-                        </p>
-                    </div>
-                    <div class="feature-card group hover:bg-white/10 transition-all duration-300">
-                        <div class="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition">
-                            <i class="fas fa-truck-fast text-yellow-500"></i>
-                        </div>
-                        <h4 class="font-black text-xs uppercase tracking-wider mb-2">Priority Shipping</h4>
-                        <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                            Our dedicated logistics network ensures your factory-direct goods reach your shop within 48 hours.
-                        </p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">12,000+ Active Retailers</p>
                     </div>
                 </div>
 
-                <!-- Trust Badge -->
-                <div class="flex items-center space-x-6 mb-12 border-t border-white/10 pt-8">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center border border-white/10">
-                            <i class="fas fa-certificate text-yellow-400 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black uppercase tracking-tighter">ISO Certified</p>
-                            <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-1">Quality Guaranteed</p>
-                        </div>
-                    </div>
-                    <div class="h-8 w-px bg-white/10"></div>
-                    <div class="flex flex-col">
-                        <div class="flex -space-x-2 mb-1">
-                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-600"></div>
-                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-500"></div>
-                            <div class="w-6 h-6 rounded-full border border-secondary bg-gray-400"></div>
-                        </div>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">12,000+ Active Retailers</p>
-                    </div>
+                <!-- Policy Alert -->
+                <div class="bg-white/5 border border-white/10 p-6 rounded-3xl mt-auto">
+                    <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
+                    By registering, you agree to our Retailer Policy and mandatory business verification to maintain platform integrity.
+                    </p>
                 </div>
-
-            <div class="z-10 bg-white/5 border border-white/10 p-6 rounded-3xl">
-                <p class="text-[10px] text-gray-400 font-medium leading-relaxed">
-                    By registering, you agree to our Retailer Policy and the mandatory ₹999 lifetime registration fee for business verification.
-                </p>
             </div>
-        </div>
 
         <!-- Right Side: Registration Form -->
-        <div class="lg:w-2/5 bg-white p-8 lg:p-16 flex flex-col justify-center items-center">
+        <div class="md:w-1/2 lg:w-2/5 bg-white p-8 lg:p-16 flex flex-col justify-start items-center overflow-y-auto">
             <div class="w-full max-w-sm">
                 
                 <div class="bg-gray-100 p-1 rounded-2xl flex mb-12">
@@ -150,25 +134,47 @@
                 <% } %>
 
                 <form action="/register" method="POST" class="space-y-4">
-                    <div>
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Full Name</label>
-                        <input type="text" name="username" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="John Doe">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Email Address</label>
-                        <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="john@store.com">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Phone Number</label>
-                        <input type="tel" name="phone" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="+91 98765 43210">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Create Password</label>
-                        <input type="password" name="password" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="••••••••">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Full Name (Owner)</label>
+                            <input type="text" name="username" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="John Doe">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Shop Name</label>
+                            <input type="text" name="shopName" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="e.g. Suraj Kirana Store">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Email Address</label>
+                            <input type="email" name="email" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="john@store.com">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Mobile Number</label>
+                            <input type="tel" name="phone" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="+91 98765 43210">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Shop Address</label>
+                            <input type="text" name="address" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="House No, Street, Area">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">City</label>
+                            <input type="text" name="city" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="e.g. Lucknow">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">State</label>
+                            <input type="text" name="state" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="e.g. Uttar Pradesh">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Pin Code</label>
+                            <input type="text" name="pincode" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="226001">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2 tracking-widest">Password</label>
+                            <input type="password" name="password" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="••••••••">
+                        </div>
                     </div>
 
-                    <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-100 mt-4">
-                        Register Account
+                    <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-100 mt-6">
+                        Register My Shop <i class="fas fa-store ml-2"></i>
                     </button>
                 </form>
 

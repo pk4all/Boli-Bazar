@@ -218,15 +218,9 @@
 
                             <!-- Action Button -->
                             <% if (user) { %>
-                                <% if (user.isRegistered) { %>
-                                    <a href="/product/<%= auction._id %>" class="block w-full btn-primary text-center py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-red-100">
-                                        Place Your Bid <i class="fas fa-bolt ml-2"></i>
-                                    </a>
-                                <% } else { %>
-                                    <button onclick="showRegModal()" class="w-full bg-gray-100 text-gray-400 py-4 rounded-xl text-xs uppercase tracking-widest font-black cursor-not-allowed">
-                                        Registration Required
-                                    </button>
-                                <% } %>
+                                <a href="/product/<%= auction._id %>" class="block w-full btn-primary text-center py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-red-100">
+                                    Place Your Bid <i class="fas fa-bolt ml-2"></i>
+                                </a>
                             <% } else { %>
                                 <a href="/login" class="block w-full border-2 border-primary text-primary hover:bg-primary hover:text-white transition py-3.5 rounded-xl text-xs font-black text-center uppercase tracking-widest">
                                     Login to Participate
@@ -277,41 +271,13 @@
         </div>
     </div>
 
-    <!-- Registration Modal (Mock) -->
-    <% if (user && !user.isRegistered) { %>
-        <div id="regModal" class="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-secondary/80 backdrop-blur-sm">
-            <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-orange-500"></div>
-                <h3 class="text-2xl font-black mb-4">Final Step! 🚀</h3>
-                <p class="text-gray-500 text-sm mb-8 leading-relaxed">
-                    Welcome to the BidBazar family, <span class="font-bold text-secondary"><%= user.username %></span>. 
-                    Retailers must pay a one-time <span class="font-black italic text-primary">₹999</span> registration fee to verify their business and start bidding.
-                </p>
-                <div class="bg-gray-50 rounded-2xl p-4 mb-8">
-                    <div class="flex justify-between text-xs font-bold uppercase text-gray-400 mb-2">
-                        <span>Lifetime Access</span>
-                        <span>₹999</span>
-                    </div>
-                    <div class="flex justify-between text-sm font-black text-secondary">
-                        <span>Total Payable</span>
-                        <span class="text-primary">₹999.00</span>
-                    </div>
-                </div>
-                <form action="/simulate-payment" method="POST">
-                    <button type="submit" class="w-full btn-primary py-4 rounded-xl uppercase tracking-[0.2em] font-black text-sm">
-                        Pay ₹999 Now
-                    </button>
-                </form>
-            </div>
-        </div>
-    <% } %>
 
     <!-- Footer -->
     <footer class="bg-secondary py-12 px-4 text-white">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center opacity-60">
             <div class="flex items-center space-x-2 mb-6 md:mb-0">
                 <span class="text-xl font-black tracking-tighter uppercase font-heading">
-                    Bid<span class="text-primary">Bazar</span>
+                    Boli<span class="text-primary">Bazar</span>
                 </span>
             </div>
             <div class="flex space-x-8 text-xs font-bold uppercase tracking-widest">

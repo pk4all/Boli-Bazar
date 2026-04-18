@@ -49,20 +49,6 @@
                     </button>
                 </div>
 
-                <!-- Registration Status -->
-                <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-black text-gray-400 uppercase">Lifetime Reg.</span>
-                        <% if (user.isRegistered) { %>
-                            <span class="text-[10px] font-black text-green-600 uppercase">Paid</span>
-                        <% } else { %>
-                            <span class="text-[10px] font-black text-red-600 uppercase">Pending</span>
-                        <% } %>
-                    </div>
-                    <div class="w-full h-1.5 bg-gray-100 rounded-full">
-                        <div class="h-full bg-green-500 rounded-full" style="width: <%= user.isRegistered ? '100%' : '0%' %>"></div>
-                    </div>
-                </div>
             </div>
 
             <!-- Main Content Area -->
