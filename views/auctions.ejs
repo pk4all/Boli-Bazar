@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Auctions | BoliBazar | Factory to Retailer</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d90429',
+                        'primary-dark': '#ef233c',
+                        secondary: '#001f3f',
+                        'bg-light': '#f8f9fa',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bg-light text-secondary">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-primary text-white py-2 px-4 text-center text-[10px] font-black tracking-widest uppercase">
+        <span class="bg-white text-primary px-2 py-0.5 rounded mr-2">LIVE ALERT</span> Fresh FMCG Lots from Mumbai Port arriving today at 4:00 PM!
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="/" class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                    <i class="fas fa-gavel text-xl"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tighter uppercase font-heading">
+                    Boli<span class="text-primary">Bazar</span>
+                </span>
+            </a>
+
+            <!-- Navigation -->
+            <nav class="hidden lg:flex items-center space-x-8 text-sm font-bold uppercase tracking-wider">
+                <a href="/auctions" class="text-primary border-b-2 border-primary pb-1">Live Auctions</a>
+                <a href="/" class="hover:text-primary transition">Leaderboard</a>
+                <a href="#" class="hover:text-primary transition">How it Works</a>
+                <% if (user) { %>
+                    <a href="/dashboard" class="hover:text-primary transition">My Bids</a>
+                <% } %>
+            </nav>
+
+            <!-- User Utilities -->
+            <div class="flex items-center space-x-4">
+                <% if (user) { %>
+                    <div class="hidden md:flex flex-col text-right">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase">Wallet Balance</span>
+                        <span class="text-sm font-black text-secondary">₹<%= user.walletBalance || 0 %></span>
+                    </div>
+                    <a href="/dashboard" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">
+                        <i class="fas fa-user-circle text-gray-600 text-xl"></i>
+                    </a>
+                    <a href="/logout" class="text-xs font-bold text-primary px-2 hover:underline">Logout</a>
+                <% } else { %>
+                    <a href="/login" class="text-sm font-bold hover:text-primary transition px-4">Login</a>
+                    <a href="/register" class="btn-primary px-8 py-3 rounded-full text-sm uppercase tracking-wider shadow-lg shadow-red-200">Join Now</a>
+                <% } %>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navy Blue Hero Section -->
+    <section class="bg-[var(--hero-gradient)] pt-32 pb-24 px-6 relative overflow-hidden text-white">
+        <div class="container mx-auto relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="inline-block px-4 py-1.5 bg-primary/20 border border-primary/30 rounded-full mb-8">
+                        <span class="text-primary font-black text-xs tracking-widest uppercase">Manufacturer to Retailer (M2R)</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-7xl font-black leading-[1.1] mb-8 font-heading">
+                        Active Factory <br>
+                        <span class="text-primary italic">Live Bidding.</span>
+                    </h1>
+                    <p class="text-lg text-gray-300 max-w-xl leading-relaxed mb-12">
+                        Bypass intermediaries and source high-quality FMCG lots directly from manufacturers. Your verified retailer account gives you full access to live bidding.
+                    </p>
+                </div>
+                <div class="hidden lg:block relative">
+                    <img src="/hero.png" alt="Warehouse Excellence" class="rounded-[40px] shadow-2xl border-4 border-white/10 scale-110 translate-x-12">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-16 pb-24">
+        
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-gray-200 pb-6">
+            <div>
+                <div class="flex items-center space-x-2 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-2">
+                    <span class="status-dot"></span> Real-time Live Auctions
+                </div>
+                <h2 class="text-4xl font-black font-heading">Available <span class="text-primary italic">Lots</span></h2>
+            </div>
+            <div class="mt-6 md:mt-0 flex items-center space-x-4">
+                <span class="text-sm font-bold text-gray-500">Filter By:</span>
+                <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold hover:border-primary">Grocery</button>
+                <button class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold hover:border-primary">Beverages</button>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <% if (auctions && auctions.length > 0) { %>
+                <% auctions.forEach(auction => { %>
+                    <div class="bid-card overflow-hidden group">
+                        <!-- Card Image -->
+                        <div class="relative h-64 overflow-hidden">
+                            <img src="<%= auction.imageUrl || '/lot1.png' %>" alt="Lot" class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            
+                            <!-- Status Badges -->
+                            <div class="absolute top-4 left-4 badge-live px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase shadow-lg">
+                                Live Now
+                            </div>
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-secondary border border-gray-100">
+                                <i class="far fa-clock mr-1 text-primary"></i> 02h : 15m
+                            </div>
+                            
+                            <!-- Category Badge -->
+                            <div class="absolute bottom-4 left-4 bg-secondary/80 text-white px-3 py-1 rounded-lg text-[10px] font-bold uppercase backdrop-blur-sm">
+                                <%= auction.category || 'General' %>
+                            </div>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-xl font-bold leading-tight group-hover:text-primary transition"><%= auction.title %></h3>
+                                <span class="text-[10px] font-black text-gray-400 uppercase bg-gray-50 px-2 py-1 rounded">MOQ: <%= auction.moq || 1 %> Lot</span>
+                            </div>
+                            <p class="text-gray-500 text-xs mb-6 line-clamp-2"><%= auction.description %></p>
+
+                            <!-- Price Progress -->
+                            <div class="mb-6">
+                                <div class="flex justify-between items-end mb-2">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase">Current Bid</p>
+                                        <p class="text-2xl font-black">₹<%= auction.currentBid || auction.initialPrice %></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[10px] font-bold text-green-500 uppercase flex items-center justify-end">
+                                            <i class="fas fa-arrow-up mr-1"></i> +<%= (( (auction.currentBid || auction.initialPrice) - auction.initialPrice ) / auction.initialPrice * 100).toFixed(1) %>%
+                                        </p>
+                                        <p class="text-[10px] text-gray-400">Started at ₹<%= auction.initialPrice %></p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stock Progress Bar -->
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden mb-1">
+                                    <div class="h-full bg-primary" style="width: 65%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] font-bold text-gray-400 uppercase">
+                                    <span><%= auction.totalBuyers || 24 %> Buyers Joined</span>
+                                    <span class="text-primary italic">Only 43 Units Left!</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <a href="/product/<%= auction._id %>" class="block w-full btn-primary text-center py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg shadow-red-100">
+                                Place Your Bid <i class="fas fa-bolt ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="col-span-full py-20 text-center bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 font-bold">No active auctions at the moment. Check back soon!</p>
+                </div>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Bottom Policy Bar -->
+    <div class="bg-white border-t border-gray-100 py-8 px-4">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-primary text-xl">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-xs uppercase">10% Advance Mandatory</h4>
+                    <p class="text-xs text-gray-500">Secure your bid with a 10% confirmation fee.</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 text-xl">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-xs uppercase">Free Delivery</h4>
+                    <p class="text-xs text-gray-500">100% full payment = Free delivery across India.</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 text-xl">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div>
+                    <h4 class="font-black text-xs uppercase">COD Available</h4>
+                    <p class="text-xs text-gray-500">Cash on delivery available with 10% extra fee.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-secondary py-12 px-4 text-white">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center opacity-60">
+            <div class="flex items-center space-x-2 mb-6 md:mb-0">
+                <span class="text-xl font-black tracking-tighter uppercase font-heading">
+                    Boli<span class="text-primary">Bazar</span>
+                </span>
+            </div>
+            <div class="flex space-x-8 text-xs font-bold uppercase tracking-widest">
+                <a href="#" class="hover:text-primary">Terms</a>
+                <a href="#" class="hover:text-primary">Privacy</a>
+                <a href="#" class="hover:text-primary">Contact</a>
+            </div>
+            <p class="mt-6 md:mt-0 text-[10px] font-bold">© 2026 BOLIBAZAR TECHNOLOGIES PRIVATE LIMITED</p>
+        </div>
+    </footer>
+</body>
+</html>
