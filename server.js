@@ -83,13 +83,15 @@ app.get('/auctions', async (req, res) => {
     try {
         const auctions = await Auction.find({ status: 'Live' }).lean();
         const upcomingAuctions = await Auction.find({ status: 'Upcoming' }).lean();
+        const closedAuctions = await Auction.find({ status: 'Closed' }).sort({ endTime: -1 }).limit(3).lean();
         
-        console.log(`[DEBUG] Rendering auctions with ${auctions.length} live and ${upcomingAuctions.length} upcoming items.`);
+        console.log(`[DEBUG] Rendering auctions with ${auctions.length} live, ${upcomingAuctions.length} upcoming, and ${closedAuctions.length} closed items.`);
         
         return res.render('auctions', { 
             auctions: auctions || [], 
             liveAuctions: auctions || [],
             upcomingAuctions: upcomingAuctions || [],
+            closedAuctions: closedAuctions || [],
             user: req.session.user || null
         });
     } catch (err) {

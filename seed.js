@@ -152,6 +152,66 @@ const seedAuctions = [
         endTime: new Date(Date.now() + 1000 * 60 * 60 * 50),
         status: 'Upcoming',
         totalBuyers: 0
+    },
+    {
+        title: "Sugar Pure S-30 50kg",
+        description: "Standard industrial grade white sugar.",
+        category: "Sugar",
+        initialPrice: 1850,
+        currentBid: 1980,
+        startedAtPrice: 1850,
+        lotSize: 500,
+        stockRemaining: 0,
+        stockSoldPercent: 100,
+        hikePercentage: 7.0,
+        moq: 20,
+        unitType: "bag",
+        tokenAmount: 100,
+        imageUrl: "/lot1.png",
+        startTime: new Date(Date.now() - 1000 * 60 * 60 * 48),
+        endTime: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2h ago
+        status: 'Closed',
+        totalBuyers: 12
+    },
+    {
+        title: "Mustard Oil 1L Pouch",
+        description: "Consumer pack mustard oil (Carton of 12).",
+        category: "Oils",
+        initialPrice: 1250,
+        currentBid: 1420,
+        startedAtPrice: 1250,
+        lotSize: 1000,
+        stockRemaining: 0,
+        stockSoldPercent: 100,
+        hikePercentage: 13.6,
+        moq: 50,
+        unitType: "carton",
+        tokenAmount: 250,
+        imageUrl: "/lot2.png",
+        startTime: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        endTime: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5h ago
+        status: 'Closed',
+        totalBuyers: 28
+    },
+    {
+        title: "Basmati Rice Tibar 25kg",
+        description: "Broken basmati rice for daily use.",
+        category: "Grains",
+        initialPrice: 1400,
+        currentBid: 1450,
+        startedAtPrice: 1400,
+        lotSize: 300,
+        stockRemaining: 0,
+        stockSoldPercent: 100,
+        hikePercentage: 3.5,
+        moq: 10,
+        unitType: "bag",
+        tokenAmount: 150,
+        imageUrl: "/lot1.png",
+        startTime: new Date(Date.now() - 1000 * 60 * 60 * 72),
+        endTime: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12h ago
+        status: 'Closed',
+        totalBuyers: 15
     }
 ];
 

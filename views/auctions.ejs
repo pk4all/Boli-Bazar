@@ -258,6 +258,58 @@
                 </div>
             </div>
         <% } %>
+
+        <!-- Recently Closed Section -->
+        <% if (locals.closedAuctions && locals.closedAuctions.length > 0) { %>
+            <div class="closed-section">
+                <!-- Section Header -->
+                <div class="flex items-start gap-4 mb-10">
+                    <div class="w-10 h-10 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-gray-500 shadow-sm">
+                        <i class="fas fa-gavel text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black font-heading leading-tight">Recently Closed Lots</h2>
+                        <p class="text-[11px] font-bold text-gray-400">Winner lots ki list yahan hai</p>
+                    </div>
+                </div>
+
+                <!-- Closed Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% (locals.closedAuctions || []).forEach(auction => { %>
+                        <div class="closed-lot-card group">
+                            <!-- Image Area with Closed Badge -->
+                            <div class="closed-img-container">
+                                <img src="<%= auction.imageUrl %>" class="closed-img">
+                                <div class="badge-closed">
+                                    <i class="fas fa-check-circle mr-1"></i> Closed
+                                </div>
+                            </div>
+
+                            <!-- Content Area -->
+                            <div class="p-5 bg-white">
+                                <h3 class="text-[15px] font-black leading-tight mb-4 text-secondary opacity-60"><%= auction.title %></h3>
+                                
+                                <div class="flex items-end justify-between mb-4">
+                                    <div>
+                                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-wider mb-1">Sold Price</p>
+                                        <p class="text-lg font-black text-secondary leading-none">₹<%= auction.currentBid.toLocaleString() %></p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[9px] font-bold text-gray-300 uppercase tracking-wider mb-1">Final Gain</p>
+                                        <p class="text-[14px] font-black text-primary leading-none">+<%= auction.hikePercentage %>%</p>
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-gray-50 flex justify-between items-center">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase">Auction Ended</span>
+                                    <span class="text-[10px] font-bold text-secondary"><%= auction.totalBuyers %> Buyers Participated</span>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } %>
     </main>
 
     <!-- Floating Toast (Mock from screenshot) -->
@@ -365,5 +417,82 @@
             });
         });
     </script>
+    <!-- Sticky Trust Scroller (News Ticker Style) -->
+    <div class="trust-scroller-container">
+        <div class="trust-scroller">
+            <!-- First Set -->
+            <div class="trust-item">
+                <i class="fas fa-money-bill-wave"></i>
+                <div class="trust-info">
+                    <h5>10% Advance Mandatory</h5>
+                    <p>Token se booking confirm karein</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-truck-fast"></i>
+                <div class="trust-info">
+                    <h5>100% Full Payment = FREE Delivery</h5>
+                    <p>Poora pay karo, delivery free pao</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-box"></i>
+                <div class="trust-info">
+                    <h5>COD = 10% Extra Delivery</h5>
+                    <p>90% balance + 10% delivery charge</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-shield-alt"></i>
+                <div class="trust-info">
+                    <h5>Quality Checked by BoliBazar</h5>
+                    <p>100% genuine products factory direct</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <div class="trust-info">
+                    <h5>GST Invoice Available</h5>
+                    <p>Business tax credit claim karein</p>
+                </div>
+            </div>
+            <!-- Duplicate for infinite loop -->
+            <div class="trust-item">
+                <i class="fas fa-money-bill-wave"></i>
+                <div class="trust-info">
+                    <h5>10% Advance Mandatory</h5>
+                    <p>Token se booking confirm karein</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-truck-fast"></i>
+                <div class="trust-info">
+                    <h5>100% Full Payment = FREE Delivery</h5>
+                    <p>Poora pay karo, delivery free pao</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-box"></i>
+                <div class="trust-info">
+                    <h5>COD = 10% Extra Delivery</h5>
+                    <p>90% balance + 10% delivery charge</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-shield-alt"></i>
+                <div class="trust-info">
+                    <h5>Quality Checked by BoliBazar</h5>
+                    <p>100% genuine products factory direct</p>
+                </div>
+            </div>
+            <div class="trust-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <div class="trust-info">
+                    <h5>GST Invoice Available</h5>
+                    <p>Business tax credit claim karein</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
