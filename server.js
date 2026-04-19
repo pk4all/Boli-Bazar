@@ -11,7 +11,7 @@ const User = require('./models/User');
 const Banner = require('./models/Banner');
 
 const app = express();
-const PORT = 3005;
+const PORT = process.env.PORT || 3005;
 
 // ENSURE UPLOADS DIRECTORY EXISTS
 const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -63,11 +63,12 @@ app.get('/', async (req, res) => {
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 }).lean();
         const liveProducts = await Auction.find({ status: 'Live' }).sort({ totalBuyers: -1 }).limit(5).lean();
         
-        console.log(`[STABLE-RENDER] Serving ${banners.length} Banners and ${liveProducts.length} Live Products`);
+        console.log(`[STABLE-RENDER] Serving ${banners.length} Banners and ${liveProducts.length} Live Products [TRACER: PRIMARY_DESKTOP]`);
         
         res.render('index', { 
             banners,
             liveProducts,
+            debug: "ALIVE_IN_PRIMARY_DESKTOP",
             user: req.session.user || null,
             v: Date.now() 
         });

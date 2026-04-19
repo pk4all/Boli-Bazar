@@ -13,7 +13,12 @@ const AuctionSchema = new mongoose.Schema({
     imageUrl: { type: String },
     lotSize: { type: Number, required: true },
     moq: { type: Number, default: 1 },
+    unitType: { type: String, default: 'unit' }, // e.g., bag, tin, kg
     stockRemaining: { type: Number },
+    stockSoldPercent: { type: Number, default: 0 },
+    hikePercentage: { type: Number, default: 0 },
+    isFeatured: { type: Boolean, default: false },
+    closingSoon: { type: Boolean, default: false },
     totalBuyers: { type: Number, default: 0 },
     status: { type: String, enum: ['Live', 'Closed', 'Upcoming'], default: 'Live' }
 }, { timestamps: true });
