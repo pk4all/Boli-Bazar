@@ -92,6 +92,66 @@ const seedAuctions = [
         totalBuyers: 4,
         isFeatured: false,
         closingSoon: false
+    },
+    {
+        title: "Desi Ghee Pure 15kg",
+        description: "Freshly churned traditional desi ghee.",
+        category: "Grocery",
+        initialPrice: 8500,
+        currentBid: 8500,
+        startedAtPrice: 8500,
+        lotSize: 60,
+        stockRemaining: 60,
+        stockSoldPercent: 0,
+        hikePercentage: 0,
+        moq: 2,
+        unitType: "tin",
+        tokenAmount: 500,
+        imageUrl: "/lot1.png",
+        startTime: new Date(Date.now() + 1000 * 60 * 60 * 12), // 12h away
+        endTime: new Date(Date.now() + 1000 * 60 * 60 * 36),
+        status: 'Upcoming',
+        totalBuyers: 0
+    },
+    {
+        title: "Besan Gram Flour 25kg",
+        description: "Finely ground pure gram flour.",
+        category: "Grocery",
+        initialPrice: 1650,
+        currentBid: 1650,
+        startedAtPrice: 1650,
+        lotSize: 200,
+        stockRemaining: 200,
+        stockSoldPercent: 0,
+        hikePercentage: 0,
+        moq: 10,
+        unitType: "bag",
+        tokenAmount: 200,
+        imageUrl: "/lot2.png",
+        startTime: new Date(Date.now() + 1000 * 60 * 60 * 18), // 18h away
+        endTime: new Date(Date.now() + 1000 * 60 * 60 * 42),
+        status: 'Upcoming',
+        totalBuyers: 0
+    },
+    {
+        title: "Black Pepper Whole 5kg",
+        description: "Premium bold black pepper berries.",
+        category: "Condiments",
+        initialPrice: 2800,
+        currentBid: 2800,
+        startedAtPrice: 2800,
+        lotSize: 40,
+        stockRemaining: 40,
+        stockSoldPercent: 0,
+        hikePercentage: 0,
+        moq: 1,
+        unitType: "bag",
+        tokenAmount: 150,
+        imageUrl: "/lot1.png",
+        startTime: new Date(Date.now() + 1000 * 60 * 60 * 26), // 26h away
+        endTime: new Date(Date.now() + 1000 * 60 * 60 * 50),
+        status: 'Upcoming',
+        totalBuyers: 0
     }
 ];
 

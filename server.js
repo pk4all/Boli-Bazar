@@ -82,8 +82,18 @@ app.get('/auctions', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const auctions = await Auction.find({ status: 'Live' }).lean();
-        res.render('auctions', { auctions, user: req.session.user });
+        const upcomingAuctions = await Auction.find({ status: 'Upcoming' }).lean();
+        
+        console.log(`[DEBUG] Rendering auctions with ${auctions.length} live and ${upcomingAuctions.length} upcoming items.`);
+        
+        return res.render('auctions', { 
+            auctions: auctions || [], 
+            liveAuctions: auctions || [],
+            upcomingAuctions: upcomingAuctions || [],
+            user: req.session.user || null
+        });
     } catch (err) {
+        console.error('Render Error:', err);
         res.status(500).send('Auctions Error');
     }
 });
