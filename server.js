@@ -100,6 +100,31 @@ app.get('/auctions', async (req, res) => {
     }
 });
 
+// Product Detail Route
+app.get('/auctions/:id', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const auction = await Auction.findById(req.params.id).lean();
+        if (!auction) return res.redirect('/auctions');
+
+        // Mock Bid History & Activity
+        const bidHistory = [
+            { bidder: 'Mehul Retailer', amount: auction.currentBid - 200, time: '2 mins ago', quantity: 20 },
+            { bidder: 'Ramesh Store', amount: auction.currentBid - 500, time: '15 mins ago', quantity: 50 },
+            { bidder: 'Priya Traders', amount: auction.currentBid - 800, time: '1 hour ago', quantity: 15 }
+        ];
+
+        res.render('product-detail', { 
+            auction, 
+            bidHistory,
+            user: req.session.user || null 
+        });
+    } catch (err) {
+        console.error('Detail Error:', err);
+        res.redirect('/auctions');
+    }
+});
+
 // --- ADMIN ROUTES ---
 app.get('/admin', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') {

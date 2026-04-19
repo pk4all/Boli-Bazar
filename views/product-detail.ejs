@@ -3,164 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= auction.title %> | BoliBazar Auction</title>
+    <title><%= auction.title %> | BoliBazar High-Impact Auction</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-white text-secondary">
+    <style>
+        :root {
+            --primary: #d90429;
+            --secondary: #1a1a1a;
+            --accent: #ffb703;
+            --success: #2ec4b6;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Outfit', sans-serif; }
+        
+        /* Premium Background Gradient */
+        .bg-detail-mesh {
+            background-color: #f8fafc;
+            background-image: radial-gradient(at 0% 0%, rgba(217, 4, 41, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 0%, rgba(26, 26, 26, 0.02) 0px, transparent 50%);
+        }
 
-    <!-- Sticky Header -->
-    <header class="sticky top-0 z-50 bg-secondary border-b border-white/10 shadow-lg text-white">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-            <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
-            <div class="flex items-center space-x-6">
-                <a href="/" class="text-xs font-bold opacity-70 hover:opacity-100 uppercase transition">Back to Auctions</a>
+        .sticky-sidebar { position: sticky; top: 100px; }
+
+        /* Countdown Banner Animation */
+        .countdown-banner {
+            background: linear-gradient(90deg, #d90429, #ef233c);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(217, 4, 41, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(217, 4, 41, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(217, 4, 41, 0); }
+        }
+
+        /* Tabs Styling */
+        .tab-btn { position: relative; padding-bottom: 12px; transition: all 0.3s; }
+        .tab-btn.active { color: var(--primary); }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 99px;
+        }
+
+        /* Leaderboard Cards */
+        .leader-card {
+            border: 1px solid #f1f5f9;
+            transition: all 0.2s;
+        }
+        .leader-card:hover { border-color: var(--primary); transform: translateX(5px); }
+
+        /* Custom Quantity Input */
+        .qty-input::-webkit-inner-spin-button, 
+        .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .payment-toggle {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-detail-mesh min-h-screen pb-24">
+
+    <!-- Top Urgent Banner -->
+    <div class="countdown-banner py-3 text-white text-center">
+        <div class="container mx-auto px-4 flex items-center justify-center gap-3">
+            <i class="fas fa-bolt-lightning text-yellow-300 animate-bounce"></i>
+            <span class="text-[11px] font-black uppercase tracking-[0.2em]">Auction Ending Soon: <span class="text-yellow-300">02h 45m 12s Remaining</span> — Hurry Up!</span>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100 h-16 flex items-center shadow-sm">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="/auctions" class="flex items-center gap-2 group">
+                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary group-hover:text-white transition">
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </div>
+                <span class="text-xs font-black uppercase tracking-widest text-secondary">Back to Bidding</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex flex-col text-right">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Watching Now</span>
+                    <span class="text-xs font-black text-secondary">42 Retailers</span>
+                </div>
+                <div class="w-2 h-2 rounded-full bg-red-500 animate-ping"></div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 mt-8">
         
-        <!-- Breadcrumbs -->
-        <nav class="flex space-x-2 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
-            <a href="/" class="hover:text-primary transition">Auctions</a>
-            <span>/</span>
-            <span class="text-secondary"><%= auction.category || 'General' %></span>
-            <span>/</span>
-            <span class="text-secondary opacity-50"><%= auction.title %></span>
-        </nav>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
-            <!-- Left: Image Gallery -->
-            <div class="lg:col-span-7 space-y-6">
-                <div class="bg-gray-100 rounded-[40px] overflow-hidden aspect-video relative group">
-                    <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition duration-500"></div>
-                </div>
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="aspect-square bg-gray-100 rounded-2xl border-2 border-primary overflow-hidden">
-                        <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
-                    </div>
-                </div>
-
-                <!-- Product Details -->
-                <div class="pt-8">
-                    <h2 class="text-2xl font-black mb-4">Description</h2>
-                    <p class="text-gray-500 leading-relaxed mb-8">
-                        <%= auction.description || 'Premium factory-direct lot. No middleman — sourced directly from the manufacturer for maximum retail margins. Inspected and verified by BoliBazar quality team.' %>
-                    </p>
-
-                    <h2 class="text-2xl font-black mb-4">Lot Specifications</h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-2xl flex items-center space-x-4">
-                            <i class="fas fa-boxes text-primary"></i>
-                            <div>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">Total Quantity</p>
-                                <p class="text-sm font-bold"><%= auction.lotSize %> Units</p>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-2xl flex items-center space-x-4">
-                            <i class="fas fa-pallet text-blue-500"></i>
-                            <div>
-                                <p class="text-[10px] font-black text-gray-400 uppercase">MOQ</p>
-                                <p class="text-sm font-bold"><%= auction.moq || 1 %> Lot</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Breadcrumbs & Badges -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                <a href="/auctions" class="hover:text-primary transition">Auctions</a>
+                <i class="fas fa-chevron-right text-[8px]"></i>
+                <span class="text-secondary"><%= auction.category || 'Grocery' %></span>
+                <i class="fas fa-chevron-right text-[8px]"></i>
+                <span class="text-primary"><%= auction.title %></span>
             </div>
-
-            <!-- Right: Bidding Dashboard -->
-            <div class="lg:col-span-5">
-                <div class="sticky top-24 space-y-6">
-                    
-                    <!-- Bidding Card -->
-                    <div class="bg-white rounded-[40px] p-8 shadow-2xl shadow-red-100 border border-red-50">
-                        <div class="flex items-center justify-between mb-8">
-                            <div>
-                                <h1 class="text-3xl font-black mb-1"><%= auction.title %></h1>
-                                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest"><%= auction.category || 'General' %> Group</p>
-                            </div>
-                            <div class="badge-live px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase">Live</div>
-                        </div>
-
-                        <!-- Price Section -->
-                        <div class="bg-bg-light rounded-3xl p-6 mb-8 border border-gray-100">
-                            <div class="flex justify-between items-end mb-4">
-                                <div>
-                                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Current Highest Bid</p>
-                                    <p class="text-5xl font-black tracking-tight">₹<%= auction.currentBid || auction.initialPrice %></p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] font-black text-green-500 uppercase flex items-center justify-end">
-                                        <i class="fas fa-chart-line mr-1"></i> Up 12%
-                                    </p>
-                                    <p class="text-sm font-bold text-gray-400">Total Bids: 24</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bid Input -->
-                        <% if (user) { %>
-                            <% if (user.isRegistered) { %>
-                                <form action="/place-bid" method="POST" class="space-y-4">
-                                    <input type="hidden" name="auctionId" value="<%= auction._id %>">
-                                    <div>
-                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1 ml-2">Your Bid (Min Increase: ₹100)</label>
-                                        <div class="relative">
-                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-gray-300">₹</span>
-                                            <input type="number" step="100" min="<%= (auction.currentBid || auction.initialPrice) + 100 %>" name="bidAmount" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-10 py-5 text-xl font-black focus:outline-none focus:border-secondary transition" placeholder="<%= (auction.currentBid || auction.initialPrice) + 500 %>">
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="w-full btn-primary py-5 rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-900/40">
-                                        Confirm Bid <i class="fas fa-bolt ml-2 text-yellow-300"></i>
-                                    </button>
-                                    <p class="text-[10px] text-center text-gray-400 font-bold px-8 leading-relaxed">
-                                        By placing a bid, you agree to pay <span class="text-primary italic">10% Advance (₹<%= ((auction.currentBid || auction.initialPrice) * 0.1).toFixed(0) %>)</span> within 2 hours of winning.
-                                    </p>
-                                </form>
-                            <% } else { %>
-                                <div class="bg-red-50 p-6 rounded-3xl border border-red-100 text-center">
-                                    <p class="text-red-600 font-black text-xs uppercase mb-4">Registration Required</p>
-                                    <p class="text-gray-500 text-xs mb-6">Complete your ₹999 retailer verification to start bidding on live lots.</p>
-                                    <a href="/dashboard" class="inline-block btn-primary px-8 py-3 rounded-xl text-[10px] uppercase tracking-widest">Complete Registration</a>
-                                </div>
-                            <% } %>
-                        <% } else { %>
-                            <a href="/login" class="block w-full border-2 border-secondary text-secondary py-5 rounded-2xl text-sm font-black text-center uppercase tracking-widest hover:bg-secondary hover:text-white transition">
-                                Login to Participate
-                            </a>
-                        <% } %>
-
-                    </div>
-
-                    <!-- Policy Box -->
-                    <div class="bg-[var(--hero-gradient)] rounded-[40px] p-8 text-white relative overflow-hidden shadow-2xl shadow-secondary/50">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
-                        <h4 class="text-lg font-black mb-4 font-heading tracking-tight">Delivery & Payments</h4>
-                        <ul class="space-y-3">
-                            <li class="flex items-start space-x-3 text-xs opacity-70">
-                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
-                                <span>10% advance payment confirmed within 2 hours of winning.</span>
-                            </li>
-                            <li class="flex items-start space-x-3 text-xs opacity-70">
-                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
-                                <span>Free shipping for 100% prepaid orders.</span>
-                            </li>
-                            <li class="flex items-start space-x-3 text-xs opacity-70">
-                                <i class="fas fa-check-circle text-primary mt-0.5"></i>
-                                <span>Balance payment via RTGS/NEFT/IMPS/COD.</span>
-                            </li>
-                        </ul>
-                    </div>
-
+            <div class="flex items-center gap-2">
+                <div class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="fas fa-check-circle text-[10px]"></i> Verified Lot
+                </div>
+                <div class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div> Live Auction
                 </div>
             </div>
         </div>
 
+        <!-- Main Product Title Area -->
+        <div class="mb-10">
+            <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tight text-secondary leading-none mb-3">
+                <%= auction.title %>
+            </h1>
+            <p class="text-sm font-bold text-gray-400">Inventory ID: #BB-<%= auction._id.toString().slice(-6).toUpperCase() %> • Factory Direct Supply</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- LEFT COLUMN (7/12) -->
+            <div class="lg:col-span-8 space-y-8 pb-12">
+                
+                <!-- Info Grid: 4-Card Summary -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Price / Bag</p>
+                        <p class="text-2xl font-black text-secondary">₹<%= auction.currentBid %></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Hike</p>
+                        <p class="text-2xl font-black text-primary">+<%= auction.hikePercentage %>%</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Live Buyers</p>
+                        <p class="text-2xl font-black text-secondary"><%= auction.totalBuyers %></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
+                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Left Stock</p>
+                        <p class="text-2xl font-black <%= auction.stockRemaining < (auction.lotSize * 0.2) ? 'text-red-600' : 'text-secondary' %>">
+                            <%= auction.stockRemaining %> <span class="text-[10px] uppercase"><%= auction.unitType || 'Unit' %></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tabs & Content -->
+                <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                    <!-- Tab Headers -->
+                    <div class="px-8 pt-6 border-b border-gray-100 flex gap-8">
+                        <button class="tab-btn active text-xs font-black uppercase tracking-widest" onclick="switchTab('overview')">Overview</button>
+                        <button class="tab-btn text-xs font-black uppercase tracking-widest" onclick="switchTab('specs')">Specifications</button>
+                        <button class="tab-btn text-xs font-black uppercase tracking-widest" onclick="switchTab('history')">Bid Activity</button>
+                    </div>
+                    
+                    <!-- Tab Panels -->
+                    <div class="p-8">
+                        <div id="overview-tab" class="tab-panel">
+                            <h4 class="text-lg font-black mb-4">Product Overview</h4>
+                            <p class="text-sm text-gray-500 leading-relaxed mb-6">
+                                <%= auction.description || 'Premium factory-direct lot. No middleman — sourced directly from the manufacturer for maximum retail margins. Inspected and verified by BoliBazar quality team.' %>
+                            </p>
+                            <!-- Mini Gallery Grid -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                                <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group">
+                                    <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                </div>
+                                <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group">
+                                    <img src="/lot2.png" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="specs-tab" class="tab-panel hidden">
+                            <h4 class="text-lg font-black mb-4">Technical Specifications</h4>
+                            <div class="space-y-4">
+                                <div class="flex justify-between py-3 border-b border-gray-50">
+                                    <span class="text-xs font-bold text-gray-400 uppercase">Lot Weight / Unit</span>
+                                    <span class="text-xs font-black text-secondary">50 KG Bag</span>
+                                </div>
+                                <div class="flex justify-between py-3 border-b border-gray-50">
+                                    <span class="text-xs font-bold text-gray-400 uppercase">Minimum Order</span>
+                                    <span class="text-xs font-black text-secondary"><%= auction.moq || 1 %> Bag</span>
+                                </div>
+                                <div class="flex justify-between py-3 border-b border-gray-50">
+                                    <span class="text-xs font-bold text-gray-400 uppercase">GST Bracket</span>
+                                    <span class="text-xs font-black text-secondary">5% Applicable</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="history-tab" class="tab-panel hidden">
+                            <h4 class="text-lg font-black mb-6">Real-Time Bidding Activity</h4>
+                            <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 no-scrollbar">
+                                <% (locals.bidHistory || []).forEach(bid => { %>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary font-black shadow-sm">
+                                                <%= bid.bidder.charAt(0) %>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-black text-secondary"><%= bid.bidder %></p>
+                                                <p class="text-[9px] font-bold text-gray-400"><%= bid.time %></p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-black text-secondary">₹<%= bid.amount.toLocaleString() %></p>
+                                            <p class="text-[9px] font-bold text-primary"><%= bid.quantity %> Bags</p>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Tracker Section -->
+                <div class="bg-secondary rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-8">
+                        <div class="px-4 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest backdrop-blur-md">Price Trend</div>
+                    </div>
+                    <h4 class="text-xl font-black mb-1">Live Price Tracker</h4>
+                    <p class="text-xs text-white/50 mb-10">Real-time demand visualization</p>
+                    
+                    <!-- Graph Mockup (SVG) -->
+                    <div class="w-full h-48 mt-4 relative">
+                        <svg class="w-full h-full" viewBox="0 0 1000 200" preserveAspectRatio="none">
+                            <path d="M0,180 Q250,170 400,120 T700,80 T1000,20" fill="none" stroke="#d90429" stroke-width="6" stroke-linecap="round"></path>
+                            <path d="M0,180 Q250,170 400,120 T700,80 T1000,20 L1000,200 L0,200 Z" fill="url(#grad1)" opacity="0.2"></path>
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#d90429;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#d90429;stop-opacity:0" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute bottom-0 left-0 w-full flex justify-between px-2 text-[9px] font-bold text-white/30 uppercase tracking-widest mt-4">
+                            <span>Started (₹<%= auction.initialPrice %>)</span>
+                            <span>Highest (₹<%= auction.currentBid %>)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Buyer Leaderboard -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <h4 class="text-xl font-black">Top Participation</h4>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white p-5 rounded-3xl border border-gray-100 flex items-center justify-between hover:border-primary transition group cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-secondary font-black group-hover:bg-primary group-hover:text-white transition">1</div>
+                                <div>
+                                    <p class="text-sm font-black text-secondary">Vikas Mart</p>
+                                    <p class="text-[10px] font-bold text-gray-400">Largest Quantities</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-black text-primary">₹<%= auction.currentBid %></span>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-gray-100 flex items-center justify-between hover:border-primary transition group cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-secondary font-black group-hover:bg-primary group-hover:text-white transition">2</div>
+                                <div>
+                                    <p class="text-sm font-black text-secondary">RK Wholesales</p>
+                                    <p class="text-[10px] font-bold text-gray-400">Active Bidder</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-black text-primary">₹<%= auction.currentBid - 50 %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: STICKY SIDEBAR (5/12) -->
+            <div class="lg:col-span-4 sticky-sidebar">
+                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-2xl shadow-red-900/5 relative overflow-hidden">
+                    
+                    <!-- Sidebar Status & Bar -->
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock Progress</span>
+                        <span class="text-xs font-black text-secondary"><%= auction.stockSoldPercent %>% SOLD</span>
+                    </div>
+                    <div class="h-2 w-full bg-gray-100 rounded-full mb-10 overflow-hidden">
+                        <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
+                    </div>
+
+                    <!-- Price Input Box -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3 ml-2">App Qty Chuniye</label>
+                            <div class="grid grid-cols-3 gap-2 mb-4">
+                                <button onclick="setQty(<%= auction.moq || 10 %>)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition"><%= auction.moq || 10 %></button>
+                                <button onclick="setQty(50)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition">50</button>
+                                <button onclick="setQty(100)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition">100</button>
+                            </div>
+                            <div class="relative group">
+                                <input type="number" id="bidQty" min="<%= auction.moq || 1 %>" value="<%= auction.moq || 10 %>" class="qty-input w-full bg-gray-50 border-2 border-gray-100 rounded-3xl px-6 py-5 text-2xl font-black focus:outline-none focus:border-primary transition" oninput="calculateTotal()">
+                                <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Total Unit</span>
+                                    <span class="text-xs font-black text-secondary"><%= auction.unitType || 'Bag' %></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Mode Toggle -->
+                        <div class="bg-gray-100 p-1.5 rounded-2xl flex relative h-14">
+                            <div id="payment-bg" class="absolute h-[80%] top-1/2 -translate-y-1/2 w-[calc(50%-4px)] bg-white rounded-xl shadow-sm transition-all duration-300 left-1.5"></div>
+                            <button onclick="setPayment('prepaid')" class="relative z-10 grow text-[10px] font-black uppercase tracking-widest transition duration-300 text-secondary" id="btn-prepaid">Full Payment</button>
+                            <button onclick="setPayment('cod')" class="relative z-10 grow text-[10px] font-black uppercase tracking-widest transition duration-300 text-gray-400" id="btn-cod">Cash on Delivery</button>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="space-y-3 py-6 border-y border-gray-50 mt-4">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-gray-400 uppercase">Item Amount</span>
+                                <span class="font-black text-secondary" id="subtotal">₹0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="font-bold text-gray-400 uppercase">Delivery Charge</span>
+                                <span class="font-black text-success" id="delivery-fee">FREE</span>
+                            </div>
+                            <div class="flex justify-between items-end pt-3">
+                                <div>
+                                    <span class="text-[10px] font-black text-primary uppercase">Auction Balance</span>
+                                    <p class="text-sm font-black text-gray-400" id="total-amount">₹0</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] font-black text-primary uppercase">10% Advance Token</span>
+                                    <p class="text-3xl font-black text-primary leading-none mt-1" id="token-advance">₹0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Main Primary CTA -->
+                        <div class="pt-4">
+                            <button onclick="window.location.href='/auctions'" class="w-full bg-primary hover:bg-red-700 text-white py-6 rounded-3xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-4">
+                                <i class="fas fa-gavel text-lg"></i>
+                                Abhi Bid Lagao
+                            </button>
+                            <p class="text-[9px] text-center text-gray-300 font-bold mt-4 uppercase tracking-[0.05em] px-4">
+                                Bidding se pehle koi payment nahi chahiye. Winning ke baad token bharnaa hoga.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sticky Sidebar Secondary Info -->
+                <div class="mt-6 space-y-4 px-4 text-center">
+                    <div class="flex items-center justify-center gap-3 py-4 bg-white/40 border border-white/60 rounded-[2rem] backdrop-blur-sm">
+                        <i class="fas fa-shield-alt text-secondary text-sm"></i>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-secondary">Safe & Verified Bidding</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- Floating Toast Notification -->
+    <div class="fixed bottom-24 left-6 z-[200]" id="bid-toast">
+        <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl flex items-center space-x-4 max-w-[280px] animate-slide-right">
+            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">
+                <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="flex-grow">
+                <p class="text-[11px] font-black text-secondary leading-none mb-1">Aman Store Bid lagayi!</p>
+                <p class="text-[9px] font-bold text-gray-400">₹<%= (auction.currentBid - 100).toLocaleString() %> — <%= auction.category %></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currentPrice = <%= auction.currentBid %>;
+        let paymentMode = 'prepaid';
+
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update panels
+            document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+        }
+
+        function setQty(val) {
+            document.getElementById('bidQty').value = val;
+            calculateTotal();
+        }
+
+        function setPayment(mode) {
+            paymentMode = mode;
+            const bg = document.getElementById('payment-bg');
+            const btnPrepaid = document.getElementById('btn-prepaid');
+            const btnCod = document.getElementById('btn-cod');
+            
+            if (mode === 'prepaid') {
+                bg.style.left = '1.5px';
+                btnPrepaid.classList.remove('text-gray-400');
+                btnPrepaid.classList.add('text-secondary');
+                btnCod.classList.remove('text-secondary');
+                btnCod.classList.add('text-gray-400');
+            } else {
+                bg.style.left = 'calc(50% + 2px)';
+                btnCod.classList.remove('text-gray-400');
+                btnCod.classList.add('text-secondary');
+                btnPrepaid.classList.remove('text-secondary');
+                btnPrepaid.classList.add('text-gray-400');
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const qty = parseInt(document.getElementById('bidQty').value) || 0;
+            const subtotal = qty * currentPrice;
+            const deliveryFee = paymentMode === 'prepaid' ? 0 : (subtotal * 0.1); // 10% for COD
+            const total = subtotal + deliveryFee;
+            const token = total * 0.1;
+
+            document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('delivery-fee').textContent = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee.toLocaleString()}`;
+            document.getElementById('delivery-fee').className = deliveryFee === 0 ? 'font-black text-success' : 'font-black text-red-500';
+            document.getElementById('total-amount').textContent = `₹${total.toLocaleString()}`;
+            document.getElementById('token-advance').textContent = `₹${token.toLocaleString()}`;
+        }
+
+        // Initialize calculation
+        document.addEventListener('DOMContentLoaded', calculateTotal);
+
+        // Auto Close Toast
+        setTimeout(() => {
+            const toast = document.getElementById('bid-toast');
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50px)';
+            toast.style.transition = 'all 0.5s';
+        }, 5000);
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        @keyframes slide-right {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-right { animation: slide-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    </style>
 
 </body>
 </html>
