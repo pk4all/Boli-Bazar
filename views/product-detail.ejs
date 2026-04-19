@@ -70,61 +70,84 @@
     </style>
 </head>
 <body class="bg-detail-mesh min-h-screen pb-24">
+    <!-- Top Sticky Progress Bar (Glass) -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-gray-100 z-[200]">
+        <div class="h-full bg-primary transition-all duration-300" style="width: <%= auction.stockSoldPercent %>%"></div>
+    </div>
 
-    <!-- Top Urgent Banner -->
-    <div class="countdown-banner py-3 text-white text-center">
+    <!-- Top Urgent Banner (Matches Screenshot) -->
+    <div class="bg-red-500/90 backdrop-blur-sm py-2 text-white border-b border-red-600/20 z-[150] sticky top-0">
         <div class="container mx-auto px-4 flex items-center justify-center gap-3">
-            <i class="fas fa-bolt-lightning text-yellow-300 animate-bounce"></i>
-            <span class="text-[11px] font-black uppercase tracking-[0.2em]">Auction Ending Soon: <span class="text-yellow-300">02h 45m 12s Remaining</span> — Hurry Up!</span>
+            <i class="fas fa-fire text-yellow-300 animate-pulse"></i>
+            <span class="text-[11px] font-black uppercase tracking-wider">Sirf Ended bache hain! Abhi bid karein — jitni deri, utna mehenga.</span>
         </div>
     </div>
 
-    <!-- Navigation Header -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100 h-16 flex items-center shadow-sm">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="/auctions" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary group-hover:text-white transition">
-                    <i class="fas fa-chevron-left text-xs"></i>
+    <!-- Navigation Header (Matches Screenshot) -->
+    <header class="bg-white border-b border-gray-100 z-[140] sticky top-[33px]">
+        <div class="container mx-auto px-4 h-20 flex justify-between items-center">
+            <!-- Logo Section -->
+            <a href="/auctions" class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-gray-50 flex items-center justify-center rounded-xl overflow-hidden grayscale opacity-80">
+                    <i class="fas fa-gavel text-secondary"></i>
                 </div>
-                <span class="text-xs font-black uppercase tracking-widest text-secondary">Back to Bidding</span>
+                <div class="flex flex-col -space-y-1">
+                    <span class="text-2xl font-black tracking-tighter uppercase font-heading">Boli<span class="text-primary italic">Bazar</span></span>
+                </div>
             </a>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex flex-col text-right">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Watching Now</span>
-                    <span class="text-xs font-black text-secondary">42 Retailers</span>
+
+            <!-- Nav Links -->
+            <nav class="hidden lg:flex items-center gap-10">
+                <a href="/auctions" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">
+                    <i class="fas fa-bolt-lightning text-gray-300"></i> Live Auctions
+                </a>
+                <a href="/auctions" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">
+                    <i class="far fa-clock text-gray-300"></i> Upcoming Lots
+                </a>
+                <a href="/dashboard" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">
+                    <i class="fas fa-gavel text-gray-300"></i> My Bids
+                </a>
+            </nav>
+
+            <!-- User Area -->
+            <div class="flex items-center gap-6">
+                <!-- Tokens -->
+                <div class="bg-red-50 border border-red-100 px-4 py-2 rounded-xl flex items-center gap-3">
+                    <i class="fas fa-wallet text-primary text-xs"></i>
+                    <span class="text-[10px] font-black uppercase text-secondary">₹2,450 <span class="text-primary">Tokens</span></span>
                 </div>
-                <div class="w-2 h-2 rounded-full bg-red-500 animate-ping"></div>
+                <!-- Notifs -->
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-secondary relative hover:bg-gray-100 cursor-pointer transition">
+                        <i class="far fa-bell"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-white">1</span>
+                    </div>
+                </div>
+                <!-- User -->
+                <div class="flex items-center gap-3 pl-2 border-l border-gray-100 group cursor-pointer">
+                    <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm shadow-lg shadow-red-500/20">
+                        <%= (user ? user.username.charAt(0) : 'R').toUpperCase() %>
+                    </div>
+                    <div class="hidden sm:flex flex-col">
+                        <span class="text-[10px] font-black text-secondary uppercase tracking-widest"><%= user ? user.username : 'Ramesh Gupta' %></span>
+                        <i class="fas fa-chevron-down text-[8px] text-gray-300 mt-0.5"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="container mx-auto px-4 mt-8">
         
-        <!-- Breadcrumbs & Badges -->
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                <a href="/auctions" class="hover:text-primary transition">Auctions</a>
-                <i class="fas fa-chevron-right text-[8px]"></i>
-                <span class="text-secondary"><%= auction.category || 'Grocery' %></span>
-                <i class="fas fa-chevron-right text-[8px]"></i>
-                <span class="text-primary"><%= auction.title %></span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <i class="fas fa-check-circle text-[10px]"></i> Verified Lot
-                </div>
-                <div class="px-3 py-1 bg-red-100 text-red-600 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                    <div class="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></div> Live Auction
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Product Title Area -->
-        <div class="mb-10">
-            <h1 class="text-4xl md:text-5xl font-black font-heading tracking-tight text-secondary leading-none mb-3">
-                <%= auction.title %>
-            </h1>
-            <p class="text-sm font-bold text-gray-400">Inventory ID: #BB-<%= auction._id.toString().slice(-6).toUpperCase() %> • Factory Direct Supply</p>
+        <!-- Breadcrumbs -->
+        <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-8">
+            <a href="/auctions" class="flex items-center gap-2 hover:text-primary transition">
+                <i class="fas fa-arrow-left text-[8px]"></i> Live Auctions
+            </a>
+            <i class="fas fa-chevron-right text-[7px] opacity-30"></i>
+            <span><%= auction.category || 'Grains & Cereals' %></span>
+            <i class="fas fa-chevron-right text-[7px] opacity-30"></i>
+            <span class="text-secondary opacity-60"><%= auction.title %></span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -132,25 +155,94 @@
             <!-- LEFT COLUMN (7/12) -->
             <div class="lg:col-span-8 space-y-8 pb-12">
                 
-                <!-- Info Grid: 4-Card Summary -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
-                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Price / Bag</p>
-                        <p class="text-2xl font-black text-secondary">₹<%= auction.currentBid %></p>
+                <!-- Product Banner (Matches Screenshot Overlay Style) -->
+                <div class="relative rounded-[2.5rem] overflow-hidden aspect-[16/9] lg:aspect-video shadow-2xl group">
+                    <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-105 transition duration-[2s]">
+                    
+                    <!-- Top Labels -->
+                    <div class="absolute top-8 left-8 flex gap-3">
+                        <div class="px-4 py-2 bg-accent text-secondary rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-xl">
+                            <i class="fas fa-star"></i> Featured
+                        </div>
+                        <div class="px-4 py-2 bg-white/90 backdrop-blur-md text-secondary rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
+                            <%= auction.category || 'Grains & Cereals' %>
+                        </div>
                     </div>
-                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
-                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Hike</p>
-                        <p class="text-2xl font-black text-primary">+<%= auction.hikePercentage %>%</p>
+
+                    <!-- Right Status (Countdown Look) -->
+                    <div class="absolute top-8 right-8">
+                        <div class="px-4 py-2 bg-[#b91c1c] text-white rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-2xl">
+                            <i class="far fa-clock"></i> 03:39
+                        </div>
                     </div>
-                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
-                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Live Buyers</p>
-                        <p class="text-2xl font-black text-secondary"><%= auction.totalBuyers %></p>
+
+                    <!-- Bottom Info Overlay -->
+                    <div class="absolute bottom-0 left-0 w-full p-12 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                        <h2 class="text-4xl font-black text-white font-heading leading-tight mb-2"><%= auction.title %></h2>
+                        <span class="text-xs font-bold text-white/60 uppercase tracking-widest">SKU: <%= (auction.category.slice(0,2) + '-' + auction.title.slice(0,4)).toUpperCase() %>-<%= auction._id.toString().slice(-4).toUpperCase() %></span>
                     </div>
-                    <div class="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm grow hover:shadow-md transition">
-                        <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Left Stock</p>
-                        <p class="text-2xl font-black <%= auction.stockRemaining < (auction.lotSize * 0.2) ? 'text-red-600' : 'text-secondary' %>">
-                            <%= auction.stockRemaining %> <span class="text-[10px] uppercase"><%= auction.unitType || 'Unit' %></span>
+                </div>
+
+
+                
+                <!-- Live Price Tracker Card (Matches Screenshot With Glow) -->
+                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_20px_60px_rgba(217,4,41,0.12)]">
+                    <div class="flex items-center justify-between mb-8">
+                        <h4 class="text-xl font-black text-secondary">Live Price Tracker</h4>
+                        <div class="flex items-center gap-2 text-emerald-500">
+                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[11px] font-black uppercase tracking-widest">Real-time</span>
+                        </div>
+                    </div>
+
+                    <!-- 2x2 Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        <!-- Starting Price -->
+                        <div class="bg-[#f8fafc] p-6 rounded-[2rem] border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Starting Price</p>
+                            <p class="text-3xl font-black text-slate-600">₹<%= auction.initialPrice.toLocaleString() %></p>
+                        </div>
+                        <!-- Current Price -->
+                        <div class="bg-[#fff1f2] p-6 rounded-[2rem] border border-red-50">
+                            <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Current Price</p>
+                            <p class="text-3xl font-black text-[#9d174d]">₹<%= auction.currentBid.toLocaleString() %></p>
+                        </div>
+                        <!-- Total Buyers -->
+                        <div class="bg-[#eff6ff] p-6 rounded-[2rem] border border-blue-50">
+                            <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Total Buyers</p>
+                            <p class="text-3xl font-black text-indigo-600"><%= auction.totalBuyers %> buyers</p>
+                        </div>
+                        <!-- Remaining Stock -->
+                        <div class="bg-[#fff7ed] p-6 rounded-[2rem] border border-orange-50">
+                            <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-2">Remaining Stock</p>
+                            <p class="text-3xl font-black text-[#c2410c]"><%= auction.stockRemaining %> <span class="text-sm uppercase"><%= auction.unitType %></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Stock Sold Section -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-gray-400">Stock Sold</span>
+                            <span class="text-xs font-black text-[#b91c1c] uppercase tracking-widest">80% gone</span>
+                        </div>
+                        <div class="h-4 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
+                        </div>
+                        <p class="text-[11px] font-black text-primary flex items-center gap-2">
+                            <i class="fas fa-info-circle text-xs"></i>
+                            Sirf 41 bags bacha hai — jaldi karein!
                         </p>
+                    </div>
+
+                    <!-- Price Hike Footer -->
+                    <div class="mt-8 bg-[#fefce8] p-5 rounded-2xl border border-yellow-100 flex justify-between items-center group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center text-yellow-600 transition group-hover:rotate-45">
+                                <i class="fas fa-arrow-trend-up"></i>
+                            </div>
+                            <span class="text-xs font-black text-yellow-800 uppercase tracking-widest">Price Hike So Far</span>
+                        </div>
+                        <span class="text-lg font-black text-yellow-700 tracking-tighter">+<%= auction.hikePercentage %>%</span>
                     </div>
                 </div>
 
@@ -167,16 +259,46 @@
                     <div class="p-8">
                         <div id="overview-tab" class="tab-panel">
                             <h4 class="text-lg font-black mb-4">Product Overview</h4>
-                            <p class="text-sm text-gray-500 leading-relaxed mb-6">
+                            <p class="text-sm text-gray-500 leading-relaxed mb-10">
                                 <%= auction.description || 'Premium factory-direct lot. No middleman — sourced directly from the manufacturer for maximum retail margins. Inspected and verified by BoliBazar quality team.' %>
                             </p>
+                            
+                            <!-- 4-Card Mini Stats Grid (Exact Parity) -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                                <div class="bg-[#fafafa] p-5 rounded-[2rem] border border-gray-100 flex flex-col items-center text-center">
+                                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-gray-400 mb-3 shadow-sm">
+                                        <i class="fas fa-tag text-xs"></i>
+                                    </div>
+                                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Starting Price</p>
+                                    <p class="text-sm font-black text-secondary">₹1,200</p>
+                                </div>
+                                <div class="bg-[#fafafa] p-5 rounded-[2rem] border border-gray-100 flex flex-col items-center text-center">
+                                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary mb-3 shadow-sm">
+                                        <i class="fas fa-chart-line text-xs"></i>
+                                    </div>
+                                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Price Hike</p>
+                                    <p class="text-sm font-black text-primary">+9.19%</p>
+                                </div>
+                                <div class="bg-[#fafafa] p-5 rounded-[2rem] border border-gray-100 flex flex-col items-center text-center">
+                                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 mb-3 shadow-sm">
+                                        <i class="fas fa-users text-xs"></i>
+                                    </div>
+                                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Buyers</p>
+                                    <p class="text-sm font-black text-indigo-600">9</p>
+                                </div>
+                                <div class="bg-[#fafafa] p-5 rounded-[2rem] border border-gray-100 flex flex-col items-center text-center">
+                                    <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-orange-600 mb-3 shadow-sm">
+                                        <i class="fas fa-cubes text-xs"></i>
+                                    </div>
+                                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Remaining</p>
+                                    <p class="text-sm font-black text-orange-600">41</p>
+                                </div>
+                            </div>
+
                             <!-- Mini Gallery Grid -->
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group">
                                     <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                                </div>
-                                <div class="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 group">
-                                    <img src="/lot2.png" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 </div>
                             </div>
                         </div>
@@ -251,34 +373,115 @@
                     </div>
                 </div>
 
-                <!-- Top Buyer Leaderboard -->
-                <div>
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent">
-                            <i class="fas fa-crown"></i>
+                <!-- Bid Leaderboard Section (Matches Screenshot) -->
+                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-xl mt-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-500">
+                                <i class="fas fa-trophy text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-black text-secondary">Bid Leaderboard</h4>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Latest buyers — real-time</p>
+                            </div>
                         </div>
-                        <h4 class="text-xl font-black">Top Participation</h4>
+                        <div class="flex items-center gap-2 text-gray-300">
+                            <i class="fas fa-sync-alt text-[10px] animate-spin-slow"></i>
+                            <span class="text-[9px] font-black uppercase tracking-widest">Auto-updating</span>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-white p-5 rounded-3xl border border-gray-100 flex items-center justify-between hover:border-primary transition group cursor-pointer">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-secondary font-black group-hover:bg-primary group-hover:text-white transition">1</div>
-                                <div>
-                                    <p class="text-sm font-black text-secondary">Vikas Mart</p>
-                                    <p class="text-[10px] font-bold text-gray-400">Largest Quantities</p>
-                                </div>
+
+                    <!-- Podium Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                        <!-- #2 Sunita -->
+                        <div class="bg-[#fffbeb] p-6 rounded-3xl border border-yellow-100 flex flex-col items-center text-center relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                            <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white mb-3 shadow-lg relative z-10 border-2 border-white">
+                                <i class="fas fa-medal text-sm"></i>
                             </div>
-                            <span class="text-xs font-black text-primary">₹<%= auction.currentBid %></span>
+                            <h5 class="text-sm font-black text-secondary">Sunita</h5>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">@ Bhopal</p>
+                            <p class="text-base font-black text-primary">₹12,31,585.62</p>
                         </div>
-                        <div class="bg-white p-5 rounded-3xl border border-gray-100 flex items-center justify-between hover:border-primary transition group cursor-pointer">
+                        <!-- #1 Harpreet (Highest) -->
+                        <div class="bg-[#fffbeb] p-8 rounded-[2rem] border-2 border-yellow-200 flex flex-col items-center text-center relative overflow-hidden group hover:scale-[1.02] transition-transform md:-translate-y-2 shadow-lg">
+                            <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white mb-3 shadow-xl relative z-10 border-4 border-white">
+                                <i class="fas fa-crown text-base"></i>
+                            </div>
+                            <h5 class="text-base font-black text-secondary">Harpreet</h5>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">@ Amritsar</p>
+                            <p class="text-lg font-black text-primary">₹12,43,901.48</p>
+                            <div class="absolute top-0 right-0 p-3">
+                                <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                            </div>
+                        </div>
+                        <!-- #3 Arjun -->
+                        <div class="bg-[#fffbeb] p-6 rounded-3xl border border-yellow-100 flex flex-col items-center text-center relative overflow-hidden group hover:scale-[1.02] transition-transform">
+                            <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white mb-3 shadow-lg relative z-10 border-2 border-white">
+                                <i class="fas fa-award text-sm"></i>
+                            </div>
+                            <h5 class="text-sm font-black text-secondary">Arjun</h5>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">@ Ahmedabad</p>
+                            <p class="text-base font-black text-primary">₹12,19,391.70</p>
+                        </div>
+                    </div>
+
+                    <!-- Bid List Layout -->
+                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                        <!-- Item 698 -->
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition group">
                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-secondary font-black group-hover:bg-primary group-hover:text-white transition">2</div>
+                                <span class="text-[10px] font-bold text-gray-300">#698</span>
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-black text-xs">H</div>
                                 <div>
-                                    <p class="text-sm font-black text-secondary">RK Wholesales</p>
-                                    <p class="text-[10px] font-bold text-gray-400">Active Bidder</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs font-black text-secondary">Harpreet Kaur</p>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-gray-400">@ Amritsar • 7 bags • 09:36 pm</p>
                                 </div>
                             </div>
-                            <span class="text-xs font-black text-primary">₹<%= auction.currentBid - 50 %></span>
+                            <p class="text-sm font-black text-secondary">₹12,43,901.48</p>
+                        </div>
+                        <!-- Item 697 -->
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition group">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-gray-300">#697</span>
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-black text-xs">S</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs font-black text-secondary">Sunita Joshi</p>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-gray-400">@ Bhopal • 11 bags • 09:35 pm</p>
+                                </div>
+                            </div>
+                            <p class="text-sm font-black text-secondary">₹12,31,585.62</p>
+                        </div>
+                        <!-- Item 696 -->
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition group">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-gray-300">#696</span>
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-black text-xs">A</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs font-black text-secondary">Arjun Patel</p>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-gray-400">@ Ahmedabad • 15 bags • 09:35 pm</p>
+                                </div>
+                            </div>
+                            <p class="text-sm font-black text-secondary">₹12,19,391.70</p>
+                        </div>
+                        <!-- Item 695 -->
+                        <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-2xl transition group">
+                            <div class="flex items-center gap-4">
+                                <span class="text-[10px] font-bold text-gray-300">#695</span>
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-black text-xs">K</div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-xs font-black text-secondary">Kavya Reddy</p>
+                                    </div>
+                                    <p class="text-[9px] font-bold text-gray-400">@ Hyderabad • 9 bags • 09:35 pm</p>
+                                </div>
+                            </div>
+                            <p class="text-sm font-black text-secondary">₹12,07,318.51</p>
                         </div>
                     </div>
                 </div>
@@ -286,113 +489,220 @@
 
             <!-- RIGHT COLUMN: STICKY SIDEBAR (5/12) -->
             <div class="lg:col-span-4 sticky-sidebar">
-                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-2xl shadow-red-900/5 relative overflow-hidden">
+                <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-red-900/5 relative overflow-hidden">
                     
-                    <!-- Sidebar Status & Bar -->
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock Progress</span>
-                        <span class="text-xs font-black text-secondary"><%= auction.stockSoldPercent %>% SOLD</span>
-                    </div>
-                    <div class="h-2 w-full bg-gray-100 rounded-full mb-10 overflow-hidden">
-                        <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
+                    <!-- Sidebar Header (Matches Screenshot) -->
+                    <div class="p-8 border-b border-gray-50">
+                        <div class="flex items-center gap-3 mb-2">
+                           <h4 class="text-2xl font-black text-secondary">Bid Lagao</h4>
+                        </div>
                     </div>
 
-                    <!-- Price Input Box -->
-                    <div class="space-y-6">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-3 ml-2">App Qty Chuniye</label>
-                            <div class="grid grid-cols-3 gap-2 mb-4">
-                                <button onclick="setQty(<%= auction.moq || 10 %>)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition"><%= auction.moq || 10 %></button>
-                                <button onclick="setQty(50)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition">50</button>
-                                <button onclick="setQty(100)" class="py-2.5 bg-gray-50 hover:bg-secondary hover:text-white rounded-xl text-xs font-black transition">100</button>
+                    <div class="p-8 space-y-8">
+                        <!-- Quantity Input Area -->
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Quantity (Bags)</label>
+                            
+                            <!-- MOQ Banner (Yellow) -->
+                            <div class="bg-orange-50/50 px-4 py-3 rounded-xl border border-orange-100 flex items-center gap-3 text-orange-700">
+                                <div class="w-5 h-5 rounded-lg bg-orange-100 flex items-center justify-center text-[10px]">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Min. Order Qty (MOQ): <%= auction.moq || 5 %> bags</span>
                             </div>
-                            <div class="relative group">
-                                <input type="number" id="bidQty" min="<%= auction.moq || 1 %>" value="<%= auction.moq || 10 %>" class="qty-input w-full bg-gray-50 border-2 border-gray-100 rounded-3xl px-6 py-5 text-2xl font-black focus:outline-none focus:border-primary transition" oninput="calculateTotal()">
-                                <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center">
-                                    <span class="text-[9px] font-black text-gray-400 uppercase leading-none mb-1">Total Unit</span>
-                                    <span class="text-xs font-black text-secondary"><%= auction.unitType || 'Bag' %></span>
+
+                            <div class="flex items-center gap-4">
+                                <button onclick="adjustQty(-1)" class="w-12 h-12 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-lg font-black transition border border-gray-100">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <div class="grow relative">
+                                    <input type="number" id="bidQty" min="<%= auction.moq || 1 %>" value="<%= auction.moq || 5 %>" class="qty-input w-full bg-white border border-gray-100 rounded-xl px-6 py-3 text-2xl font-black text-center focus:outline-none focus:border-primary transition" oninput="calculateTotal()">
+                                </div>
+                                <button onclick="adjustQty(1)" class="w-12 h-12 rounded-xl bg-gray-50 hover:bg-gray-100 flex items-center justify-center text-lg font-black transition border border-gray-100">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <!-- Centered Quick Chips -->
+                            <div class="grid grid-cols-4 gap-2 pt-2">
+                                <button onclick="setQty(5)" class="qty-chip py-3 rounded-xl bg-primary text-xs font-black text-white shadow-lg shadow-red-500/10 transition-all" data-qty="5">5</button>
+                                <button onclick="setQty(10)" class="qty-chip py-3 rounded-xl bg-gray-50 text-xs font-bold text-gray-400 hover:bg-gray-100 transition" data-qty="10">10</button>
+                                <button onclick="setQty(20)" class="qty-chip py-3 rounded-xl bg-gray-50 text-xs font-bold text-gray-400 hover:bg-gray-100 transition" data-qty="20">20</button>
+                                <button onclick="setQty(50)" class="qty-chip py-3 rounded-xl bg-gray-50 text-xs font-bold text-gray-400 hover:bg-gray-100 transition" data-qty="50">50</button>
+                            </div>
+                        </div>
+
+                        <!-- Payment Mode Toggles -->
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Payment Mode</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div onclick="setPaymentMode('full')" id="pay-full" class="payment-card border-2 border-gray-100 rounded-2xl p-4 cursor-pointer transition hover:bg-gray-50 group active">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i class="fas fa-truck-fast text-xs text-gray-400 group-hover:text-primary transition"></i>
+                                        <span class="text-[10px] font-black uppercase text-secondary">Full Payment</span>
+                                    </div>
+                                    <p class="text-[10px] font-black text-emerald-500">FREE Delivery</p>
+                                    <p class="text-[8px] font-bold text-gray-400 mt-1">100% amount pay karein</p>
+                                </div>
+                                <div onclick="setPaymentMode('cod')" id="pay-cod" class="payment-card border-2 border-gray-100 rounded-2xl p-4 cursor-pointer transition hover:bg-gray-50 group">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <i class="fas fa-box text-xs text-gray-400 group-hover:text-primary transition"></i>
+                                        <span class="text-[10px] font-black uppercase text-secondary">COD</span>
+                                    </div>
+                                    <p class="text-[10px] font-black text-orange-500">+10% Delivery Fee</p>
+                                    <p class="text-[8px] font-bold text-gray-400 mt-1">90% balance on delivery</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Payment Mode Toggle -->
-                        <div class="bg-gray-100 p-1.5 rounded-2xl flex relative h-14">
-                            <div id="payment-bg" class="absolute h-[80%] top-1/2 -translate-y-1/2 w-[calc(50%-4px)] bg-white rounded-xl shadow-sm transition-all duration-300 left-1.5"></div>
-                            <button onclick="setPayment('prepaid')" class="relative z-10 grow text-[10px] font-black uppercase tracking-widest transition duration-300 text-secondary" id="btn-prepaid">Full Payment</button>
-                            <button onclick="setPayment('cod')" class="relative z-10 grow text-[10px] font-black uppercase tracking-widest transition duration-300 text-gray-400" id="btn-cod">Cash on Delivery</button>
+                        <!-- Detailed Price Breakdown (Card Style) -->
+                        <div class="bg-gray-50/50 rounded-2xl p-6 space-y-3">
+                            <div class="flex justify-between items-center text-[10px]">
+                                <span class="font-bold text-gray-400 uppercase">Current Price × <span id="display-qty">5</span> bags</span>
+                                <span class="font-black text-secondary" id="display-subtotal">₹0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px]">
+                                <span class="font-bold text-gray-400 uppercase">Token Advance (10%)</span>
+                                <span class="font-black text-primary" id="display-advance">₹0</span>
+                            </div>
+                            <div id="cod-row-balance" class="hidden flex justify-between items-center text-[10px]">
+                                <span class="font-bold text-gray-400 uppercase">COD Balance (90%)</span>
+                                <span class="font-black text-secondary" id="display-balance">₹0</span>
+                            </div>
+                            <div id="cod-row-fee" class="hidden flex justify-between items-center text-[10px]">
+                                <span class="font-bold text-orange-400 uppercase">Delivery Fee (10% extra)</span>
+                                <span class="font-black text-orange-500" id="display-fee">₹0</span>
+                            </div>
+                            <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-[11px] font-black text-secondary uppercase tracking-widest">Total Payable</span>
+                                <span class="text-xl font-black text-secondary" id="billing-total-payable">₹0</span>
+                            </div>
                         </div>
 
-                        <!-- Price Breakdown -->
-                        <div class="space-y-3 py-6 border-y border-gray-50 mt-4">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-gray-400 uppercase">Item Amount</span>
-                                <span class="font-black text-secondary" id="subtotal">₹0</span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-gray-400 uppercase">Delivery Charge</span>
-                                <span class="font-black text-success" id="delivery-fee">FREE</span>
-                            </div>
-                            <div class="flex justify-between items-end pt-3">
+                        <!-- Token Balance Card with Status -->
+                        <div class="bg-red-50/50 border border-red-100 rounded-2xl p-5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
                                 <div>
-                                    <span class="text-[10px] font-black text-primary uppercase">Auction Balance</span>
-                                    <p class="text-sm font-black text-gray-400" id="total-amount">₹0</p>
+                                    <h5 class="text-[10px] font-black text-secondary uppercase">Token Balance</h5>
+                                    <p class="text-[9px] font-bold text-gray-500">Available: ₹2,450</p>
                                 </div>
-                                <div class="text-right">
-                                    <span class="text-[10px] font-black text-primary uppercase">10% Advance Token</span>
-                                    <p class="text-3xl font-black text-primary leading-none mt-1" id="token-advance">₹0</p>
-                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] font-black text-primary uppercase flex items-center gap-1">
+                                    <i class="fas fa-exclamation-circle text-[8px]"></i>
+                                    Insufficient
+                                </p>
                             </div>
                         </div>
 
                         <!-- Main Primary CTA -->
-                        <div class="pt-4">
-                            <button onclick="window.location.href='/auctions'" class="w-full bg-primary hover:bg-red-700 text-white py-6 rounded-3xl text-sm font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-4">
-                                <i class="fas fa-gavel text-lg"></i>
+                        <div class="pt-2">
+                            <button onclick="window.location.href='/auctions'" class="w-full bg-gradient-to-r from-[#d90429] to-[#ef233c] hover:opacity-90 text-white py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-4">
+                                <i class="fas fa-bolt-lightning"></i>
                                 Abhi Bid Lagao
                             </button>
-                            <p class="text-[9px] text-center text-gray-300 font-bold mt-4 uppercase tracking-[0.05em] px-4">
-                                Bidding se pehle koi payment nahi chahiye. Winning ke baad token bharnaa hoga.
-                            </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Sticky Sidebar Secondary Info -->
-                <div class="mt-6 space-y-4 px-4 text-center">
-                    <div class="flex items-center justify-center gap-3 py-4 bg-white/40 border border-white/60 rounded-[2rem] backdrop-blur-sm">
-                        <i class="fas fa-shield-alt text-secondary text-sm"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest text-secondary">Safe & Verified Bidding</span>
+                <!-- Payment & Delivery Policy Card -->
+                <div class="bg-white rounded-[2rem] border border-gray-100 shadow-xl overflow-hidden mt-6">
+                    <div class="p-6 border-b border-gray-50 flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-primary">
+                            <i class="fas fa-shield-heart text-sm"></i>
+                        </div>
+                        <h4 class="text-sm font-black text-secondary uppercase tracking-widest">Payment & Delivery Policy</h4>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- 10% Advance -->
+                        <div class="bg-[#eff6ff] p-4 rounded-2xl border border-blue-100 flex items-center gap-4 group hover:bg-blue-100 transition">
+                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-blue-600 shadow-sm transition-transform group-hover:scale-110">
+                                <i class="fas fa-credit-card text-xs"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-black text-secondary">10% Advance Mandatory</h5>
+                                <p class="text-[9px] font-bold text-gray-500 mt-0.5">Token balance se 10% advance kat jaata hai — booking confirm.</p>
+                            </div>
+                        </div>
+                        <!-- Full Payment -->
+                        <div class="bg-[#f0fdf4] p-4 rounded-2xl border border-green-100 flex items-center gap-4 group hover:bg-green-100 transition">
+                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-green-600 shadow-sm transition-transform group-hover:scale-110">
+                                <i class="fas fa-truck-fast text-xs"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-black text-secondary">Full Payment = FREE Delivery</h5>
+                                <p class="text-[9px] font-bold text-gray-500 mt-0.5">100% amount pay karein toh delivery bilkul free milegi.</p>
+                            </div>
+                        </div>
+                        <!-- COD -->
+                        <div class="bg-[#fffbeb] p-4 rounded-2xl border border-yellow-100 flex items-center gap-4 group hover:bg-yellow-100 transition">
+                            <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-yellow-600 shadow-sm transition-transform group-hover:scale-110">
+                                <i class="fas fa-box text-xs"></i>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-black text-secondary">COD = 10% Extra Charge</h5>
+                                <p class="text-[9px] font-bold text-gray-500 mt-0.5">90% balance delivery pe + 10% extra delivery fee lagegi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Notifications Section -->
+                <div class="bg-red-700 rounded-[2rem] p-8 text-white mt-6 relative overflow-hidden shadow-2xl shadow-red-900/40 group">
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fas fa-bell animate-bounce"></i>
+                            <h4 class="text-sm font-black uppercase tracking-widest">Smart Notifications</h4>
+                        </div>
+                        <p class="text-[11px] font-medium leading-relaxed mb-8 text-white/80">
+                            Jab is lot mein sirf 5 minute bache honge, hum aapko push notification bhejenge. Koi bid miss mat karo!
+                        </p>
+                        
+                        <button class="w-full bg-white text-red-700 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-3">
+                            <i class="fas fa-clock"></i>
+                            5 Min Alert Set Karein
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Floating Toast Notification -->
-    <div class="fixed bottom-24 left-6 z-[200]" id="bid-toast">
-        <div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-2xl flex items-center space-x-4 max-w-[280px] animate-slide-right">
-            <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white text-xs">
-                <i class="fas fa-hand-holding-usd"></i>
+    <!-- Pixel Perfect Bid Notification (Matches Screenshot) -->
+    <div class="fixed bottom-8 right-8 z-[200]" id="bid-toast">
+        <div class="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 shadow-2xl flex items-center gap-5 max-w-[450px] animate-slide-up">
+            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                <i class="fas fa-info-circle text-xl"></i>
             </div>
             <div class="flex-grow">
-                <p class="text-[11px] font-black text-secondary leading-none mb-1">Aman Store Bid lagayi!</p>
-                <p class="text-[9px] font-bold text-gray-400">₹<%= (auction.currentBid - 100).toLocaleString() %> — <%= auction.category %></p>
+                <p class="text-[14px] font-medium text-blue-800 leading-tight">
+                    🔥 <span class="font-bold">Rajiv Nair (Kochi)</span> ne bid kiya — price <span class="font-bold text-blue-900">₹1,310.29</span> ho gaya!
+                </p>
             </div>
         </div>
     </div>
 
     <script>
         const currentPrice = <%= auction.currentBid %>;
-        let paymentMode = 'prepaid';
 
         function switchTab(tabName) {
-            // Update buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
-            
-            // Update panels
             document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
             document.getElementById(tabName + '-tab').classList.remove('hidden');
+        }
+
+        function adjustQty(delta) {
+            const input = document.getElementById('bidQty');
+            let val = (parseInt(input.value) || 0) + delta;
+            if (val < <%= auction.moq || 1 %>) val = <%= auction.moq || 1 %>;
+            input.value = val;
+            calculateTotal();
         }
 
         function setQty(val) {
@@ -400,24 +710,19 @@
             calculateTotal();
         }
 
-        function setPayment(mode) {
+        let paymentMode = 'full';
+
+        function setPaymentMode(mode) {
             paymentMode = mode;
-            const bg = document.getElementById('payment-bg');
-            const btnPrepaid = document.getElementById('btn-prepaid');
-            const btnCod = document.getElementById('btn-cod');
+            document.querySelectorAll('.payment-card').forEach(card => card.classList.remove('active', 'border-primary', 'bg-red-50/20'));
+            document.getElementById('pay-' + mode).classList.add('active', 'border-primary', 'bg-red-50/20');
             
-            if (mode === 'prepaid') {
-                bg.style.left = '1.5px';
-                btnPrepaid.classList.remove('text-gray-400');
-                btnPrepaid.classList.add('text-secondary');
-                btnCod.classList.remove('text-secondary');
-                btnCod.classList.add('text-gray-400');
+            if (mode === 'cod') {
+                document.getElementById('cod-row-balance').classList.remove('hidden');
+                document.getElementById('cod-row-fee').classList.remove('hidden');
             } else {
-                bg.style.left = 'calc(50% + 2px)';
-                btnCod.classList.remove('text-gray-400');
-                btnCod.classList.add('text-secondary');
-                btnPrepaid.classList.remove('text-secondary');
-                btnPrepaid.classList.add('text-gray-400');
+                document.getElementById('cod-row-balance').classList.add('hidden');
+                document.getElementById('cod-row-fee').classList.add('hidden');
             }
             calculateTotal();
         }
@@ -425,36 +730,60 @@
         function calculateTotal() {
             const qty = parseInt(document.getElementById('bidQty').value) || 0;
             const subtotal = qty * currentPrice;
-            const deliveryFee = paymentMode === 'prepaid' ? 0 : (subtotal * 0.1); // 10% for COD
-            const total = subtotal + deliveryFee;
-            const token = total * 0.1;
+            const advance = subtotal * 0.1;
+            const balance = subtotal * 0.9;
+            const fee = paymentMode === 'cod' ? subtotal * 0.1 : 0;
+            const total = paymentMode === 'cod' ? (subtotal + fee) : subtotal;
 
-            document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString()}`;
-            document.getElementById('delivery-fee').textContent = deliveryFee === 0 ? 'FREE' : `₹${deliveryFee.toLocaleString()}`;
-            document.getElementById('delivery-fee').className = deliveryFee === 0 ? 'font-black text-success' : 'font-black text-red-500';
-            document.getElementById('total-amount').textContent = `₹${total.toLocaleString()}`;
-            document.getElementById('token-advance').textContent = `₹${token.toLocaleString()}`;
+            // From Image: 
+            // Current Price x 5 = 1,61,66,197
+            // Advance = 16,16,619
+            // Balance = 1,45,49,577
+            // Fee = 16,16,619
+            // Total = 1,61,66,197 (Wait, subtotal is total? Then fee is included in subtotal or added? Actually total = subtotal usually)
+
+            document.getElementById('display-qty').textContent = qty;
+            document.getElementById('display-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('display-advance').textContent = `₹${advance.toLocaleString()}`;
+            document.getElementById('display-balance').textContent = `₹${balance.toLocaleString()}`;
+            document.getElementById('display-fee').textContent = `+₹${fee.toLocaleString()}`;
+            const totalDisplay = document.getElementById('billing-total-payable');
+            if (totalDisplay) {
+                totalDisplay.textContent = `₹${total.toLocaleString()}`;
+            }
+
+            // Update chips
+            document.querySelectorAll('.qty-chip').forEach(chip => {
+                if (parseInt(chip.dataset.qty) === qty) {
+                    chip.classList.add('bg-primary', 'text-white', 'shadow-lg');
+                    chip.classList.remove('bg-gray-50', 'text-gray-400');
+                } else {
+                    chip.classList.remove('bg-primary', 'text-white', 'shadow-lg');
+                    chip.classList.add('bg-gray-50', 'text-gray-400');
+                }
+            });
         }
 
-        // Initialize calculation
         document.addEventListener('DOMContentLoaded', calculateTotal);
 
         // Auto Close Toast
         setTimeout(() => {
             const toast = document.getElementById('bid-toast');
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-50px)';
-            toast.style.transition = 'all 0.5s';
-        }, 5000);
+            if (toast) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                toast.style.transition = 'all 0.5s';
+            }
+        }, 8000);
     </script>
 
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        @keyframes slide-right {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes slide-up {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        .animate-slide-right { animation: slide-right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .animate-slide-up { animation: slide-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 
 </body>

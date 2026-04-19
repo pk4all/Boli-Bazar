@@ -127,7 +127,7 @@
                         <% } %>
 
                         <div class="badge-float badge-timer right-3">
-                            <i class="far fa-clock"></i> 00:00
+                            <i class="far fa-clock"></i> 03:39
                         </div>
 
                         <!-- Category Tag on Image -->
@@ -312,15 +312,17 @@
         <% } %>
     </main>
 
-    <!-- Floating Toast (Mock from screenshot) -->
-    <div class="fixed bottom-6 right-6 z-[200]">
-        <div class="bg-[#eff6ff] border border-blue-100 rounded-2xl p-4 shadow-2xl flex items-center space-x-4 max-w-xs animate-slide-up">
-            <div class="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center text-xs">
-                <i class="fas fa-info-circle"></i>
+    <!-- Pixel Perfect Bid Notification (Matches Screenshot) -->
+    <div class="fixed bottom-8 right-8 z-[200]" id="bid-toast">
+        <div class="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 shadow-2xl flex items-center gap-5 max-w-[450px] animate-slide-up">
+            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                <i class="fas fa-info-circle text-xl"></i>
             </div>
-            <p class="text-[10px] font-bold text-[#1e40af] leading-tight flex-grow">
-                 🔥 Moong Dal Dhuli 25kg — price ₹3,569.80 ho gaya!
-            </p>
+            <div class="flex-grow">
+                <p class="text-[14px] font-medium text-blue-800 leading-tight">
+                    🔥 <span class="font-bold">Rajiv Nair (Kochi)</span> ne bid kiya — price <span class="font-bold text-blue-900">₹1,310.29</span> ho gaya!
+                </p>
+            </div>
         </div>
     </div>
 

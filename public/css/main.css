@@ -151,7 +151,7 @@ body {
 
 .badge-featured { background: #ffd700; color: #000; }
 .badge-closing { background: #d90429; color: #fff; animation: blink 1.5s infinite; }
-.badge-timer { background: rgba(0,0,0,0.6); color: #fff; backdrop-filter: blur(4px); }
+.badge-timer { background: #b91c1c; color: #fff; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3); }
 
 @keyframes blink {
     0% { opacity: 1; }
