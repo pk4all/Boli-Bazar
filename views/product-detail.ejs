@@ -185,66 +185,7 @@
 
 
                 
-                <!-- Live Price Tracker Card (Matches Screenshot With Glow) -->
-                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_20px_60px_rgba(217,4,41,0.12)]">
-                    <div class="flex items-center justify-between mb-8">
-                        <h4 class="text-xl font-black text-secondary">Live Price Tracker</h4>
-                        <div class="flex items-center gap-2 text-emerald-500">
-                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span class="text-[11px] font-black uppercase tracking-widest">Real-time</span>
-                        </div>
-                    </div>
 
-                    <!-- 2x2 Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                        <!-- Starting Price -->
-                        <div class="bg-[#f8fafc] p-6 rounded-[2rem] border border-slate-100">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Starting Price</p>
-                            <p class="text-3xl font-black text-slate-600">₹<%= auction.initialPrice.toLocaleString() %></p>
-                        </div>
-                        <!-- Current Price -->
-                        <div class="bg-[#fff1f2] p-6 rounded-[2rem] border border-red-50">
-                            <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Current Price</p>
-                            <p class="text-3xl font-black text-[#9d174d]">₹<%= auction.currentBid.toLocaleString() %></p>
-                        </div>
-                        <!-- Total Buyers -->
-                        <div class="bg-[#eff6ff] p-6 rounded-[2rem] border border-blue-50">
-                            <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Total Buyers</p>
-                            <p class="text-3xl font-black text-indigo-600"><%= auction.totalBuyers %> buyers</p>
-                        </div>
-                        <!-- Remaining Stock -->
-                        <div class="bg-[#fff7ed] p-6 rounded-[2rem] border border-orange-50">
-                            <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-2">Remaining Stock</p>
-                            <p class="text-3xl font-black text-[#c2410c]"><%= auction.stockRemaining %> <span class="text-sm uppercase"><%= auction.unitType %></span></p>
-                        </div>
-                    </div>
-
-                    <!-- Stock Sold Section -->
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-end">
-                            <span class="text-sm font-bold text-gray-400">Stock Sold</span>
-                            <span class="text-xs font-black text-[#b91c1c] uppercase tracking-widest">80% gone</span>
-                        </div>
-                        <div class="h-4 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
-                        </div>
-                        <p class="text-[11px] font-black text-primary flex items-center gap-2">
-                            <i class="fas fa-info-circle text-xs"></i>
-                            Sirf 41 bags bacha hai — jaldi karein!
-                        </p>
-                    </div>
-
-                    <!-- Price Hike Footer -->
-                    <div class="mt-8 bg-[#fefce8] p-5 rounded-2xl border border-yellow-100 flex justify-between items-center group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-white/50 flex items-center justify-center text-yellow-600 transition group-hover:rotate-45">
-                                <i class="fas fa-arrow-trend-up"></i>
-                            </div>
-                            <span class="text-xs font-black text-yellow-800 uppercase tracking-widest">Price Hike So Far</span>
-                        </div>
-                        <span class="text-lg font-black text-yellow-700 tracking-tighter">+<%= auction.hikePercentage %>%</span>
-                    </div>
-                </div>
 
                 <!-- Tabs & Content -->
                 <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
@@ -489,6 +430,58 @@
 
             <!-- RIGHT COLUMN: STICKY SIDEBAR (5/12) -->
             <div class="lg:col-span-4 sticky-sidebar">
+                
+                <!-- Live Price Tracker Card (Moved to Sidebar) -->
+                <div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-[0_20px_60px_rgba(217,4,41,0.12)] mb-6">
+                    <div class="flex items-center justify-between mb-8">
+                        <h4 class="text-xl font-black text-secondary">Live Price Tracker</h4>
+                        <div class="flex items-center gap-2 text-emerald-500">
+                            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-[11px] font-black uppercase tracking-widest">Real-time</span>
+                        </div>
+                    </div>
+
+                    <!-- 2x2 Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <!-- Starting Price -->
+                        <div class="bg-[#f8fafc] p-4 rounded-[2rem] border border-slate-100 overflow-hidden">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Start</p>
+                            <p class="text-lg font-black text-slate-600">₹<%= auction.initialPrice.toLocaleString() %></p>
+                        </div>
+                        <!-- Current Price -->
+                        <div class="bg-[#fff1f2] p-4 rounded-[2rem] border border-red-50 overflow-hidden">
+                            <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Current</p>
+                            <p class="text-lg font-black text-[#9d174d]">₹<%= auction.currentBid.toLocaleString() %></p>
+                        </div>
+                        <!-- Total Buyers -->
+                        <div class="bg-[#eff6ff] p-4 rounded-[2rem] border border-blue-50 overflow-hidden">
+                            <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Buyers</p>
+                            <p class="text-lg font-black text-indigo-600"><%= auction.totalBuyers %></p>
+                        </div>
+                        <!-- Remaining Stock -->
+                        <div class="bg-[#fff7ed] p-4 rounded-[2rem] border border-orange-50 overflow-hidden">
+                            <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-1">Stock</p>
+                            <p class="text-lg font-black text-[#c2410c]"><%= auction.stockRemaining %></p>
+                        </div>
+                    </div>
+
+                    <!-- Stock Sold Section -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-end">
+                            <span class="text-[10px] font-bold text-gray-400">Stock Sold</span>
+                            <span class="text-[10px] font-black text-[#b91c1c] uppercase tracking-widest"><%= auction.stockSoldPercent %>% GONE</span>
+                        </div>
+                        <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Price Hike Footer -->
+                    <div class="mt-6 bg-[#fefce8] p-4 rounded-2xl border border-yellow-100 flex justify-between items-center">
+                        <span class="text-[10px] font-black text-yellow-800 uppercase tracking-widest">Hike</span>
+                        <span class="text-base font-black text-yellow-700 tracking-tighter">+<%= auction.hikePercentage %>%</span>
+                    </div>
+                </div>
                 <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-red-900/5 relative overflow-hidden">
                     
                     <!-- Sidebar Header (Matches Screenshot) -->
