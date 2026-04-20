@@ -10,7 +10,9 @@ const AuctionSchema = new mongoose.Schema({
     currentBid: { type: Number },
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
-    imageUrl: { type: String },
+    imageUrl: { type: String }, // Primary Image
+    images: [{ type: String }], // Additional Images (up to 4)
+    videoUrl: { type: String }, // Product Video Link
     lotSize: { type: Number, required: true },
     moq: { type: Number, default: 1 },
     unitType: { type: String, default: 'unit' }, // e.g., bag, tin, kg

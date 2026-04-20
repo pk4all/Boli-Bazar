@@ -95,40 +95,85 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+                <!-- Stats Grid: Operational Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Lots</p>
-                        <p class="text-3xl font-black text-slate-800"><%= auctions.length %></p>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Total Orders</p>
+                                <p class="text-2xl font-black text-slate-800"><%= orders.length %></p>
+                            </div>
+                        </div>
                     </div>
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Orders</p>
-                        <p class="text-3xl font-black text-slate-800"><%= orders.length %></p>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Retailers</p>
+                                <p class="text-2xl font-black text-slate-800"><%= retailerCount %></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 ring-2 ring-primary/5">
-                        <p class="text-[10px] font-black text-red-400 uppercase mb-1">Total Revenue</p>
-                        <p class="text-3xl font-black text-primary">₹<%= totalRevenue.toLocaleString() %></p>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Live Lots</p>
+                                <p class="text-2xl font-black text-green-600"><%= liveProductsCount %></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 ring-2 ring-green-400/5">
-                        <p class="text-[10px] font-black text-green-500 uppercase mb-1">Today Collection</p>
-                        <p class="text-3xl font-black text-green-600">₹<%= todayRevenue.toLocaleString() %></p>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-0.5">Upcoming</p>
+                                <p class="text-2xl font-black text-orange-500"><%= upcomingProductsCount %></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 ring-2 ring-orange-400/5">
-                        <p class="text-[10px] font-black text-orange-500 uppercase mb-1">Pending COD</p>
-                        <p class="text-3xl font-black text-orange-600">₹<%= pendingCod.toLocaleString() %></p>
+                </div>
+
+                <!-- Sales Performance Trend -->
+                <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200 mb-12">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-xl font-black">Sales <span class="text-red-600">Performance</span></h3>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Collection Trend (Last 7 Days)</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                             <div class="px-3 py-1 bg-green-50 border border-green-100 rounded-lg">
+                                <p class="text-[10px] font-black text-green-600 italic">Live Trends ↗</p>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="h-[300px] w-full">
+                        <canvas id="salesChart"></canvas>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                     <!-- Create New Lot -->
+                    <!-- Create New Lot (Advanced Form) -->
                     <section class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
                         <h2 class="text-xl font-black mb-6">Launch New <span class="text-primary">Auction</span></h2>
-                        <form action="/admin/add-product" method="POST" class="space-y-4">
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Title</label>
-                                <input type="text" name="title" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Basmati Rice Premium 50kg">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
+                        <form action="/admin/add-product" method="POST" enctype="multipart/form-data" class="space-y-6">
+                            <!-- Basic Details -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Title</label>
+                                    <input type="text" name="title" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Basmati Rice Premium 50kg">
+                                </div>
+                                
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Starting Price (₹)</label>
                                     <input type="number" name="initialPrice" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
@@ -137,18 +182,81 @@
                                     <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Lot Size / Units</label>
                                     <input type="number" name="lotSize" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
                                 </div>
+
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Min Order Qty (MOQ)</label>
+                                    <input type="number" name="moq" value="1" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Price Hike (%) per Bid</label>
+                                    <input type="number" name="hikePercentage" value="0" step="0.1" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Category</label>
+                                    <select name="category" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                        <option>Grocery</option>
+                                        <option>Beverages</option>
+                                        <option>Personal Care</option>
+                                        <option>Snacks</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Initial Status</label>
+                                    <select name="status" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                        <option value="Live">Live (Start Now)</option>
+                                        <option value="Upcoming">Upcoming (Schedule)</option>
+                                    </select>
+                                </div>
                             </div>
+
+                            <!-- Media Section -->
+                            <div class="space-y-4">
+                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Gallery (Max 4 Pictures)</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="relative group">
+                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
+                                            <i class="fas fa-camera text-slate-300 text-lg mb-1"></i>
+                                            <span class="text-[8px] font-black uppercase text-slate-400">Main Image</span>
+                                        </div>
+                                    </div>
+                                    <div class="relative group">
+                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
+                                            <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
+                                            <span class="text-[8px] font-black uppercase text-slate-400">Image 2</span>
+                                        </div>
+                                    </div>
+                                    <div class="relative group">
+                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
+                                            <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
+                                            <span class="text-[8px] font-black uppercase text-slate-400">Image 3</span>
+                                        </div>
+                                    </div>
+                                    <div class="relative group">
+                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
+                                            <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
+                                            <span class="text-[8px] font-black uppercase text-slate-400">Image 4</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Category</label>
-                                <select name="category" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                                    <option>Grocery</option>
-                                    <option>Beverages</option>
-                                    <option>Personal Care</option>
-                                    <option>Snacks</option>
-                                </select>
+                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Video Link (YouTube/Vimeo/Direct)</label>
+                                <input type="text" name="videoUrl" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="https://youtube.com/watch?v=...">
                             </div>
-                            <button type="submit" class="w-full bg-primary text-white py-4 rounded-xl text-xs uppercase tracking-widest font-black shadow-lg shadow-red-100 hover:scale-[1.02] transition active:scale-95">
-                                Launch Lot Live <i class="fas fa-rocket ml-2"></i>
+
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Description</label>
+                                <textarea name="description" rows="4" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Provide detailed product specifications..."></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl text-[11px] uppercase tracking-widest font-black shadow-xl shadow-red-100 hover:scale-[1.02] transition active:scale-95">
+                                Create New Auction <i class="fas fa-rocket ml-2"></i>
                             </button>
                         </form>
                     </section>
@@ -609,44 +717,103 @@
     </div>
 
     <!-- SCRIPTS -->
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        function updateOrderStatus(orderId, action) {
-            const endpoint = `/api/admin/orders/${orderId}/${action}`;
-            if (!confirm(`Are you sure you want to ${action.replace('-', ' ')}?`)) return;
-
-            fetch(endpoint, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + (data.error || 'Failed to update order'));
-                    }
-                })
-                .catch(err => {
-                    console.error('Action Failed:', err);
-                    alert('Network error or server failed.');
-                });
-        }
-
+        // Tab Navigation
         function showSection(sectionId) {
-            const event = window.event || arguments.callee.caller.arguments[0];
-            // Hide all sections
             document.querySelectorAll('.admin-section').forEach(section => {
                 section.classList.remove('active');
             });
-            // Show target section
-            document.getElementById(sectionId).classList.add('active');
-
-            // Update sidebar links
             document.querySelectorAll('.sidebar-link').forEach(link => {
-                link.classList.remove('active');
+                link.classList.remove('active', 'bg-slate-900', 'text-white');
                 link.classList.add('text-slate-400');
             });
-            event.currentTarget.classList.add('active');
-            event.currentTarget.classList.remove('text-slate-400');
+
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Find active button
+            const activeBtn = Array.from(document.querySelectorAll('.sidebar-link')).find(btn => 
+                btn.getAttribute('onclick').includes(sectionId)
+            );
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.classList.remove('text-slate-400');
+            }
+
+            // Save active tab
+            localStorage.setItem('adminActiveTab', sectionId);
         }
 
+        // Persistent Tab Logic & Chart Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('adminActiveTab');
+            if (savedTab) showSection(savedTab);
+
+            // Initialize Sales Performance Chart
+            const chartCanvas = document.getElementById('salesChart');
+            if (chartCanvas) {
+                const ctx = chartCanvas.getContext('2d');
+                const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                gradient.addColorStop(0, 'rgba(217, 4, 41, 0.15)');
+                gradient.addColorStop(1, 'rgba(217, 4, 41, 0)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: <%- JSON.stringify(weekLabels) %>,
+                        datasets: [{
+                            label: 'Daily Collection',
+                            data: <%= JSON.stringify(weekData) %>,
+                            borderColor: '#d90429',
+                            borderWidth: 3,
+                            fill: true,
+                            backgroundColor: gradient,
+                            tension: 0.4,
+                            pointBackgroundColor: '#fff',
+                            pointBorderColor: '#d90429',
+                            pointBorderWidth: 2,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: {
+                                    label: (context) => `₹ ${context.parsed.y.toLocaleString()}`
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f1f5f9' },
+                                ticks: { 
+                                    font: { weight: '600' },
+                                    callback: (v) => '₹' + v.toLocaleString()
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { weight: '600' } }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Auction Management
         function openEditModal(auctionData) {
             const auction = JSON.parse(auctionData);
             document.getElementById('editForm').action = `/admin/update-product/${auction._id}`;
@@ -656,7 +823,6 @@
             document.getElementById('editCategory').value = auction.category;
             document.getElementById('editImageUrl').value = auction.imageUrl || '';
             document.getElementById('editDesc').value = auction.description || '';
-            
             document.getElementById('editModal').classList.remove('hidden');
         }
 
@@ -664,64 +830,75 @@
             document.getElementById('editModal').classList.add('hidden');
         }
 
-        // Handle direct linking if needed
-        window.onload = () => {
-            const hash = window.location.hash.replace('#', '');
-            if (hash && document.getElementById(hash)) {
-                // Find matching button and trigger click
-                document.querySelectorAll('.sidebar-link').forEach(btn => {
-                    if (btn.innerText.toLowerCase().includes(hash.toLowerCase())) btn.click();
-                });
-            }
+        async function toggleStatus(id) {
+            try {
+                const response = await fetch(`/api/auctions/${id}/toggle-status`, { method: 'POST' });
+                if (response.ok) window.location.reload();
+            } catch (err) { alert('Update failed'); }
         }
-    </script>
 
-    <!-- CSV Export Utility -->
-    <script>
+        // Order Actions
+        async function deliverOrder(id) {
+            if (!confirm('Mark as DELIVERED? This will generate the invoice.')) return;
+            try {
+                const res = await fetch(`/api/admin/orders/${id}/deliver`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) window.location.reload();
+                else alert('Error: ' + data.error);
+            } catch (err) { alert('Server Error'); }
+        }
+
+        async function confirmCodPayment(id) {
+            if (!confirm('Receive final COD payment?')) return;
+            try {
+                const res = await fetch(`/api/admin/orders/${id}/confirm-payment`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) window.location.reload();
+                else alert('Error: ' + data.error);
+            } catch (err) { alert('Server Error'); }
+        }
+
+        function updateOrderStatus(orderId, action) {
+            if (!confirm(`Are you sure you want to ${action}?`)) return;
+            fetch(`/api/admin/orders/${orderId}/${action}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) window.location.reload();
+                    else alert('Error: ' + data.error);
+                });
+        }
+
+        // CSV Export
         function exportOrdersToCSV() {
-            // Get data from the rendered table or pass it from EJS to JS
             const orders = <%- JSON.stringify(orders) %>;
-            if (!orders || orders.length === 0) {
-                alert("No data available to export.");
-                return;
-            }
+            if (!orders || orders.length === 0) return alert("No data to export.");
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            // Headers
-            csvContent += "Order ID,Product,Buyer,City,Payment Mode,Order Value,Paid Now,Balance,Date,Status\n";
-
-            orders.forEach(order => {
-                const sub = order.totalAmount;
-                const fee = (order.paymentMode === 'cod') ? (sub * 0.1) : 0;
-                const val = sub + fee;
-                const paid = (order.paymentMode === 'cod') ? (sub * 0.1) : sub;
-                const bal = val - paid;
-                const date = new Date(order.createdAt).toLocaleString('en-IN');
-
+            let csv = "Order ID,Product,Buyer,City,Payment Mode,Order Value,Paid Now,Balance,Date,Status\n";
+            orders.forEach(o => {
+                const sub = o.totalAmount;
+                const fee = (o.paymentMode === 'cod') ? (sub * 0.1) : 0;
+                const date = new Date(o.createdAt).toLocaleString('en-IN');
                 const row = [
-                    order._id.toString().slice(-8).toUpperCase(),
-                    `"${order.auction ? order.auction.title.replace(/"/g, '""') : 'N/A'}"`,
-                    `"${order.username.replace(/"/g, '""')}"`,
-                    `"${order.city ? order.city.replace(/"/g, '""') : 'N/A'}"`,
-                    order.paymentMode.toUpperCase(),
-                    val,
-                    paid,
-                    bal,
+                    o._id.toString().slice(-8).toUpperCase(),
+                    `"${(o.auction?.title || 'N/A').replace(/"/g, '""')}"`,
+                    `"${o.username.replace(/"/g, '""')}"`,
+                    `"${(o.city || 'N/A').replace(/"/g, '""')}"`,
+                    o.paymentMode.toUpperCase(),
+                    sub + fee,
+                    (o.paymentHistory || []).reduce((s, p) => s + p.amount, 0),
+                    (sub + fee) - (o.paymentHistory || []).reduce((s, p) => s + p.amount, 0),
                     `"${date}"`,
-                    order.status
+                    o.status
                 ].join(",");
-                csvContent += row + "\n";
+                csv += row + "\n";
             });
 
-            const encodedUri = encodeURI(csvContent);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Winning_Orders_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
+            link.href = URL.createObjectURL(blob);
+            link.download = `Orders_Report_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
-            document.body.removeChild(link);
         }
     </script>
-
 </body>
 </html>

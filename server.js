@@ -273,9 +273,39 @@ app.get('/admin', async (req, res) => {
             return sum + (remaining > 0 ? remaining : 0);
         }, 0);
 
+        // NEW: Operational Metrics
+        const retailerCount = await User.countDocuments({ role: 'retailer' });
+        const liveProductsCount = await Auction.countDocuments({ status: 'Live' });
+        const upcomingProductsCount = await Auction.countDocuments({ status: 'Upcoming' });
+
+        // Weekly Sales Performance Data (Labels & Values)
+        const weekLabels = [];
+        const weekData = [];
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            date.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            weekLabels.push(date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }));
+            
+            let dailySum = 0;
+            allOrders.forEach(o => {
+                const dayPayments = (o.paymentHistory || []).filter(p => {
+                    const pDate = new Date(p.date);
+                    return pDate >= date && pDate <= endOfDay;
+                });
+                dailySum += dayPayments.reduce((s, p) => s + p.amount, 0);
+            });
+            weekData.push(dailySum);
+        }
+
         res.render('admin', { 
             auctions, users, banners, rewards, orders, 
             totalRevenue, todayRevenue, pendingCod,
+            retailerCount, liveProductsCount, upcomingProductsCount,
+            weekLabels, weekData,
             startDate: startDate || '',
             endDate: endDate || ''
         });
@@ -286,14 +316,34 @@ app.get('/admin', async (req, res) => {
 });
 
 // Admin: Add Auction
-app.post('/admin/add-product', async (req, res) => {
+app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        const newAuction = new Auction(req.body);
-        newAuction.stockRemaining = newAuction.lotSize; // Initialize stock
+        const { title, description, initialPrice, lotSize, category, moq, hikePercentage, videoUrl, status } = req.body;
+        
+        const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
+        
+        const newAuction = new Auction({
+            title,
+            description,
+            initialPrice,
+            lotSize,
+            category,
+            moq: moq || 1,
+            hikePercentage: hikePercentage || 0,
+            videoUrl,
+            status: status || 'Live',
+            images: images,
+            imageUrl: images[0] || '', // Use first image as primary
+            stockRemaining: lotSize,
+            startTime: new Date(), // Default to now
+            endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default to 7 days
+        });
+
         await newAuction.save();
         res.redirect('/admin');
     } catch (err) {
+        console.error('Add Product Error:', err);
         res.redirect('/admin');
     }
 });
