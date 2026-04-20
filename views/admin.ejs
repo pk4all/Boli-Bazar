@@ -310,41 +310,51 @@
                 <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
                     <table class="w-full text-left border-collapse">
                         <thead class="bg-slate-900 text-white">
-                            <tr>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest">Order Details</th>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Buyer</th>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Total Paid</th>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Mode</th>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Date</th>
-                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <% if (orders && orders.length > 0) { %>
-                                <% orders.forEach(order => { %>
-                                    <tr class="hover:bg-slate-50 transition">
-                                        <td class="p-6">
-                                            <p class="text-sm font-black text-slate-800 truncate max-w-[200px]"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
-                                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Order #<%= order._id.toString().slice(-8).toUpperCase() %></p>
-                                        </td>
-                                        <td class="p-6 text-center">
-                                            <p class="text-xs font-bold text-slate-800"><%= order.username %></p>
-                                            <p class="text-[9px] text-slate-400"><%= order.city %></p>
-                                        </td>
-                                        <td class="p-6 text-center font-black text-green-600 text-sm">₹<%= order.totalAmount.toLocaleString() %></td>
-                                        <td class="p-6 text-center">
-                                            <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter border <%= order.paymentMode === 'full' ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-orange-50 text-orange-500 border-orange-100' %>">
-                                                <%= order.paymentMode === 'full' ? 'FULL PREPAID' : 'COD' %>
-                                            </span>
-                                        </td>
-                                        <td class="p-6 text-center text-[10px] font-bold text-slate-400">
-                                            <%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) %>
-                                        </td>
-                                        <td class="p-6 text-right">
-                                            <span class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-[9px] font-black uppercase tracking-widest border border-green-200 shadow-sm">
-                                                <%= order.status %>
-                                            </span>
-                                        </td>
+                                <tr>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest">Order Details</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Buyer</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Order Value</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center text-green-400">Paid Now</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center text-orange-400">Balance</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Mode</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Date</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <% if (orders && orders.length > 0) { %>
+                                    <% orders.forEach(order => { 
+                                        const subtotal = order.totalAmount;
+                                        const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
+                                        const orderValue = subtotal + fee;
+                                        const paidNow = (order.paymentMode === 'cod') ? (subtotal * 0.1) : subtotal;
+                                        const balance = orderValue - paidNow;
+                                    %>
+                                        <tr class="hover:bg-slate-50 transition">
+                                            <td class="p-6">
+                                                <p class="text-sm font-black text-slate-800 truncate max-w-[200px]"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
+                                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Order #<%= order._id.toString().slice(-8).toUpperCase() %></p>
+                                            </td>
+                                            <td class="p-6 text-center">
+                                                <p class="text-xs font-bold text-slate-800"><%= order.username %></p>
+                                                <p class="text-[9px] text-slate-400"><%= order.city %></p>
+                                            </td>
+                                            <td class="p-6 text-center font-bold text-slate-700 text-xs">₹<%= orderValue.toLocaleString() %></td>
+                                            <td class="p-6 text-center font-black text-green-600 text-xs">₹<%= paidNow.toLocaleString() %></td>
+                                            <td class="p-6 text-center font-black text-orange-600 text-xs">₹<%= balance.toLocaleString() %></td>
+                                            <td class="p-6 text-center">
+                                                <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter border <%= order.paymentMode === 'full' ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-orange-50 text-orange-500 border-orange-100' %>">
+                                                    <%= order.paymentMode === 'full' ? 'FULL PREPAID' : 'COD' %>
+                                                </span>
+                                            </td>
+                                            <td class="p-6 text-center text-[10px] font-bold text-slate-400">
+                                                <%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) %>
+                                            </td>
+                                            <td class="p-6 text-right">
+                                                <span class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-[9px] font-black uppercase tracking-widest border border-green-200 shadow-sm">
+                                                    <%= order.status %>
+                                                </span>
+                                            </td>
                                     </tr>
                                 <% }) %>
                             <% } else { %>
