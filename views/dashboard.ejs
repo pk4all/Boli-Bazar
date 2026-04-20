@@ -163,7 +163,7 @@
                     </div>
                     <div class="relative z-10">
                         <p class="text-[10px] font-black text-white/80 uppercase tracking-widest mb-2">Total Shopping Coins</p>
-                        <h3 class="text-4xl font-black mb-10 tracking-tighter">₹<%= (locals.user && user.walletBalance) ? user.walletBalance.toLocaleString() : '0' %></h3>
+                        <h3 class="text-4xl font-black mb-10 tracking-tighter"><i class="fas fa-coins text-yellow-500 mr-2"></i><%= (locals.user && user.walletBalance) ? user.walletBalance.toLocaleString() : '0' %></h3>
                         
                         <div class="flex items-center gap-4">
                             <div class="flex-grow py-4 px-6 border border-white/20 rounded-2xl bg-white/10 text-[10px] font-black uppercase tracking-widest flex items-center justify-between">
@@ -345,7 +345,7 @@
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-xs font-black text-secondary">₹<%= retailer.walletBalance.toLocaleString() %></p>
+                                            <p class="text-xs font-black text-secondary"><i class="fas fa-coins text-yellow-500 mr-0.5"></i><%= retailer.walletBalance.toLocaleString() %></p>
                                             <p class="text-[8px] font-black text-primary uppercase tracking-widest">Shopping Coins</p>
                                         </div>
                                     </div>

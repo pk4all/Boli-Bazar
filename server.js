@@ -78,6 +78,7 @@ app.post('/api/checkout/:id', async (req, res) => {
         
         auction.stockRemaining = Math.max(0, (auction.stockRemaining || 0) - buyQty);
         auction.totalBuyers = (auction.totalBuyers || 0) + 1;
+
         if (auction.lotSize > 0) {
             auction.stockSoldPercent = Math.min(100, Math.round(((auction.lotSize - auction.stockRemaining) / auction.lotSize) * 100));
         }
@@ -141,7 +142,7 @@ app.get('/', async (req, res) => {
             const defaultRewards = [
                 { rank: 1, title: 'FREE Delivery for 1 Month', description: '• Exclusive Gold Badge • 5% Extra Discount', imageUrl: '/lot1.png' },
                 { rank: 2, title: '3% Extra Discount on All Orders', description: '• Silver Badge • Priority Support', imageUrl: '/lot3.png' },
-                { rank: 3, title: '₹500 Cashback Voucher', description: '• Bronze Badge • Early Access to New Lots', imageUrl: '/lot2.png' }
+                { rank: 3, title: '500 Coins Reward', description: '• Bronze Badge • Early Access to New Lots', imageUrl: '/lot2.png' }
             ];
             await Reward.insertMany(defaultRewards);
             rewards = await Reward.find().sort({ rank: 1 }).lean();
