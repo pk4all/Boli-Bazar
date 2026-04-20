@@ -3,36 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Control Panel | BoliBazar</title>
+    <title>Admin Command Center | Boli Bazar</title>
     <link rel="stylesheet" href="/css/main.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar-link.active {
+            background: #d90429;
+            color: white;
+        }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.active {
+            display: block;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-900 font-sans">
+<body class="bg-[#f8fafc] text-slate-900 font-sans">
 
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar -->
-        <aside class="w-64 bg-secondary text-white flex-shrink-0 flex flex-col">
-            <div class="p-6 border-b border-white/10">
+        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col">
+            <div class="p-6 border-b border-white/5">
                 <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
-                <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Admin Panel</p>
+                <p class="text-[10px] text-slate-500 font-bold uppercase mt-1">Command Center</p>
             </div>
             <nav class="flex-grow p-4 space-y-2">
-                <a href="/admin" class="flex items-center space-x-3 p-3 bg-primary rounded-xl text-sm font-bold">
-                    <i class="fas fa-chart-line w-5"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#products" class="flex items-center space-x-3 p-3 hover:bg-white/5 rounded-xl text-sm font-bold text-gray-400">
+                <button onclick="showSection('overview')" class="sidebar-link active w-full flex items-center space-x-3 p-3 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-chart-pie w-5"></i>
+                    <span>Overview</span>
+                </button>
+                <button onclick="showSection('lots')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
                     <i class="fas fa-boxes w-5"></i>
-                    <span>Manage Auctions</span>
-                </a>
-                <a href="#users" class="flex items-center space-x-3 p-3 hover:bg-white/5 rounded-xl text-sm font-bold text-gray-400">
+                    <span>Manage Lots</span>
+                </button>
+                <button onclick="showSection('retailers')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
                     <i class="fas fa-users w-5"></i>
-                    <span>Retailers</span>
-                </a>
+                    <span>Retailer List</span>
+                </button>
+                <button onclick="showSection('orders')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-shopping-bag w-5"></i>
+                    <span>Winning Orders</span>
+                </button>
+                <button onclick="showSection('media')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-photo-video w-5"></i>
+                    <span>Media & Banners</span>
+                </button>
+                <button onclick="showSection('rewards')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-trophy w-5"></i>
+                    <span>Rewards</span>
+                </button>
             </nav>
-            <div class="p-6 border-t border-white/10">
+            <div class="p-6 border-t border-white/5">
                 <a href="/logout" class="text-xs font-bold text-red-500 uppercase flex items-center space-x-2">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout Admin</span>
@@ -41,227 +65,466 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-grow overflow-y-auto p-8">
+        <main class="flex-grow overflow-y-auto bg-slate-50">
             
-            <!-- Welcome -->
-            <div class="flex justify-between items-center mb-10">
-                <h1 class="text-3xl font-black font-heading">System <span class="text-red-600">Overview</span></h1>
-                <div class="flex items-center space-x-4">
-                    <div class="text-right">
-                        <p class="text-xs font-bold text-gray-400 uppercase">Server Status</p>
-                        <p class="text-sm font-black text-green-600">Operational</p>
+            <!-- OVERVIEW SECTION -->
+            <div id="overview" class="admin-section active p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <h1 class="text-3xl font-black">System <span class="text-red-600">Overview</span></h1>
+                    <div class="flex items-center space-x-4 bg-white p-3 rounded-2xl border border-slate-200">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <p class="text-xs font-black uppercase tracking-widest text-slate-400">Live Status: Operational</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Active Lots</p>
-                    <p class="text-3xl font-black"><%= auctions.length %></p>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Retailers</p>
-                    <p class="text-3xl font-black"><%= users.length %></p>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Bids Today</p>
-                    <p class="text-3xl font-black text-primary">42</p>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Revenue Forecast</p>
-                    <p class="text-3xl font-black text-green-600">₹8.4L</p>
-                </div>
-            </div>
-
-            <!-- Management Sections -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                
-                <!-- Add New Product -->
-                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-black mb-6 font-heading">Launch New <span class="text-primary">Auction</span></h2>
-                    <form action="/admin/add-product" method="POST" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Product Title</label>
-                            <input type="text" name="title" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Basmati Rice Premium 50kg">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Initial Price (₹)</label>
-                                <input type="number" name="initialPrice" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Hike Per Buyer (%)</label>
-                                <input type="number" step="0.1" name="hikePercentage" value="0.5" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Lot Size / Units</label>
-                            <input type="number" name="lotSize" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Category</label>
-                            <select name="category" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                                <option>Grocery</option>
-                                <option>Beverages</option>
-                                <option>Personal Care</option>
-                                <option>Snacks</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Image URL</label>
-                            <input type="text" name="imageUrl" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="/lot1.png">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Description</label>
-                            <textarea name="description" rows="3" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"></textarea>
-                        </div>
-                        <button type="submit" class="w-full btn-primary py-4 rounded-2xl text-xs uppercase tracking-widest font-black shadow-lg shadow-red-100">
-                            Launch Lot Live <i class="fas fa-rocket ml-2"></i>
-                        </button>
-                    </form>
-                </section>
-
-                <!-- Product List -->
-                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-black mb-6">Active <span class="text-gray-400">Inventory</span></h2>
-                    <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                        <% auctions.forEach(auction => { %>
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-200">
-                                        <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-secondary"><%= auction.title %></p>
-                                        <p class="text-[10px] text-gray-400 uppercase">Base: ₹<%= auction.initialPrice %> | Live: <span class="text-red-600">₹<%= auction.currentBid || auction.initialPrice %></span></p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-end gap-3">
-                                    <form action="/admin/finalize-auction/<%= auction._id %>" method="POST" class="flex gap-2">
-                                        <select name="winnerId" required class="bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] font-bold outline-none focus:border-primary">
-                                            <option value="" disabled selected>Select Winner</option>
-                                            <% users.forEach(u => { %>
-                                                <option value="<%= u._id %>"><%= u.username %> (<%= u.city %>)</option>
-                                            <% }); %>
-                                        </select>
-                                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition shadow-sm">
-                                            Award & Close
-                                        </button>
-                                    </form>
-                                    
-                                    <form action="/admin/delete-product/<%= auction._id %>" method="POST">
-                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition group">
-                                            <i class="fas fa-trash-alt text-xs group-hover:rotate-12"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        <% }); %>
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Auctions</p>
+                        <p class="text-3xl font-black text-slate-800"><%= auctions.length %></p>
                     </div>
-                </section>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Total Retailers</p>
+                        <p class="text-3xl font-black text-slate-800"><%= users.length %></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Orders Placed</p>
+                        <p class="text-3xl font-black text-primary"><%= orders.length %></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Revenue Forecast</p>
+                        <p class="text-3xl font-black text-green-600">₹8.4L</p>
+                    </div>
+                </div>
 
-            </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- Create New Lot -->
+                    <section class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
+                        <h2 class="text-xl font-black mb-6">Launch New <span class="text-primary">Auction</span></h2>
+                        <form action="/admin/add-product" method="POST" class="space-y-4">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Title</label>
+                                <input type="text" name="title" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Basmati Rice Premium 50kg">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Starting Price (₹)</label>
+                                    <input type="number" name="initialPrice" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Lot Size / Units</label>
+                                    <input type="number" name="lotSize" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Category</label>
+                                <select name="category" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                    <option>Grocery</option>
+                                    <option>Beverages</option>
+                                    <option>Personal Care</option>
+                                    <option>Snacks</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-4 rounded-xl text-xs uppercase tracking-widest font-black shadow-lg shadow-red-100 hover:scale-[1.02] transition active:scale-95">
+                                Launch Lot Live <i class="fas fa-rocket ml-2"></i>
+                            </button>
+                        </form>
+                    </section>
 
-            <!-- Banner Management Section -->
-            <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-10">
-                
-                <!-- Upload New Banner -->
-                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-black mb-6 font-heading">Upload Hero <span class="text-primary">Banner</span></h2>
-                    <form action="/admin/banners/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Banner Title (Optional)</label>
-                            <input type="text" name="title" class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Summer Sale 2026">
+                    <!-- Quick View of Latest Orders -->
+                    <section class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-black text-slate-800">Recent <span class="text-slate-400">Activity</span></h2>
+                            <button onclick="showSection('orders')" class="text-[10px] font-black uppercase text-primary border-b-2 border-primary pb-0.5">View All</button>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Select Banner Image (1200x400)</label>
-                            <input type="file" name="bannerImage" required class="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
-                        </div>
-                        <button type="submit" class="w-full bg-secondary text-white py-4 rounded-2xl text-xs uppercase tracking-widest font-black shadow-lg shadow-blue-100 hover:bg-black transition">
-                            Upload Banner <i class="fas fa-upload ml-2 text-primary"></i>
-                        </button>
-                    </form>
-                </section>
-
-                <!-- Current Banners List -->
-                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
-                    <h2 class="text-2xl font-black mb-6">Live <span class="text-gray-400">Banners</span></h2>
-                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                        <% if (typeof banners !== 'undefined' && banners.length > 0) { %>
-                            <% banners.forEach(banner => { %>
-                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="w-24 h-12 rounded-lg overflow-hidden bg-gray-200 border border-gray-200">
-                                            <img src="<%= banner.imageUrl %>" class="w-full h-full object-cover">
+                        <div class="space-y-4">
+                            <% orders.slice(0, 5).forEach(order => { %>
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-slate-400 shadow-sm">
+                                            <i class="fas fa-shopping-cart text-xs"></i>
                                         </div>
                                         <div>
-                                            <p class="text-xs font-bold text-secondary"><%= banner.title || 'Untitled Banner' %></p>
+                                            <p class="text-xs font-bold text-slate-800"><%= order.username %></p>
+                                            <p class="text-[9px] text-slate-400 uppercase font-black"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
                                         </div>
                                     </div>
-                                    <form action="/admin/banners/delete/<%= banner._id %>" method="POST">
-                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition group">
-                                            <i class="fas fa-trash-alt text-xs group-hover:scale-110"></i>
-                                        </button>
-                                    </form>
+                                    <p class="text-xs font-black text-green-600">₹<%= order.totalAmount.toLocaleString() %></p>
                                 </div>
-                            <% }); %>
-                        <% } else { %>
-                            <div class="text-center py-10">
-                                <i class="fas fa-images text-4xl text-gray-200 mb-3 block"></i>
-                                <p class="text-xs font-black text-gray-300 uppercase tracking-widest">No Banners</p>
-                            </div>
-                        <% } %>
-                    </div>
-                </section>
-
+                            <% }) %>
+                        </div>
+                    </section>
+                </div>
             </div>
 
-            <!-- Leaderboard Rewards Management Section -->
-            <div id="rewards" class="mt-12">
-                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
-                    <div class="flex items-center space-x-3 mb-8">
-                        <i class="fas fa-trophy text-[#ffc107] text-2xl"></i>
-                        <h2 class="text-2xl font-black font-heading">Leaderboard <span class="text-primary">Rewards</span></h2>
+            <!-- LOTS MANAGEMENT SECTION -->
+            <div id="lots" class="admin-section p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <h1 class="text-3xl font-black">Manage <span class="text-primary">Auctions</span></h1>
+                    <button onclick="showSection('overview')" class="bg-white border border-slate-200 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition">Add New Lot</button>
+                </div>
+
+                <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900 text-white">
+                            <tr>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest">Product</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Base Price</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Live Price</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Stock</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Status</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <% auctions.forEach(auction => { %>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 shadow-sm flex-shrink-0">
+                                                <img src="<%= auction.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-slate-800"><%= auction.title %></p>
+                                                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5"><%= auction.category %></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-center font-bold text-slate-500">₹<%= auction.initialPrice %></td>
+                                    <td class="p-6 text-center font-black text-primary">₹<%= auction.currentBid || auction.initialPrice %></td>
+                                    <td class="p-6 text-center">
+                                        <span class="bg-slate-100 px-3 py-1 rounded-lg text-[10px] font-black text-slate-600 border border-slate-200">
+                                            <%= auction.stockRemaining %> / <%= auction.lotSize %>
+                                        </span>
+                                    </td>
+                                    <td class="p-6 text-center">
+                                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest <%= auction.status === 'Closed' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600' %>">
+                                            <%= auction.status || 'Active' %>
+                                        </span>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <button onclick="openEditModal('<%= JSON.stringify(auction).replace(/'/g, "\\'") %>')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </button>
+                                            <form action="/admin/finalize-auction/<%= auction._id %>" method="POST" class="inline">
+                                                <input type="hidden" name="winnerId" value="<%= users[0] ? users[0]._id : '' %>"> 
+                                                <button title="Award & Close" class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center hover:bg-green-600 hover:text-white transition">
+                                                    <i class="fas fa-check-circle text-xs"></i>
+                                                </button>
+                                            </form>
+                                            <form action="/admin/delete-product/<%= auction._id %>" method="POST" class="inline" onsubmit="return confirm('Pakka? This cannot be undone!')">
+                                                <button class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition">
+                                                    <i class="fas fa-trash-alt text-xs"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RETAILERS SECTION -->
+            <div id="retailers" class="admin-section p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <h1 class="text-3xl font-black font-heading">Retailer <span class="text-blue-600">Network</span></h1>
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Registered: <%= users.length %></div>
+                </div>
+
+                <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900 text-white">
+                            <tr>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest">Retailer / Shop</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">City</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Shopping Coins</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Registered</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Account</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <% users.forEach(retailer => { %>
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-6">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 font-black">
+                                                <%= retailer.username.charAt(0).toUpperCase() %>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-black text-slate-800"><%= retailer.username %></p>
+                                                <p class="text-[10px] text-slate-400 font-bold tracking-wider"><%= retailer.email %></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-6 text-center font-bold text-slate-600"><%= retailer.city || 'N/A' %></td>
+                                    <td class="p-6 text-center">
+                                        <span class="text-sm font-black text-yellow-600">
+                                            <i class="fas fa-coins mr-1"></i><%= retailer.walletBalance ? retailer.walletBalance.toLocaleString() : '0' %>
+                                        </span>
+                                    </td>
+                                    <td class="p-6 text-center text-xs text-slate-400 font-bold">
+                                        <%= new Date(retailer.createdAt).toLocaleDateString('en-IN') %>
+                                    </td>
+                                    <td class="p-6 text-right">
+                                        <button class="px-3 py-1 rounded-lg border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-800 transition">View History</button>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- WINNING ORDERS SECTION -->
+            <div id="orders" class="admin-section p-8">
+                <div class="flex justify-between items-center mb-10">
+                    <h1 class="text-3xl font-black font-heading">Winning <span class="text-green-600">Orders</span></h1>
+                    <button class="bg-white border border-slate-200 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition">Export CSV</button>
+                </div>
+
+                <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900 text-white">
+                            <tr>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest">Order Details</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Buyer</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Total Paid</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Mode</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Date</th>
+                                <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <% if (orders && orders.length > 0) { %>
+                                <% orders.forEach(order => { %>
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-6">
+                                            <p class="text-sm font-black text-slate-800 truncate max-w-[200px]"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
+                                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Order #<%= order._id.toString().slice(-8).toUpperCase() %></p>
+                                        </td>
+                                        <td class="p-6 text-center">
+                                            <p class="text-xs font-bold text-slate-800"><%= order.username %></p>
+                                            <p class="text-[9px] text-slate-400"><%= order.city %></p>
+                                        </td>
+                                        <td class="p-6 text-center font-black text-green-600 text-sm">₹<%= order.totalAmount.toLocaleString() %></td>
+                                        <td class="p-6 text-center">
+                                            <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter border <%= order.paymentMode === 'full' ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-orange-50 text-orange-500 border-orange-100' %>">
+                                                <%= order.paymentMode === 'full' ? 'FULL PREPAID' : 'COD' %>
+                                            </span>
+                                        </td>
+                                        <td class="p-6 text-center text-[10px] font-bold text-slate-400">
+                                            <%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) %>
+                                        </td>
+                                        <td class="p-6 text-right">
+                                            <span class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-[9px] font-black uppercase tracking-widest border border-green-200 shadow-sm">
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="p-20 text-center">
+                                        <i class="fas fa-box-open text-5xl text-slate-200 mb-4 block"></i>
+                                        <p class="text-xs font-black text-slate-300 uppercase tracking-widest">No Winning Orders Found</p>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- MEDIA & BANNERS SECTION -->
+            <div id="media" class="admin-section p-8">
+                <div class="flex flex-col md:flex-row gap-10">
+                    <!-- Upload Banner -->
+                    <div class="flex-grow">
+                        <section class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
+                            <h2 class="text-xl font-black mb-6">Upload <span class="text-primary">Hero Banner</span></h2>
+                            <form action="/admin/banners/upload" method="POST" enctype="multipart/form-data" class="space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Banner Title</label>
+                                    <input type="text" name="title" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="e.g. Summer Sale">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Banner Image (PNG/JPG)</label>
+                                    <input type="file" name="bannerImage" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm">
+                                </div>
+                                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl text-xs uppercase tracking-widest font-black shadow-lg shadow-slate-100 hover:bg-black transition">
+                                    Upload & Launch Banner <i class="fas fa-upload ml-2"></i>
+                                </button>
+                            </form>
+                        </section>
                     </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <% rewards.forEach(reward => { %>
-                            <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex flex-col items-center">
-                                <div class="w-20 h-20 bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4 shadow-sm">
-                                    <img src="<%= reward.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
-                                </div>
-                                <div class="text-center mb-6">
-                                    <span class="text-[10px] font-black uppercase tracking-widest text-primary"><%= reward.rank === 1 ? '1st Place' : (reward.rank === 2 ? '2nd Place' : '3rd Place') %></span>
-                                    <h3 class="text-sm font-black text-secondary mt-1"><%= reward.title %></h3>
-                                </div>
-                                
-                                <form action="/admin/rewards/update" method="POST" enctype="multipart/form-data" class="w-full space-y-4 pt-4 border-t border-gray-200">
-                                    <input type="hidden" name="rank" value="<%= reward.rank %>">
-                                    <div>
-                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">New Picture</label>
-                                        <input type="file" name="rewardImage" class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs">
+                    <!-- Live Banners -->
+                    <div class="w-full md:w-1/3">
+                        <section class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200">
+                            <h2 class="text-xl font-black mb-6">Live <span class="text-slate-400">Banners</span></h2>
+                            <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                                <% banners.forEach(banner => { %>
+                                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div class="flex items-center gap-3">
+                                            <img src="<%= banner.imageUrl %>" class="w-12 h-6 object-cover rounded shadow-sm">
+                                            <p class="text-[10px] font-black text-slate-800 truncate w-24"><%= banner.title || 'Banner' %></p>
+                                        </div>
+                                        <form action="/admin/banners/delete/<%= banner._id %>" method="POST">
+                                            <button class="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition">
+                                                <i class="fas fa-times text-[10px]"></i>
+                                            </button>
+                                        </form>
                                     </div>
-                                    <div>
-                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Reward Title</label>
-                                        <input type="text" name="title" value="<%= reward.title %>" required class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs focus:border-primary">
-                                    </div>
-                                    <div>
-                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Description line</label>
-                                        <input type="text" name="description" value="<%= reward.description %>" required class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs focus:border-primary">
-                                    </div>
-                                    <button type="submit" class="w-full bg-secondary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition">
-                                        Update Reward #<%= reward.rank %>
-                                    </button>
-                                </form>
+                                <% }) %>
                             </div>
-                        <% }); %>
+                        </section>
                     </div>
-                </section>
+                </div>
+            </div>
+
+            <!-- REWARDS SECTION -->
+            <div id="rewards" class="admin-section p-8">
+                <div class="flex items-center space-x-3 mb-10">
+                    <i class="fas fa-trophy text-[#ffc107] text-2xl"></i>
+                    <h1 class="text-3xl font-black font-heading">Leaderboard <span class="text-primary">Rewards</span></h1>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <% rewards.forEach(reward => { %>
+                        <div class="bg-white p-8 rounded-[40px] border border-slate-200 flex flex-col items-center">
+                            <div class="w-24 h-24 bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden mb-6 shadow-sm">
+                                <img src="<%= reward.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center mb-8">
+                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"><%= reward.rank === 1 ? '1st Place' : (reward.rank === 2 ? '2nd Place' : '3rd Place') %></span>
+                                <h3 class="text-base font-black text-slate-800 mt-3"><%= reward.title %></h3>
+                            </div>
+                            
+                            <form action="/admin/rewards/update" method="POST" enctype="multipart/form-data" class="w-full space-y-4 pt-6 border-t border-slate-100">
+                                <input type="hidden" name="rank" value="<%= reward.rank %>">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Update Reward Title</label>
+                                    <input type="text" name="title" value="<%= reward.title %>" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-xs focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">New Reward Image</label>
+                                    <input type="file" name="rewardImage" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-[10px]">
+                                </div>
+                                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition shadow-sm">
+                                    Save Reward #<%= reward.rank %>
+                                </button>
+                            </form>
+                        </div>
+                    <% }); %>
+                </div>
             </div>
 
         </main>
     </div>
+
+    <!-- EDIT PRODUCT MODAL -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800">Edit <span class="text-primary">Auction Lot</span></h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Modify pricing and details</p>
+                </div>
+                <button onclick="closeEditModal()" class="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-100 transition shadow-sm">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editForm" method="POST" class="p-8 space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Product Title</label>
+                    <input type="text" name="title" id="editTitle" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Starting Price (₹)</label>
+                        <input type="number" name="initialPrice" id="editPrice" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Total Lot Size</label>
+                        <input type="number" name="lotSize" id="editLotSize" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Category</label>
+                        <select name="category" id="editCategory" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary">
+                            <option>Grocery</option>
+                            <option>Beverages</option>
+                            <option>Personal Care</option>
+                            <option>Snacks</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Image URL</label>
+                        <input type="text" name="imageUrl" id="editImageUrl" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">Description</label>
+                    <textarea name="description" id="editDesc" rows="3" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-5 py-4 text-sm focus:outline-none focus:border-primary"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl text-[11px] uppercase tracking-widest font-black shadow-xl shadow-red-100 hover:scale-[1.02] transition active:scale-95">
+                    Update Auction Details <i class="fas fa-save ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        function showSection(sectionId) {
+            const event = window.event || arguments.callee.caller.arguments[0];
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update sidebar links
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+                link.classList.add('text-slate-400');
+            });
+            event.currentTarget.classList.add('active');
+            event.currentTarget.classList.remove('text-slate-400');
+        }
+
+        function openEditModal(auctionData) {
+            const auction = JSON.parse(auctionData);
+            document.getElementById('editForm').action = `/admin/update-product/${auction._id}`;
+            document.getElementById('editTitle').value = auction.title;
+            document.getElementById('editPrice').value = auction.initialPrice;
+            document.getElementById('editLotSize').value = auction.lotSize;
+            document.getElementById('editCategory').value = auction.category;
+            document.getElementById('editImageUrl').value = auction.imageUrl || '';
+            document.getElementById('editDesc').value = auction.description || '';
+            
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        // Handle direct linking if needed
+        window.onload = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash && document.getElementById(hash)) {
+                // Find matching button and trigger click
+                document.querySelectorAll('.sidebar-link').forEach(btn => {
+                    if (btn.innerText.toLowerCase().includes(hash.toLowerCase())) btn.click();
+                });
+            }
+        }
+    </script>
 
 </body>
 </html>

@@ -221,11 +221,14 @@ app.get('/admin', async (req, res) => {
     }
     try {
         const auctions = await Auction.find().sort({ createdAt: -1 });
-        const users = await User.find({ role: 'retailer' });
+        const users = await User.find({ role: 'retailer' }).sort({ createdAt: -1 });
         const banners = await Banner.find().sort({ order: 1 });
         const rewards = await Reward.find().sort({ rank: 1 });
-        res.render('admin', { auctions, users, banners, rewards });
+        const orders = await Order.find().populate('user').populate('auction').sort({ createdAt: -1 });
+        
+        res.render('admin', { auctions, users, banners, rewards, orders });
     } catch (err) {
+        console.error('Admin Route Error:', err);
         res.redirect('/');
     }
 });
@@ -235,9 +238,25 @@ app.post('/admin/add-product', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
         const newAuction = new Auction(req.body);
+        newAuction.stockRemaining = newAuction.lotSize; // Initialize stock
         await newAuction.save();
         res.redirect('/admin');
     } catch (err) {
+        res.redirect('/admin');
+    }
+});
+
+// Admin: Update Auction
+app.post('/admin/update-product/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const { title, initialPrice, lotSize, category, description, imageUrl, hikePercentage } = req.body;
+        await Auction.findByIdAndUpdate(req.params.id, {
+            title, initialPrice, lotSize, category, description, imageUrl, hikePercentage
+        });
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Update Error:', err);
         res.redirect('/admin');
     }
 });
@@ -315,7 +334,7 @@ app.get('/register', (req, res) => res.render('register', { error: null }));
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: email.toLowerCase() });
         if (user && await user.comparePassword(password)) {
             req.session.user = { id: user._id, username: user.username, role: user.role };
             if (user.role === 'admin') return res.redirect('/admin');
