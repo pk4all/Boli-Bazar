@@ -302,9 +302,78 @@
 
             <!-- WINNING ORDERS SECTION -->
             <div id="orders" class="admin-section p-8">
-                <div class="flex justify-between items-center mb-10">
-                    <h1 class="text-3xl font-black font-heading">Winning <span class="text-green-600">Orders</span></h1>
-                    <button class="bg-white border border-slate-200 px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition">Export CSV</button>
+                <% 
+                    // Calculate Filtered Totals for the Summary Bar
+                    let filteredOrderValue = 0;
+                    let filteredReceived = 0;
+                    let filteredBalance = 0;
+                    
+                    if (orders && orders.length > 0) {
+                        orders.forEach(order => {
+                            const sub = order.totalAmount;
+                            const f = (order.paymentMode === 'cod') ? (sub * 0.1) : 0;
+                            const val = sub + f;
+                            const paid = (order.paymentMode === 'cod') ? (sub * 0.1) : sub;
+                            const bal = val - paid;
+                            
+                            filteredOrderValue += val;
+                            filteredReceived += paid;
+                            filteredBalance += bal;
+                        });
+                    }
+                %>
+
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                    <div>
+                        <h1 class="text-3xl font-black font-heading tracking-tight">Winning <span class="text-green-600">Orders</span></h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Showing result for selected date range</p>
+                    </div>
+
+                    <!-- Date Filter for Orders -->
+                    <div class="flex flex-wrap items-center gap-4">
+                        <form action="/admin" method="GET" class="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm">
+                            <input type="hidden" name="section" value="orders"> <!-- Hint to stay on this tab -->
+                            <div class="flex items-center space-x-2 px-3 border-r border-slate-100">
+                                <span class="text-[10px] font-black text-slate-400 uppercase">From:</span>
+                                <input type="date" name="startDate" value="<%= startDate %>" class="text-xs font-bold focus:outline-none bg-transparent">
+                            </div>
+                            <div class="flex items-center space-x-2 px-3">
+                                <span class="text-[10px] font-black text-slate-400 uppercase">To:</span>
+                                <input type="date" name="endDate" value="<%= endDate %>" class="text-xs font-bold focus:outline-none bg-transparent">
+                            </div>
+                            <button type="submit" class="bg-green-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-green-700 transition">
+                                Filter
+                            </button>
+                        </form>
+                        <button onclick="exportOrdersToCSV()" class="bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-black transition shadow-lg shadow-slate-200">
+                            <i class="fas fa-file-csv mr-2"></i> Export CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Bar for Winning Orders -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-[30px] border border-slate-200 shadow-sm">
+                        <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Global Order Value</p>
+                        <p class="text-2xl font-black text-slate-800">₹<%= filteredOrderValue.toLocaleString() %></p>
+                        <div class="w-full h-1 bg-slate-100 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-slate-400" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-[30px] border border-slate-200 shadow-sm ring-4 ring-green-500/5">
+                        <p class="text-[10px] font-black text-green-500 uppercase mb-1 tracking-widest">Total Received (Advance/Full)</p>
+                        <p class="text-2xl font-black text-green-600">₹<%= filteredReceived.toLocaleString() %></p>
+                        <div class="w-full h-1 bg-green-100 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-green-500" style="width: <%= (filteredOrderValue > 0) ? (filteredReceived / filteredOrderValue * 100) : 0 %>%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-[30px] border border-slate-200 shadow-sm ring-4 ring-orange-500/5">
+                        <p class="text-[10px] font-black text-orange-500 uppercase mb-1 tracking-widest">Total COD Pending</p>
+                        <p class="text-2xl font-black text-orange-600">₹<%= filteredBalance.toLocaleString() %></p>
+                        <div class="w-full h-1 bg-orange-100 rounded-full mt-4 overflow-hidden">
+                            <div class="h-full bg-orange-500" style="width: <%= (filteredOrderValue > 0) ? (filteredBalance / filteredOrderValue * 100) : 0 %>%"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
@@ -318,7 +387,8 @@
                                     <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center text-orange-400">Balance</th>
                                     <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Mode</th>
                                     <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Date</th>
-                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right">Status</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-center">Status</th>
+                                    <th class="p-6 text-[10px] font-black uppercase tracking-widest text-right px-10">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -327,44 +397,73 @@
                                         const subtotal = order.totalAmount;
                                         const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
                                         const orderValue = subtotal + fee;
-                                        const paidNow = (order.paymentMode === 'cod') ? (subtotal * 0.1) : subtotal;
-                                        const balance = orderValue - paidNow;
+                                        const paidNowTotal = (order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
+                                        const balance = orderValue - paidNowTotal;
+                                        const isFullyPaid = paidNowTotal >= (orderValue - 0.01); // Handle float precision
                                     %>
-                                        <tr class="hover:bg-slate-50 transition">
+                                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
                                             <td class="p-6">
-                                                <p class="text-sm font-black text-slate-800 truncate max-w-[200px]"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
+                                                <p class="text-sm font-black text-slate-800 truncate max-w-[200px] transition cursor-default"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
                                                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Order #<%= order._id.toString().slice(-8).toUpperCase() %></p>
                                             </td>
                                             <td class="p-6 text-center">
                                                 <p class="text-xs font-bold text-slate-800"><%= order.username %></p>
-                                                <p class="text-[9px] text-slate-400"><%= order.city %></p>
+                                                <p class="text-[9px] text-slate-400 uppercase font-black"><%= order.city %></p>
                                             </td>
-                                            <td class="p-6 text-center font-bold text-slate-700 text-xs">₹<%= orderValue.toLocaleString() %></td>
-                                            <td class="p-6 text-center font-black text-green-600 text-xs">₹<%= paidNow.toLocaleString() %></td>
-                                            <td class="p-6 text-center font-black text-orange-600 text-xs">₹<%= balance.toLocaleString() %></td>
+                                            <td class="p-6 text-center font-bold text-slate-700 text-xs bg-slate-50/50 border-l border-slate-100">₹<%= orderValue.toLocaleString() %></td>
+                                            <td class="p-6 text-center shadow-inner-sm">
+                                                <p class="font-black text-green-600 text-xs">₹<%= paidNowTotal.toLocaleString() %></p>
+                                                <% if(isFullyPaid) { %>
+                                                    <span class="text-[8px] font-black uppercase text-green-500 tracking-tighter">Fully Paid</span>
+                                                <% } else { %>
+                                                    <span class="text-[8px] font-black uppercase text-orange-400 tracking-tighter">Advance Paid</span>
+                                                <% } %>
+                                            </td>
+                                            <td class="p-6 text-center font-black text-orange-600 text-xs">₹<%= Math.max(0, balance).toLocaleString() %></td>
                                             <td class="p-6 text-center">
                                                 <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter border <%= order.paymentMode === 'full' ? 'bg-blue-50 text-blue-500 border-blue-100' : 'bg-orange-50 text-orange-500 border-orange-100' %>">
                                                     <%= order.paymentMode === 'full' ? 'FULL PREPAID' : 'COD' %>
                                                 </span>
                                             </td>
                                             <td class="p-6 text-center text-[10px] font-bold text-slate-400">
-                                                <%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' }) %>
+                                                <%= new Date(order.createdAt).toLocaleString('en-IN', { day: '2-digit', month: 'short' }) %>
                                             </td>
-                                            <td class="p-6 text-right">
-                                                <span class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-[9px] font-black uppercase tracking-widest border border-green-200 shadow-sm">
+                                            <td class="p-6 text-center">
+                                                <span class="px-3 py-1 rounded-full <%= order.status === 'Delivered' ? 'bg-green-100 text-green-600 border-green-200' : 'bg-blue-100 text-blue-600 border-blue-200' %> text-[9px] font-black uppercase tracking-widest border">
                                                     <%= order.status %>
                                                 </span>
                                             </td>
+                                            <td class="p-6 text-right px-10">
+                                                <div class="flex justify-end items-center gap-2">
+                                                    <!-- Confirm Payment Action (Only for COD not fully paid) -->
+                                                    <% if (order.paymentMode === 'cod' && !isFullyPaid) { %>
+                                                        <button onclick="updateOrderStatus('<%= order._id %>', 'confirm-payment')" class="w-10 h-10 rounded-xl bg-green-600 text-white flex items-center justify-center hover:bg-green-700 transition shadow-lg shadow-green-100" title="Confirm Payment Received">
+                                                            <i class="fas fa-check-double text-[12px]"></i>
+                                                        </button>
+                                                    <% } %>
+
+                                                    <!-- Confirm Delivery & Invoice Action -->
+                                                    <% if (order.status !== 'Delivered') { %>
+                                                        <button onclick="updateOrderStatus('<%= order._id %>', 'deliver')" class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-black transition shadow-lg shadow-slate-200" title="Mark as Delivered">
+                                                            <i class="fas fa-truck text-[12px]"></i>
+                                                        </button>
+                                                    <% } else { %>
+                                                        <a href="/admin/invoice/<%= order._id %>" target="_blank" class="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition shadow-lg shadow-red-100" title="Download Invoice">
+                                                            <i class="fas fa-file-invoice text-[12px]"></i>
+                                                        </a>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="9" class="p-20 text-center">
+                                            <i class="fas fa-shopping-basket text-slate-200 text-6xl mb-6"></i>
+                                            <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">No orders found for this period</p>
+                                        </td>
                                     </tr>
-                                <% }) %>
-                            <% } else { %>
-                                <tr>
-                                    <td colspan="6" class="p-20 text-center">
-                                        <i class="fas fa-box-open text-5xl text-slate-200 mb-4 block"></i>
-                                        <p class="text-xs font-black text-slate-300 uppercase tracking-widest">No Winning Orders Found</p>
-                                    </td>
-                                </tr>
-                            <% } %>
+                                <% } %>
                         </tbody>
                     </table>
                 </div>
@@ -511,6 +610,25 @@
 
     <!-- SCRIPTS -->
     <script>
+        function updateOrderStatus(orderId, action) {
+            const endpoint = `/api/admin/orders/${orderId}/${action}`;
+            if (!confirm(`Are you sure you want to ${action.replace('-', ' ')}?`)) return;
+
+            fetch(endpoint, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + (data.error || 'Failed to update order'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Action Failed:', err);
+                    alert('Network error or server failed.');
+                });
+        }
+
         function showSection(sectionId) {
             const event = window.event || arguments.callee.caller.arguments[0];
             // Hide all sections
@@ -555,6 +673,53 @@
                     if (btn.innerText.toLowerCase().includes(hash.toLowerCase())) btn.click();
                 });
             }
+        }
+    </script>
+
+    <!-- CSV Export Utility -->
+    <script>
+        function exportOrdersToCSV() {
+            // Get data from the rendered table or pass it from EJS to JS
+            const orders = <%- JSON.stringify(orders) %>;
+            if (!orders || orders.length === 0) {
+                alert("No data available to export.");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            // Headers
+            csvContent += "Order ID,Product,Buyer,City,Payment Mode,Order Value,Paid Now,Balance,Date,Status\n";
+
+            orders.forEach(order => {
+                const sub = order.totalAmount;
+                const fee = (order.paymentMode === 'cod') ? (sub * 0.1) : 0;
+                const val = sub + fee;
+                const paid = (order.paymentMode === 'cod') ? (sub * 0.1) : sub;
+                const bal = val - paid;
+                const date = new Date(order.createdAt).toLocaleString('en-IN');
+
+                const row = [
+                    order._id.toString().slice(-8).toUpperCase(),
+                    `"${order.auction ? order.auction.title.replace(/"/g, '""') : 'N/A'}"`,
+                    `"${order.username.replace(/"/g, '""')}"`,
+                    `"${order.city ? order.city.replace(/"/g, '""') : 'N/A'}"`,
+                    order.paymentMode.toUpperCase(),
+                    val,
+                    paid,
+                    bal,
+                    `"${date}"`,
+                    order.status
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Winning_Orders_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 

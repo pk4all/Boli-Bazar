@@ -7,8 +7,15 @@ const OrderSchema = new mongoose.Schema({
     city: { type: String },
     quantity: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
+    paidAmount: { type: Number, default: 0 },
     paymentMode: { type: String, enum: ['full', 'cod'], default: 'full' },
-    status: { type: String, enum: ['Confirmed', 'Pending', 'Delivered'], default: 'Confirmed' }
+    paymentHistory: [{
+        amount: Number,
+        date: { type: Date, default: Date.now },
+        method: String // 'Advance', 'Final COD', 'Full'
+    }],
+    status: { type: String, enum: ['Confirmed', 'Pending', 'Delivered'], default: 'Confirmed' },
+    deliveredAt: { type: Date }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', OrderSchema);

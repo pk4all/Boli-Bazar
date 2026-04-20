@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #<%= order._id.toString().slice(-8).toUpperCase() %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-6 md:p-20">
+    <div class="max-w-4xl mx-auto bg-white p-10 shadow-2xl rounded-3xl border border-gray-100 relative overflow-hidden">
+        <!-- Brand Watermark -->
+        <div class="absolute top-[-50px] right-[-50px] opacity-[0.03] pointer-events-none">
+            <i class="fas fa-gavel text-[300px]"></i>
+        </div>
+
+        <div class="flex justify-between items-start mb-12">
+            <div>
+                <h1 class="text-3xl font-black uppercase tracking-tighter">Boli<span class="text-red-600 italic">Bazar</span></h1>
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Official Auction Booking Receipt</p>
+            </div>
+            <div class="text-right">
+                <div class="bg-black text-white px-4 py-2 rounded-xl inline-block font-black text-sm mb-2">INVOICE</div>
+                <p class="text-xs font-bold text-gray-500 uppercase">#<%= order._id.toString().slice(-8).toUpperCase() %></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 mb-12 border-b border-gray-100 pb-10">
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">Billed To</p>
+                <p class="text-lg font-black text-gray-800"><%= order.user ? order.user.username : order.username %></p>
+                <p class="text-sm text-gray-500"><%= order.user ? order.user.email : 'N/A' %></p>
+                <p class="text-sm text-gray-500"><%= order.city %></p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] font-black text-gray-400 uppercase mb-2 tracking-widest">Order Details</p>
+                <p class="text-sm font-bold text-gray-800">Date: <%= new Date(order.createdAt).toLocaleDateString('en-IN') %></p>
+                <p class="text-sm font-bold text-gray-800">Mode: <%= order.paymentMode.toUpperCase() %></p>
+                <p class="text-sm font-bold <%= order.status === 'Delivered' ? 'text-green-600' : 'text-orange-500' %>">Status: <%= order.status %></p>
+            </div>
+        </div>
+
+        <table class="w-full mb-12">
+            <thead>
+                <tr class="border-b-2 border-gray-100">
+                    <th class="text-left py-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Item Description</th>
+                    <th class="text-center py-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Quantity</th>
+                    <th class="text-right py-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Unit Price</th>
+                    <th class="text-right py-4 text-[10px] font-black uppercase text-gray-400 tracking-widest">Total</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                <tr>
+                    <td class="py-6">
+                        <p class="font-black text-gray-800"><%= order.auction ? order.auction.title : 'Auction Item' %></p>
+                        <p class="text-xs text-gray-400 mt-1">Lot ID: <%= order.auction ? order.auction._id.toString().slice(-6).toUpperCase() : 'N/A' %></p>
+                    </td>
+                    <td class="text-center font-bold text-gray-700"><%= order.quantity %></td>
+                    <td class="text-right font-bold text-gray-700">₹<%= (order.totalAmount/order.quantity).toLocaleString() %></td>
+                    <td class="text-right font-black text-gray-800">₹<%= order.totalAmount.toLocaleString() %></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="flex justify-end">
+            <div class="w-64 space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400 font-bold">Subtotal:</span>
+                    <span class="font-bold text-gray-800">₹<%= order.totalAmount.toLocaleString() %></span>
+                </div>
+                <% if(order.paymentMode === 'cod') { %>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-400 font-bold">COD Carry Fee (10%):</span>
+                    <span class="font-bold text-gray-800">₹<%= (order.totalAmount * 0.1).toLocaleString() %></span>
+                </div>
+                <% } %>
+                <div class="flex justify-between text-lg border-t pt-3 border-gray-100">
+                    <span class="font-black text-gray-800">Total Due:</span>
+                    <span class="font-black text-red-600">₹<%= (order.totalAmount + (order.paymentMode === 'cod' ? order.totalAmount * 0.1 : 0)).toLocaleString() %></span>
+                </div>
+                <div class="flex justify-between text-sm bg-green-50 p-2 rounded-lg mt-4">
+                    <span class="text-green-600 font-black uppercase text-[10px]">Total Paid:</span>
+                    <span class="font-black text-green-700">₹<%= (order.paidAmount || 0).toLocaleString() %></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-20 pt-10 border-t border-gray-100 text-center">
+            <p class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4 text-center">Bazaar Business Limited • Compliance Team Approval Required</p>
+            <div class="flex justify-center gap-10">
+                <div class="text-[9px] font-bold text-gray-400 uppercase italic">Computer Generated - No Signature Required</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Action -->
+    <div class="max-w-4xl mx-auto mt-10 flex justify-between no-print">
+        <a href="/admin" class="text-sm font-black text-gray-400 hover:text-gray-800 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Dashboard
+        </a>
+        <button onclick="window.print()" class="bg-red-600 text-white px-10 py-4 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-red-700 transition">
+            Print Invoice
+        </button>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</body>
+</html>

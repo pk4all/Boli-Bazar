@@ -95,11 +95,16 @@ app.post('/api/checkout/:id', async (req, res) => {
                 city: user.city,
                 quantity: buyQty,
                 totalAmount: totalValue,
-                paymentMode: paymentMode
+                paidAmount: paymentMode === 'full' ? totalValue : (totalValue * 0.1),
+                paymentMode: paymentMode,
+                paymentHistory: [{
+                    amount: paymentMode === 'full' ? totalValue : (totalValue * 0.1),
+                    date: new Date(),
+                    method: paymentMode === 'full' ? 'Full' : 'Advance'
+                }]
             });
         } catch (orderErr) {
             console.error('[ORDER-RECORD-ERROR]', orderErr);
-            // Non-critical error, booking already saved
         }
 
         res.json({ success: true, message: 'Booking Confirmed!', redirect: '/dashboard#winning-lots' });
@@ -241,19 +246,32 @@ app.get('/admin', async (req, res) => {
         // Dynamic Orders with Filter
         const orders = await Order.find(query).populate('user').populate('auction').sort({ createdAt: -1 });
 
-        // Financial Metrics Calculations
-        const allOrders = await Order.find(); // For total lifetime metrics
-        const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+        // Financial Metrics Calculations (Source of Truth: paymentHistory)
+        const allOrders = await Order.find(); 
         
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
-        const todayRevenue = allOrders
-            .filter(o => new Date(o.createdAt) >= todayStart)
-            .reduce((sum, o) => sum + o.totalAmount, 0);
+        
+        // Total Received (Lifetime)
+        const totalRevenue = allOrders.reduce((sum, order) => {
+            return sum + (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
+        }, 0);
+        
+        // Today's Collection
+        const todayRevenue = allOrders.reduce((sum, order) => {
+            const todayPayments = (order.paymentHistory || []).filter(p => new Date(p.date) >= todayStart);
+            return sum + todayPayments.reduce((pSum, p) => pSum + p.amount, 0);
+        }, 0);
             
-        const pendingCod = allOrders
-            .filter(o => o.paymentMode === 'cod')
-            .reduce((sum, o) => sum + o.totalAmount, 0);
+        // Total Outstanding COD (Balance yet to be collected)
+        const pendingCod = allOrders.reduce((sum, order) => {
+            const subtotal = order.totalAmount;
+            const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
+            const orderValue = subtotal + fee;
+            const paidNowTotal = (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
+            const remaining = orderValue - paidNowTotal;
+            return sum + (remaining > 0 ? remaining : 0);
+        }, 0);
 
         res.render('admin', { 
             auctions, users, banners, rewards, orders, 
@@ -528,6 +546,62 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[STABLE-READY] Running on http://localhost:${PORT}`);
+// --- ADMIN ACTIONS ---
+
+// Mark Order as Delivered
+app.post('/api/admin/orders/:id/deliver', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        
+        order.status = 'Delivered';
+        order.deliveredAt = new Date();
+        await order.save();
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Confirm COD Payment Balance
+app.post('/api/admin/orders/:id/confirm-payment', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        
+        const subtotal = order.totalAmount;
+        const totalValue = subtotal + (order.paymentMode === 'cod' ? subtotal * 0.1 : 0);
+        const balance = totalValue - order.paidAmount;
+
+        if (balance > 0) {
+            order.paidAmount = totalValue;
+            order.paymentHistory.push({
+                amount: balance,
+                date: new Date(),
+                method: 'Final COD'
+            });
+            await order.save();
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Invoice Route
+app.get('/admin/invoice/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const order = await Order.findById(req.params.id).populate('auction').populate('user');
+        if (!order) return res.send('Order not found');
+        res.render('invoice', { order });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
