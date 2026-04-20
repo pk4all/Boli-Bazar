@@ -107,18 +107,26 @@ app.get('/', async (req, res) => {
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 }).lean();
         const liveProducts = await Auction.find({ status: 'Live' }).sort({ totalBuyers: -1 }).limit(5).lean();
         
-        console.log(`[STABLE-RENDER] Serving ${banners.length} Banners and ${liveProducts.length} Live Products [TRACER: PRIMARY_DESKTOP]`);
+        // Fetch real leaderboard data
+        const leaderboard = await User.find({ role: 'retailer' })
+            .sort({ walletBalance: -1, createdAt: 1 })
+            .select('username shopName city walletBalance profileImage')
+            .limit(10)
+            .lean();
+            
+        console.log(`[STABLE-RENDER] Serving ${banners.length} Banners, ${liveProducts.length} Live Products, and ${leaderboard.length} Leaderboard entries [TRACER: PRIMARY_DESKTOP]`);
         
         res.render('index', { 
             banners,
             liveProducts,
+            leaderboard,
             debug: "ALIVE_IN_PRIMARY_DESKTOP",
             user: req.session.user || null,
             v: Date.now() 
         });
     } catch (err) {
         console.error('[STABLE-ERROR] Home Route:', err);
-        res.render('index', { banners: [], liveProducts: [], user: req.session.user || null, v: Date.now() });
+        res.render('index', { banners: [], liveProducts: [], leaderboard: [], user: req.session.user || null, v: Date.now() });
     }
 });
 

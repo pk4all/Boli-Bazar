@@ -212,95 +212,110 @@
 
                 <p class="text-center text-[10px] text-gray-500 font-bold italic mb-6">🏆 Jitna zyada kharido, utne zyada coins — month end pe top 3 ko rewards milenge!</p>
 
-                <!-- Podium Section (Fixed Overlaps) -->
-                <div class="flex items-end justify-center space-x-3 md:space-x-10 mb-20">
+                <!-- Podium Section (Dynamic) -->
+                <div class="flex items-end justify-center space-x-3 md:space-x-10 mb-20 min-h-[300px]">
                     
-                    <!-- #2 Suresh Agarwal (Kanpur) -->
+                    <% if (leaderboard && leaderboard.length >= 2) { 
+                        const runnerUp = leaderboard[1];
+                        const initials = runnerUp.username.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    %>
+                    <!-- #2 Runner Up -->
                     <div class="flex flex-col items-center">
-                        <div class="w-16 h-16 bg-[#6366f1] rounded-full flex items-center justify-center text-xl font-black border-4 border-[#161729] shadow-2xl z-20 translate-y-4">SA</div>
+                        <div class="w-16 h-16 bg-[#6366f1] rounded-full flex items-center justify-center text-xl font-black border-4 border-[#161729] shadow-2xl z-20 translate-y-4">
+                            <%= initials %>
+                        </div>
                         <div class="bg-gradient-to-b from-[#1c1e30] to-transparent border border-white/5 p-6 pt-10 rounded-2xl w-32 md:w-52 text-center">
                             <i class="fas fa-medal text-silver mb-2 block"></i>
-                            <h4 class="text-xs font-black">Suresh Agarwal</h4>
-                            <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3">Kanpur</p>
+                            <h4 class="text-xs font-black truncate"><%= runnerUp.username %></h4>
+                            <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= runnerUp.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-silver/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span>2,15,302</span>
+                                <span><%= runnerUp.walletBalance.toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
+                    <% } %>
 
-                    <!-- #1 Priya Sharma (Jaipur) -->
+                    <% if (leaderboard && leaderboard.length >= 1) { 
+                        const winner = leaderboard[0];
+                        const initials = winner.username.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    %>
+                    <!-- #1 Winner -->
                     <div class="flex flex-col items-center -translate-y-6">
                         <div class="relative z-30 translate-y-6">
-                             <div class="w-20 h-20 md:w-24 md:h-24 bg-[#ffc107] rounded-full flex items-center justify-center text-2xl font-black border-4 border-[#1b1c2e] glow-gold">PS</div>
+                             <div class="w-20 h-20 md:w-24 md:h-24 bg-[#ffc107] rounded-full flex items-center justify-center text-2xl font-black border-4 border-[#1b1c2e] glow-gold">
+                                <%= initials %>
+                             </div>
                              <div class="absolute -top-3 -right-2 bg-yellow-400 text-gray-900 w-9 h-9 rounded-full flex items-center justify-center border-4 border-[#222336] shadow-lg">
                                 <i class="fas fa-crown text-[10px]"></i>
                              </div>
                         </div>
                         <div class="bg-gradient-to-b from-[#2a2d3d] to-transparent border border-white/10 p-8 pt-10 rounded-3xl w-40 md:w-64 text-center">
                             <i class="fas fa-trophy text-gold mb-3 block"></i>
-                            <h4 class="text-sm font-black text-gold">Priya Sharma</h4>
-                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-4">Jaipur</p>
+                            <h4 class="text-sm font-black text-gold truncate"><%= winner.username %></h4>
+                            <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-4 truncate"><%= winner.city || 'India' %></p>
                             <p class="text-xl font-black text-white flex items-center justify-center space-x-2">
                                 <i class="fas fa-coins text-gold"></i>
-                                <span>2,20,920</span>
+                                <span><%= winner.walletBalance.toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
+                    <% } %>
 
-                    <!-- #3 Kavita Patel (Surat) -->
+                    <% if (leaderboard && leaderboard.length >= 3) { 
+                        const third = leaderboard[2];
+                        const initials = third.username.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                    %>
+                    <!-- #3 Third Place -->
                     <div class="flex flex-col items-center">
-                        <div class="w-16 h-16 bg-[#f43f5e] rounded-full flex items-center justify-center text-xl font-black border-4 border-[#161729] shadow-2xl z-20 translate-y-4">KP</div>
+                        <div class="w-16 h-16 bg-[#f43f5e] rounded-full flex items-center justify-center text-xl font-black border-4 border-[#161729] shadow-2xl z-20 translate-y-4">
+                            <%= initials %>
+                        </div>
                         <div class="bg-gradient-to-b from-[#1c1e30] to-transparent border border-white/5 p-6 pt-10 rounded-2xl w-32 md:w-52 text-center">
                             <i class="fas fa-medal text-orange-500 mb-2 block"></i>
-                            <h4 class="text-xs font-black">Kavita Patel</h4>
-                            <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3">Surat</p>
+                            <h4 class="text-xs font-black truncate"><%= third.username %></h4>
+                            <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= third.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-orange-500/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span>2,00,873</span>
+                                <span><%= third.walletBalance.toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
+                    <% } %>
+
+                    <% if (!leaderboard || leaderboard.length === 0) { %>
+                        <div class="text-center py-10 opacity-50">
+                            <i class="fas fa-users text-4xl mb-4 block"></i>
+                            <p class="text-xs font-black uppercase tracking-widest">No rankings yet this month</p>
+                        </div>
+                    <% } %>
 
                 </div>
 
-                <!-- Footer Table List (Remaining ranks) -->
+                <!-- Footer Table List (Dynamic Ranks 4+) -->
                 <div class="space-y-4 mb-16">
-                    <!-- Rank 4 -->
-                    <div class="bg-white/5 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/10 transition px-10">
-                        <div class="flex items-center space-x-6">
-                            <div class="w-10 h-10 bg-gradient-to-br from-leader-pink to-leader-purple rounded-full flex items-center justify-center text-[10px] font-black italic">#4</div>
-                            <div class="w-11 h-11 bg-brand-pink bg-[#ff3d71] rounded-full flex items-center justify-center font-black text-xs">MI</div>
-                            <div>
-                                <h4 class="text-sm font-black">Mohammed Iqbal</h4>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Lucknow</p>
+                    <% if (leaderboard && leaderboard.length > 3) { %>
+                        <% leaderboard.slice(3).forEach((retailer, index) => { 
+                            const initials = retailer.username.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                        %>
+                        <div class="bg-white/5 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/10 transition px-10">
+                            <div class="flex items-center space-x-6">
+                                <div class="w-10 h-10 bg-gradient-to-br from-leader-pink to-leader-purple rounded-full flex items-center justify-center text-[10px] font-black italic">#<%= index + 4 %></div>
+                                <div class="w-11 h-11 bg-brand-pink bg-[#ff3d71] rounded-full flex items-center justify-center font-black text-xs uppercase"><%= initials %></div>
+                                <div>
+                                    <h4 class="text-sm font-black"><%= retailer.username %></h4>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5"><%= retailer.city || 'Retailer' %></p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                 <p class="text-base font-black flex items-center justify-end">
+                                     <i class="fas fa-coins text-[10px] text-gray-500 mr-2"></i>
+                                     <%= retailer.walletBalance.toLocaleString() %>
+                                 </p>
                             </div>
                         </div>
-                        <div class="text-right">
-                             <p class="text-base font-black flex items-center justify-end">
-                                 <i class="fas fa-coins text-[10px] text-gray-500 mr-2"></i>
-                                 1,86,825
-                             </p>
-                        </div>
-                    </div>
-
-                    <!-- Rank 5 -->
-                    <div class="bg-white/5 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/10 transition px-10">
-                        <div class="flex items-center space-x-6">
-                            <div class="w-10 h-10 bg-gradient-to-br from-leader-pink to-leader-purple rounded-full flex items-center justify-center text-[10px] font-black italic">#5</div>
-                            <div class="w-11 h-11 bg-primary rounded-full flex items-center justify-center font-black text-xs">RG</div>
-                            <div>
-                                <h4 class="text-sm font-black">Ramesh Gupta</h4>
-                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-0.5">Delhi</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                             <p class="text-base font-black flex items-center justify-end">
-                                 <i class="fas fa-coins text-[10px] text-gray-500 mr-2"></i>
-                                 1,67,108
-                             </p>
-                        </div>
-                    </div>
+                        <% }); %>
+                    <% } %>
                 </div>
 
                 <!-- Bottom Info Bar -->
