@@ -8,6 +8,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d90429',
+                        secondary: '#1a1a1a',
+                        accent: '#ffb703',
+                        success: '#2ec4b6',
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -825,23 +839,19 @@
             const advance = subtotal * 0.1;
             const balance = subtotal * 0.9;
             const fee = paymentMode === 'cod' ? subtotal * 0.1 : 0;
-            const total = paymentMode === 'cod' ? (subtotal + fee) : subtotal;
-
-            // From Image: 
-            // Current Price x 5 = 1,61,66,197
-            // Advance = 16,16,619
-            // Balance = 1,45,49,577
-            // Fee = 16,16,619
-            // Total = 1,61,66,197 (Wait, subtotal is total? Then fee is included in subtotal or added? Actually total = subtotal usually)
+            
+            // USER'S LOGIC: 10% Advance for COD, 100% for Full Payment
+            const payableNow = paymentMode === 'cod' ? advance : subtotal;
 
             document.getElementById('display-qty').textContent = qty;
             document.getElementById('display-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
             document.getElementById('display-advance').textContent = `₹${advance.toLocaleString()}`;
             document.getElementById('display-balance').textContent = `₹${balance.toLocaleString()}`;
             document.getElementById('display-fee').textContent = `+₹${fee.toLocaleString()}`;
+            
             const totalDisplay = document.getElementById('billing-total-payable');
             if (totalDisplay) {
-                totalDisplay.textContent = `₹${total.toLocaleString()}`;
+                totalDisplay.textContent = `₹${payableNow.toLocaleString()}`;
             }
 
             // Update chips
@@ -854,6 +864,23 @@
                     chip.classList.add('bg-gray-50', 'text-gray-400');
                 }
             });
+        }
+
+        function openCheckoutModal() {
+            const qty = document.getElementById('bidQty').value;
+            const subtotal = qty * currentPrice;
+            const advance = subtotal * 0.1;
+            const payableNow = paymentMode === 'cod' ? advance : subtotal;
+            
+            document.getElementById('modal-qty').textContent = qty + ' Bags';
+            document.getElementById('modal-payment-mode').textContent = paymentMode === 'full' ? 'Full Payment' : 'Cash on Delivery';
+            document.getElementById('modal-total').textContent = `₹${payableNow.toLocaleString()}`;
+            
+            // Rewards are still based on the total purchase value (Subtotal)
+            document.getElementById('modal-award').textContent = `₹${subtotal.toLocaleString()}`;
+            
+            document.getElementById('checkoutModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
         }
 
         document.addEventListener('DOMContentLoaded', calculateTotal);

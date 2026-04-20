@@ -220,13 +220,47 @@ app.get('/admin', async (req, res) => {
         return res.redirect('/login');
     }
     try {
+        const { startDate, endDate } = req.query;
+        let query = {};
+        
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate);
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                query.createdAt.$lte = end;
+            }
+        }
+
         const auctions = await Auction.find().sort({ createdAt: -1 });
         const users = await User.find({ role: 'retailer' }).sort({ createdAt: -1 });
         const banners = await Banner.find().sort({ order: 1 });
         const rewards = await Reward.find().sort({ rank: 1 });
-        const orders = await Order.find().populate('user').populate('auction').sort({ createdAt: -1 });
         
-        res.render('admin', { auctions, users, banners, rewards, orders });
+        // Dynamic Orders with Filter
+        const orders = await Order.find(query).populate('user').populate('auction').sort({ createdAt: -1 });
+
+        // Financial Metrics Calculations
+        const allOrders = await Order.find(); // For total lifetime metrics
+        const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+        
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayRevenue = allOrders
+            .filter(o => new Date(o.createdAt) >= todayStart)
+            .reduce((sum, o) => sum + o.totalAmount, 0);
+            
+        const pendingCod = allOrders
+            .filter(o => o.paymentMode === 'cod')
+            .reduce((sum, o) => sum + o.totalAmount, 0);
+
+        res.render('admin', { 
+            auctions, users, banners, rewards, orders, 
+            totalRevenue, todayRevenue, pendingCod,
+            startDate: startDate || '',
+            endDate: endDate || ''
+        });
     } catch (err) {
         console.error('Admin Route Error:', err);
         res.redirect('/');
