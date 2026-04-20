@@ -34,6 +34,7 @@ app.set('view cache', false);
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); // MANDATORY for API calls
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 
@@ -46,7 +47,50 @@ app.use(session({
 
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
+    console.log(`[STABLE-GATEWAY] ${req.method} ${req.url} - User: ${req.session.user ? req.session.user.username : 'Guest'}`);
     next();
+});
+
+// Diagnostic Route
+app.get('/api/version', (req, res) => {
+    res.json({ version: 'V5-STABLE', timestamp: new Date(), routes: ['checkout', 'leaderboard', 'admin'] });
+});
+
+// --- CORE API ROUTES (MOVING TO TOP FOR PRIORITY) ---
+app.post('/api/checkout/:id', async (req, res) => {
+    const { quantity, paymentMode } = req.body;
+    try {
+        const auction = await Auction.findById(req.params.id);
+        const user = await User.findById(req.session.user?.id);
+        
+        if (!auction || !user) return res.status(404).json({ error: 'Auction or User not found' });
+        
+        const buyQty = parseInt(quantity) || auction.moq;
+        const totalValue = buyQty * (auction.currentBid || auction.initialPrice);
+        const fee = paymentMode === 'cod' ? totalValue * 0.1 : 0;
+        const finalPayable = totalValue + fee;
+        
+        user.walletBalance = (user.walletBalance || 0) + finalPayable;
+        if (!user.wonAuctions) user.wonAuctions = [];
+        if (!user.wonAuctions.includes(auction._id)) user.wonAuctions.push(auction._id);
+        
+        auction.stockRemaining = Math.max(0, (auction.stockRemaining || 0) - buyQty);
+        auction.totalBuyers = (auction.totalBuyers || 0) + 1;
+        if (auction.lotSize > 0) {
+            auction.stockSoldPercent = Math.min(100, Math.round(((auction.lotSize - auction.stockRemaining) / auction.lotSize) * 100));
+        }
+        
+        await user.save();
+        await auction.save();
+        res.json({ success: true, message: 'Booking Confirmed!', redirect: '/dashboard#winning-lots' });
+    } catch (err) {
+        console.error('[CHECKOUT-CRASH]', err);
+        res.status(500).json({ error: 'Server Error: ' + err.message });
+    }
+});
+
+app.post('/api/checkout', (req, res) => {
+    res.status(400).json({ error: 'ID is missing' });
 });
 
 // MongoDB Connection
@@ -114,10 +158,12 @@ app.get('/auctions/:id', async (req, res) => {
             { bidder: 'Priya Traders', amount: auction.currentBid - 800, time: '1 hour ago', quantity: 15 }
         ];
 
+        const fullUser = await User.findById(req.session.user.id).lean();
+
         res.render('product-detail', { 
             auction, 
             bidHistory,
-            user: req.session.user || null 
+            user: fullUser || req.session.user
         });
     } catch (err) {
         console.error('Detail Error:', err);
@@ -235,20 +281,20 @@ app.get('/dashboard', async (req, res) => {
             return res.redirect('/login');
         }
         
-        // Calculate Leaderboard Rank (Robust)
-        const allRetailers = await User.find({ role: 'retailer' }).sort({ walletBalance: -1 }).lean();
-        const userIdx = allRetailers.findIndex(u => u._id.toString() === user._id.toString());
+        // --- SHARED RANKING LOGIC (Must match /api/leaderboard) ---
+        const allRetailers = await User.find({ role: 'retailer' })
+            .sort({ walletBalance: -1, createdAt: 1 })
+            .lean();
         
-        // Final fallback values
+        const userIdx = allRetailers.findIndex(u => u._id.toString() === user._id.toString());
         const rank = userIdx !== -1 ? userIdx + 1 : (allRetailers.length + 1);
         const totalRetailers = Math.max(allRetailers.length, 1);
         
-        // Insights logic
+        // Path to Top 3
         const top3 = allRetailers.slice(0, 3);
         const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
-        const gapToTop3 = (rank > 3) ? Math.max(500, top3Balance - user.walletBalance + 500) : 0;
+        const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
         
-        // Mock Profit Margin
         const userProfitMargin = 18.5; 
         const avgProfitMargin = 12.4;
         
@@ -259,27 +305,62 @@ app.get('/dashboard', async (req, res) => {
             gapToTop3, 
             userProfitMargin, 
             avgProfitMargin,
-            topFive: allRetailers.length > 0 ? allRetailers.slice(0, 5) : []
+            topFive: allRetailers.slice(0, 5)
         });
     } catch (err) {
         console.error('Dashboard Error:', err);
-        res.status(500).send('Dashboard Error: ' + err.message);
+        res.status(500).send('Dashboard Error');
     }
 });
 
 app.get('/my-account', (req, res) => res.redirect('/dashboard'));
 
-// API: Leaderboard (For frontend components)
+// API: Leaderboard (Matches Dashboard Logic)
 app.get('/api/leaderboard', async (req, res) => {
     try {
         const retailers = await User.find({ role: 'retailer' })
-            .sort({ walletBalance: -1 })
+            .sort({ walletBalance: -1, createdAt: 1 })
             .select('username shopName city walletBalance profileImage')
             .limit(10)
             .lean();
         res.json(retailers || []);
     } catch (err) {
         res.status(500).json({ error: 'Leaderboard API Error' });
+    }
+});
+
+// (Routes moved to top)
+
+// Admin: Finalize Auction & Award Coins
+app.post('/admin/finalize-auction/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).send('Forbidden');
+    const { winnerId } = req.body;
+    try {
+        const auction = await Auction.findById(req.params.id);
+        const winner = await User.findById(winnerId);
+        
+        if (!auction || !winner) return res.status(404).send('Not Found');
+        
+        // 1. Award Coins: Shopping Value = Coins
+        const coinAward = auction.currentBid || auction.initialPrice;
+        winner.walletBalance += coinAward;
+        
+        // 2. Add to Won Auctions
+        if (!winner.wonAuctions.includes(auction._id)) {
+            winner.wonAuctions.push(auction._id);
+        }
+        
+        // 3. Close Auction
+        auction.status = 'Closed';
+        
+        await winner.save();
+        await auction.save();
+        
+        console.log(`[STABLE-ECONOMY] Awarded ${coinAward} Coins to ${winner.username} for win: ${auction.title}`);
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Finalize Error:', err);
+        res.status(500).send('Finalize Error');
     }
 });
 

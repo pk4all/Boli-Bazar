@@ -579,21 +579,21 @@
                                     <i class="fas fa-wallet"></i>
                                 </div>
                                 <div>
-                                    <h5 class="text-[10px] font-black text-secondary uppercase">Token Balance</h5>
-                                    <p class="text-[9px] font-bold text-gray-500">Available: ₹2,450</p>
+                                    <h5 class="text-[10px] font-black text-secondary uppercase">Shopping Coins</h5>
+                                    <p class="text-[9px] font-bold text-gray-500">Available: ₹<%= (user && typeof user.walletBalance !== 'undefined') ? user.walletBalance.toLocaleString() : '0' %></p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-[9px] font-black text-primary uppercase flex items-center gap-1">
-                                    <i class="fas fa-exclamation-circle text-[8px]"></i>
-                                    Insufficient
+                                <p class="text-[9px] font-black text-emerald-500 uppercase flex items-center gap-1">
+                                    <i class="fas fa-check-circle text-[8px]"></i>
+                                    Verified Account
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Main Primary CTA -->
+                        <!-- Main Primary CTA (Updated for Checkout) -->
                         <div class="pt-2">
-                            <button onclick="window.location.href='/auctions'" class="w-full bg-gradient-to-r from-[#d90429] to-[#ef233c] hover:opacity-90 text-white py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-4">
+                            <button onclick="openCheckoutModal()" class="w-full bg-gradient-to-r from-[#d90429] to-[#ef233c] hover:opacity-90 text-white py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-xl shadow-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-4">
                                 <i class="fas fa-bolt-lightning"></i>
                                 Abhi Bid Lagao
                             </button>
@@ -680,8 +680,148 @@
         </div>
     </div>
 
+    <!-- Premium Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 z-[3000] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeCheckoutModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-[3rem] p-10 shadow-2xl animate-slide-up">
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-primary shadow-inner">
+                    <i class="fas fa-shopping-bag text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-black text-secondary font-heading">Confirm Booking</h3>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2">Product: <%= auction.title %></p>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-gray-50 rounded-[2rem] p-8 space-y-6 mb-10">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">Quantity Selected</span>
+                    <span class="text-xs font-black text-secondary" id="modal-qty">5 Bags</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-black text-gray-400 uppercase">Payment Mode</span>
+                    <span class="text-xs font-black text-secondary uppercase" id="modal-payment-mode">Full Payment</span>
+                </div>
+                <div class="pt-6 border-t border-gray-200 flex justify-between items-center">
+                    <span class="text-xs font-black text-secondary uppercase">Total Payable</span>
+                    <span class="text-2xl font-black text-primary" id="modal-total">₹0</span>
+                </div>
+                <!-- Reward Badge -->
+                <div class="pt-4 flex justify-center">
+                    <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-tighter flex items-center gap-2">
+                        <i class="fas fa-gift"></i>
+                        Aapko <span id="modal-award">₹0</span> Coins milenge!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-4">
+                <button id="confirm-booking-btn" onclick="processBooking()" class="w-full bg-primary text-white py-5 rounded-2xl text-[12px] font-black uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
+                    <span id="btn-text">Confirm & Pay</span>
+                    <i class="fas fa-arrow-right" id="btn-icon"></i>
+                </button>
+                <button onclick="closeCheckoutModal()" class="w-full py-4 text-[10px] font-black text-gray-400 uppercase hover:text-secondary transition">
+                    Abhi Nahi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const currentPrice = <%= auction.currentBid %>;
+        let paymentMode = 'full';
+
+        function openCheckoutModal() {
+            const qty = document.getElementById('bidQty').value;
+            const total = document.getElementById('billing-total-payable').textContent;
+            
+            document.getElementById('modal-qty').textContent = qty + ' Bags';
+            document.getElementById('modal-payment-mode').textContent = paymentMode === 'full' ? 'Full Payment' : 'Cash on Delivery';
+            document.getElementById('modal-total').textContent = total;
+            document.getElementById('modal-award').textContent = total;
+            
+            document.getElementById('checkoutModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function processBooking() {
+            const btn = document.getElementById('confirm-booking-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            const qty = document.getElementById('bidQty').value;
+            
+            // Loading State
+            btn.disabled = true;
+            btnText.textContent = 'Processing Payment...';
+            btnIcon.className = 'fas fa-spinner fa-spin';
+            btn.classList.add('opacity-80');
+
+            try {
+                const response = await fetch('/api/checkout/<%= auction._id %>', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    },
+                    body: JSON.stringify({
+                        quantity: qty,
+                        paymentMode: paymentMode
+                    })
+                });
+
+                // Check for non-OK responses
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    let errMsg = `V5-Error (${response.status})`;
+                    try {
+                        const errData = JSON.parse(errorText);
+                        errMsg = errData.error || errMsg;
+                    } catch(e) {
+                        errMsg += ': ' + errorText.substring(0, 100);
+                    }
+                    alert('Booking Failed: ' + errMsg);
+                    resetBtn(btn, btnText, btnIcon);
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    btn.classList.add('bg-green-600');
+                    btn.classList.remove('bg-primary');
+                    btnText.textContent = 'Booking Confirmed!';
+                    btnIcon.className = 'fas fa-check-circle';
+                    
+                    // Delay for emotional impact
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1500);
+                } else {
+                    alert('Booking Failed: ' + (data.error || 'Unknown error'));
+                    resetBtn(btn, btnText, btnIcon);
+                }
+            } catch (err) {
+                console.error('Checkout error:', err);
+                alert('Connection Error (V5): The request could not be completed. Details: ' + err.message);
+                resetBtn(btn, btnText, btnIcon);
+            }
+        }
+
+        function resetBtn(btn, text, icon) {
+            btn.disabled = false;
+            text.textContent = 'Confirm & Pay';
+            icon.className = 'fas fa-arrow-right';
+            btn.classList.remove('opacity-80');
+        }
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -702,8 +842,6 @@
             document.getElementById('bidQty').value = val;
             calculateTotal();
         }
-
-        let paymentMode = 'full';
 
         function setPaymentMode(mode) {
             paymentMode = mode;

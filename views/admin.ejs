@@ -133,10 +133,22 @@
                                         <p class="text-[10px] text-gray-400 uppercase">Base: ₹<%= auction.initialPrice %> | Live: <span class="text-red-600">₹<%= auction.currentBid || auction.initialPrice %></span></p>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-2">
+                                <div class="flex flex-col items-end gap-3">
+                                    <form action="/admin/finalize-auction/<%= auction._id %>" method="POST" class="flex gap-2">
+                                        <select name="winnerId" required class="bg-white border border-gray-200 rounded-lg px-2 py-1 text-[10px] font-bold outline-none focus:border-primary">
+                                            <option value="" disabled selected>Select Winner</option>
+                                            <% users.forEach(u => { %>
+                                                <option value="<%= u._id %>"><%= u.username %> (<%= u.city %>)</option>
+                                            <% }); %>
+                                        </select>
+                                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-green-700 transition shadow-sm">
+                                            Award & Close
+                                        </button>
+                                    </form>
+                                    
                                     <form action="/admin/delete-product/<%= auction._id %>" method="POST">
-                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition">
-                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        <button class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition group">
+                                            <i class="fas fa-trash-alt text-xs group-hover:rotate-12"></i>
                                         </button>
                                     </form>
                                 </div>
