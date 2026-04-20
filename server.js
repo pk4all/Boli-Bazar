@@ -229,9 +229,73 @@ app.get('/dashboard', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const user = await User.findById(req.session.user.id).populate('bids').populate('wonAuctions');
-        res.render('dashboard', { user });
+        
+        if (!user) {
+            req.session.destroy();
+            return res.redirect('/login');
+        }
+        
+        // Calculate Leaderboard Rank (Robust)
+        const allRetailers = await User.find({ role: 'retailer' }).sort({ walletBalance: -1 }).lean();
+        const userIdx = allRetailers.findIndex(u => u._id.toString() === user._id.toString());
+        
+        // Final fallback values
+        const rank = userIdx !== -1 ? userIdx + 1 : (allRetailers.length + 1);
+        const totalRetailers = Math.max(allRetailers.length, 1);
+        
+        // Insights logic
+        const top3 = allRetailers.slice(0, 3);
+        const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
+        const gapToTop3 = (rank > 3) ? Math.max(500, top3Balance - user.walletBalance + 500) : 0;
+        
+        // Mock Profit Margin
+        const userProfitMargin = 18.5; 
+        const avgProfitMargin = 12.4;
+        
+        res.render('dashboard', { 
+            user, 
+            rank, 
+            totalRetailers, 
+            gapToTop3, 
+            userProfitMargin, 
+            avgProfitMargin,
+            topFive: allRetailers.length > 0 ? allRetailers.slice(0, 5) : []
+        });
     } catch (err) {
-        res.status(500).send('Dashboard Error');
+        console.error('Dashboard Error:', err);
+        res.status(500).send('Dashboard Error: ' + err.message);
+    }
+});
+
+app.get('/my-account', (req, res) => res.redirect('/dashboard'));
+
+// API: Leaderboard (For frontend components)
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        const retailers = await User.find({ role: 'retailer' })
+            .sort({ walletBalance: -1 })
+            .select('username shopName city walletBalance profileImage')
+            .limit(10)
+            .lean();
+        res.json(retailers || []);
+    } catch (err) {
+        res.status(500).json({ error: 'Leaderboard API Error' });
+    }
+});
+
+// Profile Update Route
+app.post('/dashboard/update-profile', upload.single('profileImage'), async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const updateData = {};
+        if (req.file) {
+            updateData.profileImage = '/uploads/' + req.file.filename;
+        }
+        await User.findByIdAndUpdate(req.session.user.id, updateData);
+        res.redirect('/dashboard');
+    } catch (err) {
+        console.error('Profile Update Error:', err);
+        res.redirect('/dashboard');
     }
 });
 

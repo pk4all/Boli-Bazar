@@ -104,8 +104,8 @@
                 <a href="/auctions" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">
                     <i class="far fa-clock text-gray-300"></i> Upcoming Lots
                 </a>
-                <a href="/dashboard" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">
-                    <i class="fas fa-gavel text-gray-300"></i> My Bids
+                <a href="/dashboard" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary transition">
+                    <i class="fas fa-gavel"></i> Dashboard
                 </a>
             </nav>
 
@@ -124,15 +124,15 @@
                     </div>
                 </div>
                 <!-- User -->
-                <div class="flex items-center gap-3 pl-2 border-l border-gray-100 group cursor-pointer">
-                    <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm shadow-lg shadow-red-500/20">
+                <a href="/dashboard" class="flex items-center gap-3 pl-2 border-l border-gray-100 group cursor-pointer relative z-[1001]">
+                    <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-black text-sm shadow-lg shadow-red-500/20 group-hover:scale-105 transition">
                         <%= (user ? user.username.charAt(0) : 'R').toUpperCase() %>
                     </div>
                     <div class="hidden sm:flex flex-col">
-                        <span class="text-[10px] font-black text-secondary uppercase tracking-widest"><%= user ? user.username : 'Ramesh Gupta' %></span>
-                        <i class="fas fa-chevron-down text-[8px] text-gray-300 mt-0.5"></i>
+                        <span class="text-[10px] font-black text-secondary uppercase tracking-widest group-hover:text-primary transition"><%= user ? user.username : 'Retailer' %></span>
+                        <span class="text-[8px] font-bold text-gray-400">View Account</span>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </header>

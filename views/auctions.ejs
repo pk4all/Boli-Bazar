@@ -45,8 +45,13 @@
             </a>
             <div class="flex items-center space-x-6">
                  <% if (user) { %>
-                    <a href="/dashboard" class="text-xs font-black uppercase tracking-widest text-gray-500 hover:text-primary transition">Dashboard</a>
-                    <a href="/logout" class="text-xs font-black uppercase tracking-widest text-primary">Logout</a>
+                    <a href="/dashboard" class="group flex items-center space-x-3 bg-gray-50 border border-gray-100 px-5 py-2.5 rounded-full hover:bg-primary transition shadow-sm relative z-[1001]">
+                        <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] group-hover:bg-white/20">
+                            <i class="fas fa-user-circle text-white"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-secondary group-hover:text-white transition">Dashboard</span>
+                    </a>
+                    <a href="/logout" class="text-[10px] font-black uppercase tracking-widest text-primary px-2">Logout</a>
                  <% } else { %>
                     <a href="/login" class="text-xs font-black uppercase tracking-widest text-gray-500">Login</a>
                     <a href="/register" class="bg-primary text-white px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest">Join</a>

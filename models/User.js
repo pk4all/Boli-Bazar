@@ -14,6 +14,7 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, enum: ['retailer', 'admin'], default: 'retailer' },
     isRegistered: { type: Boolean, default: true }, // Registration is now free by default
     walletBalance: { type: Number, default: 0 },
+    profileImage: { type: String, default: null },
     bids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Auction' }],
     wonAuctions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Auction' }]
 }, { timestamps: true });

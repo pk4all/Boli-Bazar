@@ -242,7 +242,7 @@ mongoose.connect(MONGO_URI)
         
         console.log('Seeding Demo Retailer...');
         const retailer = new User({
-            username: 'Retailer',
+            username: 'Suraj Gupta',
             email: 'retailer@bolibazar.com',
             phone: '9876543210',
             password: 'retailer123',
@@ -252,9 +252,29 @@ mongoose.connect(MONGO_URI)
             state: 'Uttar Pradesh',
             pincode: '226001',
             role: 'retailer',
+            walletBalance: 4500,
             isRegistered: true
         });
         await retailer.save();
+
+        const mockRetailers = [
+            { username: 'Amit Sharma', email: 'amit@test.com', phone: '9800000001', password: 'password123', shopName: 'Sharma General Store', address: 'Bazar Street', city: 'Kanpur', state: 'Uttar Pradesh', pincode: '208001', walletBalance: 12500 },
+            { username: 'Vikram Singh', email: 'vikram@test.com', phone: '9800000002', password: 'password123', shopName: 'Vikram Wholesalers', address: 'NH-24', city: 'Bareilly', state: 'Uttar Pradesh', pincode: '243001', walletBalance: 15200 },
+            { username: 'Priya Verma', email: 'priya@test.com', phone: '9800000003', password: 'password123', shopName: 'Priya Daily Needs', address: 'Civil Lines', city: 'Prayagraj', state: 'Uttar Pradesh', pincode: '211001', walletBalance: 8900 },
+            { username: 'Rahul Jain', email: 'rahul@test.com', phone: '9800000004', password: 'password123', shopName: 'Jain Provision Store', address: 'Rishi Nagar', city: 'Meerut', state: 'Uttar Pradesh', pincode: '250001', walletBalance: 21000 },
+            { username: 'Deepak Lodhi', email: 'deepak@test.com', phone: '9800000005', password: 'password123', shopName: 'Deepak Traders', address: 'Mandi Road', city: 'Hapur', state: 'Uttar Pradesh', pincode: '245101', walletBalance: 6700 },
+            { username: 'Manisha Pal', email: 'manisha@test.com', phone: '9800000006', password: 'password123', shopName: 'Bansi Mart', address: 'Station Road', city: 'Agra', state: 'Uttar Pradesh', pincode: '282001', walletBalance: 11000 },
+            { username: 'Kabir Khan', email: 'kabir@test.com', phone: '9800000007', password: 'password123', shopName: 'Zam Zam Grocery', address: 'Old City', city: 'Varanasi', state: 'Uttar Pradesh', pincode: '221001', walletBalance: 17500 },
+            { username: 'Sonia Mehta', email: 'sonia@test.com', phone: '9800000008', password: 'password123', shopName: 'Mehta Sons', address: 'Model Town', city: 'Ghaziabad', state: 'Uttar Pradesh', pincode: '201001', walletBalance: 3200 },
+            { username: 'Rohan Mehra', email: 'rohan@test.com', phone: '9800000009', password: 'password123', shopName: 'Mehra Retail', address: 'Sector 15', city: 'Noida', state: 'Uttar Pradesh', pincode: '201301', walletBalance: 9800 },
+            { username: 'Anjali Das', email: 'anjali@test.com', phone: '9800000010', password: 'password123', shopName: 'Das Supermart', address: 'Main Chowk', city: 'Jhansi', state: 'Uttar Pradesh', pincode: '284001', walletBalance: 13400 }
+        ];
+
+        console.log(`Seeding ${mockRetailers.length} mock retailers...`);
+        for (let rData of mockRetailers) {
+            const r = new User({ ...rData, role: 'retailer', isRegistered: true });
+            await r.save();
+        }
 
         console.log('Database Seeded Successfully!');
         console.log('Admin Email: admin@bolibazar.com');

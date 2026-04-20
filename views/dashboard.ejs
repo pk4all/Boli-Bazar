@@ -3,121 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retailer Dashboard | BoliBazar</title>
+    <title>Executive Dashboard | BoliBazar Retailer</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/main.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-50 text-gray-900 font-sans">
+    <style>
+        :root {
+            --primary: #d90429;
+            --secondary: #1a1a1a;
+            --accent: #ffb703;
+            --success: #2ec4b6;
+            --glass: rgba(255, 255, 255, 0.9);
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #f8fafc;
+            background-image: radial-gradient(at 0% 0%, rgba(217, 4, 41, 0.03) 0px, transparent 50%),
+                              radial-gradient(at 100% 0%, rgba(26, 26, 26, 0.01) 0px, transparent 50%);
+        }
+        .font-heading { font-family: 'Outfit', sans-serif; }
+        
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+        }
 
-    <!-- Simple Nav -->
-    <nav class="bg-secondary border-b border-white/10 py-4 px-6 sticky top-0 z-50 text-white">
-        <div class="container mx-auto flex justify-between items-center">
-            <a href="/" class="text-xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
-            <div class="flex items-center space-x-6">
-                <a href="/" class="text-sm font-bold opacity-70 hover:opacity-100 transition">Back to Auctions</a>
-                <a href="/logout" class="text-xs font-bold text-primary uppercase">Logout</a>
+        .premium-gradient {
+            background: linear-gradient(135deg, #d90429 0%, #ef233c 100%);
+        }
+
+        .stat-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Profile Hover Effect */
+        .profile-container:hover .profile-overlay {
+            opacity: 1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d90429; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- Standardized Header (High Z-Index & Clickable) -->
+    <nav class="sticky top-0 z-[2000] bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="container mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="/auctions" class="flex items-center gap-2">
+                <span class="text-2xl font-black tracking-tighter uppercase font-heading">Boli<span class="text-primary italic">Bazar</span></span>
+            </a>
+            <div class="flex items-center gap-8">
+                <a href="/auctions" class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition flex items-center gap-2">
+                    <i class="fas fa-bolt-lightning text-gray-200"></i> Live Auctions
+                </a>
+                <div class="h-6 w-[1px] bg-gray-100"></div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-[10px] font-black text-secondary uppercase tracking-widest"><%= (locals.user && user.username) ? user.username : 'Retailer' %></p>
+                        <p class="text-[8px] font-bold text-primary uppercase">Elite Retailer</p>
+                    </div>
+                    <a href="/logout" class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-primary transition group">
+                        <i class="fas fa-power-off group-hover:rotate-90 transition-transform"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto px-4 py-12">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <main class="container mx-auto px-6 mt-10 relative z-10">
+        <% 
+            const d_rank = locals.rank || 0;
+            const d_topFive = locals.topFive || [];
+            const d_gap = locals.gapToTop3 || 0;
+            const d_total = locals.totalRetailers || 1;
+        %>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <!-- Sidebar / Stats -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- Profile Card -->
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
-                    <div class="w-20 h-20 bg-secondary text-white rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 border-4 border-primary/20">
-                        <%= user.username.charAt(0).toUpperCase() %>
+            <!-- LEFT COLUMN: Profile & Key Stats (4/12) -->
+            <div class="lg:col-span-4 space-y-8">
+                
+                <!-- Profile Master Card -->
+                <div class="glass-card rounded-[2.5rem] p-10 text-center relative overflow-hidden">
+                    <!-- Background Decor -->
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+                    
+                    <!-- Profile Picture Section -->
+                    <div class="relative w-32 h-32 mx-auto mb-6 profile-container group">
+                        <div class="w-full h-full rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl relative bg-secondary flex items-center justify-center text-white text-5xl font-black">
+                            <% if (user.profileImage) { %>
+                                <img src="<%= user.profileImage %>" class="w-full h-full object-cover">
+                            <% } else { %>
+                                <%= user.username.charAt(0).toUpperCase() %>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Upload Overlay -->
+                        <form action="/dashboard/update-profile" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[2.5rem] opacity-0 profile-overlay transition-opacity cursor-pointer">
+                            <label for="profileImgInput" class="cursor-pointer text-white flex flex-col items-center">
+                                <i class="fas fa-camera text-xl mb-1"></i>
+                                <span class="text-[8px] font-black uppercase tracking-widest">Update</span>
+                            </label>
+                            <input type="file" id="profileImgInput" name="profileImage" class="hidden" onchange="this.form.submit()">
+                        </form>
                     </div>
-                    <h2 class="text-xl font-black font-heading"><%= user.username %></h2>
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">Verified Retailer</p>
-                    <div class="flex justify-center items-center space-x-2">
-                        <span class="status-dot"></span>
-                        <span class="text-xs font-bold text-green-600">Active Account</span>
+
+                    <h2 class="text-2xl font-black font-heading text-secondary"><%= (locals.user && user.username) ? user.username : 'User' %></h2>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-6"><%= (locals.user && user.shopName) ? user.shopName : 'Shop' %> • <%= (locals.user && user.city) ? user.city : 'City' %></p>
+                    
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Account Active
+                    </div>
+
+                    <!-- Rank Stats Row -->
+                    <div class="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-100">
+                        <div>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Global Rank</p>
+                            <p class="text-xl font-black text-secondary">#<%= d_rank > 0 ? d_rank : '--' %></p>
+                        </div>
+                        <div class="border-l border-gray-100">
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Elite Status</p>
+                            <p class="text-xl font-black text-primary"><%= (d_rank > 0 && d_rank <= 3) ? 'Gold' : 'Silver' %></p>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Wallet Card -->
-                <div class="bg-[var(--hero-gradient)] rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12"></div>
-                    <p class="text-[10px] font-black uppercase text-gray-400 mb-2">My Balance</p>
-                    <h3 class="text-3xl font-black mb-4">₹<%= user.walletBalance || 0 %></h3>
-                    <button class="w-full btn-primary py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-red-900/40">
-                        Top Up Wallet
-                    </button>
+                <!-- Coin Wallet (Creative Design) -->
+                <div class="premium-gradient rounded-[2.5rem] p-10 text-white shadow-2xl shadow-red-500/30 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-20 group-hover:rotate-12 transition-transform">
+                        <i class="fas fa-coins text-6xl"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-white/60 uppercase tracking-widest mb-2">Total Wallet Balance</p>
+                        <h3 class="text-4xl font-black mb-10 tracking-tighter">₹<%= (locals.user && user.walletBalance) ? user.walletBalance.toLocaleString() : '0' %></h3>
+                        
+                        <div class="flex items-center gap-4">
+                            <button class="flex-grow bg-white text-primary py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 active:scale-95 transition-all shadow-xl">
+                                Top Up Tokens
+                            </button>
+                            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center cursor-pointer hover:bg-white/30 transition shadow-xl">
+                                <i class="fas fa-history text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Opinion Card -->
+                <div class="bg-secondary rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-gray-900/40">
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-2xl"></div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h4 class="text-xs font-black uppercase tracking-widest">Retailer Insight</h4>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <% if (d_rank > 3) { %>
+                            <div>
+                                <p class="text-[11px] font-medium text-white/60 leading-relaxed mb-4">
+                                    Aap sirf <span class="text-white font-bold">₹<%= d_gap.toLocaleString() %></span> ki aur shopping karein ya wallet top-up karein toh aap <span class="text-primary font-black uppercase">Top 3</span> mein aa jayenge!
+                                </p>
+                                <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary" style="width: <%= (locals.user && d_gap >= 0) ? Math.min(100, (user.walletBalance / (user.walletBalance + d_gap) * 100)) : '0' %>%"></div>
+                                </div>
+                            </div>
+                        <% } else if (d_rank > 0 && d_rank <= 3) { %>
+                            <p class="text-[11px] font-medium text-white/60 leading-relaxed mb-4">
+                                Excellent! Aap pehle se hi <span class="text-primary font-black uppercase">Top 3 Retailers</span> mein hain. Aapka trust humara sabse bada asset hai.
+                            </p>
+                        <% } else { %>
+                            <p class="text-[11px] font-medium text-white/60 leading-relaxed mb-4">
+                                Bidding start karein leaderboard mein apni jagah banane ke liye!
+                            </p>
+                        <% } %>
+
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[9px] font-black uppercase text-white/40">Profit Margin Advantage</span>
+                                <span class="text-[10px] font-black text-green-400">+<%= (locals.userProfitMargin && locals.avgProfitMargin) ? (userProfitMargin - avgProfitMargin).toFixed(1) : '6.1' %>%</span>
+                            </div>
+                            <p class="text-[10px] font-medium text-white/80">
+                                Aapka selection strategy kaafi accha hai, industry average se <%= locals.userProfitMargin || '18.5' %>% zyada profit kama rahe hain.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
             </div>
 
-            <!-- Main Content Area -->
-            <div class="lg:col-span-3 space-y-12">
+            <!-- RIGHT COLUMN: Main Interaction (8/12) -->
+            <div class="lg:col-span-8 space-y-10">
                 
-                <!-- Active Bids -->
+                <!-- Quick Glance Mini-Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-primary mb-3 shadow-sm">
+                            <i class="fas fa-gavel text-xs"></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Bids</p>
+                        <p class="text-xl font-black text-secondary"><%= user.bids.length %></p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 mb-3 shadow-sm">
+                            <i class="fas fa-box-open text-xs"></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Won Lots</p>
+                        <p class="text-xl font-black text-secondary"><%= user.wonAuctions.length %></p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 mb-3 shadow-sm">
+                            <i class="fas fa-chart-line text-xs"></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Margin Avg</p>
+                        <p class="text-xl font-black text-secondary"><%= locals.userProfitMargin || '18.5' %>%</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-500 mb-3 shadow-sm">
+                            <i class="fas fa-shield-heart text-xs"></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Trust Score</p>
+                        <p class="text-xl font-black text-secondary">9.8/10</p>
+                    </div>
+                </div>
+
+                <!-- Section: My Winning Lots (Recent Orders) -->
                 <section>
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-black font-heading">Active <span class="text-primary italic">Bids</span></h3>
-                        <span class="bg-gray-200 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest"><%= user.bids.length %> Items</span>
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-2xl font-black font-heading text-secondary">Winning <span class="text-primary italic">Lots</span></h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Your successful acquisitions</p>
+                        </div>
+                        <a href="#" class="text-[10px] font-black uppercase text-primary tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-2">View All Orders <i class="fas fa-arrow-right text-[8px]"></i></a>
                     </div>
 
-                    <% if (user.bids.length > 0) { %>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <% user.bids.forEach(bid => { %>
-                                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center space-x-6 hover:border-primary transition group">
-                                    <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                                        <img src="<%= bid.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <% if (user.wonAuctions.length > 0) { %>
+                        <div class="space-y-4">
+                            <% user.wonAuctions.slice().reverse().forEach(lot => { %>
+                                <div class="glass-card rounded-3xl p-6 border border-gray-100 flex items-center justify-between group hover:border-primary/30 transition-all overflow-hidden relative">
+                                    <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:rotate-12 transition-transform duration-700">
+                                        <i class="fas fa-shopping-cart text-8xl text-secondary"></i>
                                     </div>
-                                    <div class="flex-grow">
-                                        <h4 class="font-bold text-gray-900"><%= bid.title %></h4>
-                                        <p class="text-xs text-gray-400 mb-2">Current Bid: <span class="text-primary font-black">₹<%= bid.currentBid || bid.initialPrice %></span></p>
-                                        <div class="flex space-x-2">
-                                            <a href="/product/<%= bid._id %>" class="text-[10px] font-black uppercase text-secondary hover:text-primary transition tracking-widest">View Auction →</a>
+                                    
+                                    <div class="flex items-center gap-6 relative z-10">
+                                        <div class="w-20 h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
+                                            <img src="<%= lot.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-1000">
                                         </div>
+                                        <div>
+                                            <div class="flex items-center gap-3 mb-1">
+                                                <h4 class="font-black text-secondary group-hover:text-primary transition"><%= lot.title %></h4>
+                                                <span class="px-2 py-0.5 bg-green-50 text-green-600 rounded-md text-[8px] font-black uppercase tracking-widest">Confirmed</span>
+                                            </div>
+                                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Order ID: BZ-<%= lot._id.toString().slice(-6).toUpperCase() %></p>
+                                            <div class="flex items-center gap-4 text-[10px] font-black">
+                                                <span class="text-secondary tracking-tighter">₹<%= lot.currentBid.toLocaleString() %></span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="text-gray-500 uppercase tracking-widest font-bold"><%= lot.lotSize %> <%= lot.unitType %>s</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-4 relative z-10">
+                                        <button class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-secondary hover:text-white transition shadow-sm">
+                                            <i class="fas fa-file-invoice text-xs"></i>
+                                        </button>
+                                        <button class="btn-primary px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                            Track Order
+                                        </button>
                                     </div>
                                 </div>
                             <% }); %>
                         </div>
                     <% } else { %>
-                        <div class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-gray-100">
-                            <i class="fas fa-gavel text-3xl text-gray-200 mb-4"></i>
-                            <p class="text-gray-400 text-sm font-bold">You haven't placed any bids yet.</p>
-                            <a href="/" class="text-primary text-xs font-black uppercase mt-4 block hover:underline">Explore Auctions</a>
+                        <div class="glass-card rounded-[2.5rem] p-20 text-center border-2 border-dashed border-gray-100">
+                            <div class="w-20 h-20 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-200 mx-auto mb-6">
+                                <i class="fas fa-hourglass-start text-3xl"></i>
+                            </div>
+                            <h4 class="text-lg font-black text-secondary mb-2">No Wins Yet?</h4>
+                            <p class="text-xs text-gray-400 font-medium mb-8">Auctions mein participate karein aur best heavy-margin inventory acquire karein.</p>
+                            <a href="/auctions" class="inline-flex items-center gap-3 bg-secondary text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-primary transition shadow-xl">
+                                Start Bidding Now
+                            </a>
                         </div>
                     <% } %>
                 </section>
 
-                <!-- Won Auctions -->
+                <!-- Section: Global Leaderboard (Top 5 Preview) -->
                 <section>
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-black font-heading">Won <span class="text-green-600 italic">Lots</span></h3>
-                        <span class="bg-gray-200 text-gray-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase"><%= user.wonAuctions.length %> Items</span>
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-2xl font-black font-heading text-secondary">Elite <span class="text-[#ffb703] italic">Leaderboard</span></h3>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Top performing retailers this month</p>
+                        </div>
                     </div>
 
-                    <% if (user.wonAuctions.length > 0) { %>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <% user.wonAuctions.forEach(lot => { %>
-                                <div class="bg-white rounded-2xl p-6 shadow-sm border border-green-100 border-l-4 border-l-green-500">
-                                    <h4 class="font-bold text-gray-900"><%= lot.title %></h4>
-                                    <p class="text-xs text-gray-400 mb-4">Purchased for: <span class="text-green-600 font-black">₹<%= lot.currentBid %></span></p>
-                                    <button class="w-full bg-gray-50 text-gray-500 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">
-                                        View Invoice
-                                    </button>
+                    <div class="glass-card rounded-[2.5rem] p-8 border border-gray-100">
+                        <div class="space-y-4">
+                            <% if (locals.topFive && topFive.length > 0) { %>
+                                <% topFive.forEach((retailer, idx) => { %>
+                                    <div class="flex items-center justify-between p-4 rounded-2xl transition-all <%= retailer._id.toString() === user._id.toString() ? 'bg-red-50/50 border border-red-100' : 'hover:bg-gray-50' %>">
+                                        <div class="flex items-center gap-4">
+                                            <span class="w-6 text-[10px] font-black <%= idx < 3 ? 'text-primary' : 'text-gray-300' %>">#0<%= idx + 1 %></span>
+                                            <div class="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 text-gray-400 flex items-center justify-center font-black text-xs">
+                                                <% if (retailer.profileImage) { %>
+                                                    <img src="<%= retailer.profileImage %>" class="w-full h-full object-cover">
+                                                <% } else { %>
+                                                    <%= retailer.username.charAt(0).toUpperCase() %>
+                                                <% } %>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-black text-secondary"><%= retailer.username %> <%= retailer._id.toString() === user._id.toString() ? '(You)' : '' %></p>
+                                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest"><%= retailer.city %></p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs font-black text-secondary">₹<%= retailer.walletBalance.toLocaleString() %></p>
+                                            <p class="text-[8px] font-black text-primary uppercase tracking-widest">Active Coin</p>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="py-12 text-center">
+                                    <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-4 text-gray-200">
+                                        <i class="fas fa-users-slash text-2xl"></i>
+                                    </div>
+                                    <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">No Competitors Found</p>
+                                    <p class="text-[9px] text-gray-300 font-bold mt-1">Be the first to reach the top!</p>
                                 </div>
-                            <% }); %>
+                            <% } %>
                         </div>
-                    <% } else { %>
-                        <div class="bg-white rounded-3xl p-12 text-center border-2 border-dashed border-gray-100">
-                            <i class="fas fa-trophy text-3xl text-gray-200 mb-4"></i>
-                            <p class="text-gray-400 text-sm font-bold">Winning lots will appear here.</p>
-                        </div>
-                    <% } %>
+                    </div>
                 </section>
 
             </div>
 
         </div>
+
     </main>
+
+    <!-- Bottom Spacing -->
+    <div class="h-12"></div>
+
+    <script>
+        // Tab switching logic if needed later
+        function switchTab(tabId) {
+            // Implementation
+        }
+    </script>
 
 </body>
 </html>
