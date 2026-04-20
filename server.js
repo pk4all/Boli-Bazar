@@ -301,11 +301,14 @@ app.get('/admin', async (req, res) => {
             weekData.push(dailySum);
         }
 
+        // Unique categories for the launch form
+        const categories = [...new Set(auctions.map(a => a.category))].filter(Boolean);
+
         res.render('admin', { 
             auctions, users, banners, rewards, orders, 
             totalRevenue, todayRevenue, pendingCod,
             retailerCount, liveProductsCount, upcomingProductsCount,
-            weekLabels, weekData,
+            weekLabels, weekData, categories,
             startDate: startDate || '',
             endDate: endDate || ''
         });
@@ -319,8 +322,12 @@ app.get('/admin', async (req, res) => {
 app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        const { title, description, initialPrice, lotSize, category, moq, hikePercentage, videoUrl, status } = req.body;
+        let { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status } = req.body;
         
+        // Handle New Category Creation
+        if (category === 'other' && newCategory) {
+            category = newCategory.trim();
+        }
         const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
         
         const newAuction = new Auction({
