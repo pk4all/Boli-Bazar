@@ -9,6 +9,7 @@ const fs = require('fs');
 const Auction = require('./models/Auction');
 const User = require('./models/User');
 const Banner = require('./models/Banner');
+const Order = require('./models/Order');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -82,6 +83,23 @@ app.post('/api/checkout/:id', async (req, res) => {
         
         await user.save();
         await auction.save();
+
+        // --- NEW: Record Order for Product Leaderboard ---
+        try {
+            await Order.create({
+                user: user._id,
+                auction: auction._id,
+                username: user.username,
+                city: user.city,
+                quantity: buyQty,
+                totalAmount: totalValue,
+                paymentMode: paymentMode
+            });
+        } catch (orderErr) {
+            console.error('[ORDER-RECORD-ERROR]', orderErr);
+            // Non-critical error, booking already saved
+        }
+
         res.json({ success: true, message: 'Booking Confirmed!', redirect: '/dashboard#winning-lots' });
     } catch (err) {
         console.error('[CHECKOUT-CRASH]', err);
@@ -334,6 +352,29 @@ app.get('/api/leaderboard', async (req, res) => {
         res.json(retailers || []);
     } catch (err) {
         res.status(500).json({ error: 'Leaderboard API Error' });
+    }
+});
+
+// NEW: Product-Specific Leaderboard API
+app.get('/api/auctions/:id/leaderboard', async (req, res) => {
+    try {
+        // Aggregate top buyers for this specific auction
+        const leaderboard = await Order.aggregate([
+            { $match: { auction: new mongoose.Types.ObjectId(req.params.id) } },
+            { $group: {
+                _id: "$user",
+                username: { $first: "$username" },
+                city: { $first: "$city" },
+                totalQuantity: { $sum: "$quantity" },
+                totalAmount: { $sum: "$totalAmount" }
+            }},
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ]);
+        res.json(leaderboard || []);
+    } catch (err) {
+        console.error('[PRODUCT-LEADERBOARD-ERROR]', err);
+        res.status(500).json({ error: 'Product Leaderboard Error' });
     }
 });
 
