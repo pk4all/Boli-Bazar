@@ -181,33 +181,29 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
-                    <!-- 1st Reward -->
-                    <div class="card-gold p-6 rounded-3xl group hover:bg-gold/5 transition-all">
+                    <% rewards.forEach(reward => { 
+                        let cardClass = reward.rank === 1 ? 'card-gold' : (reward.rank === 2 ? 'card-silver' : 'card-bronze');
+                        let iconClass = reward.rank === 1 ? 'fas fa-crown text-gold' : (reward.rank === 2 ? 'fas fa-medal text-blue-400' : 'fas fa-award text-orange-400');
+                        let textClass = reward.rank === 1 ? 'text-gold/70' : (reward.rank === 2 ? 'text-blue-400/70' : 'text-orange-400/70');
+                    %>
+                    <div class="<%= cardClass %> p-6 rounded-3xl group hover:bg-white/5 transition-all flex flex-col">
                         <div class="flex items-center space-x-3 mb-4">
-                            <i class="fas fa-crown text-gold text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-gold/70">1st Place</span>
+                            <i class="<%= iconClass %> text-sm"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest <%= textClass %>">
+                                <%= reward.rank === 1 ? '1st Place' : (reward.rank === 2 ? '2nd Place' : '3rd Place') %>
+                            </span>
                         </div>
-                        <h3 class="text-lg font-black leading-tight mb-2">FREE Delivery for 1 Month</h3>
-                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">• Exclusive Gold Badge • 5% Extra Discount</p>
+                        
+                        <% if (reward.imageUrl) { %>
+                            <div class="w-full h-32 rounded-2xl overflow-hidden mb-4 border border-white/5 bg-white/5">
+                                <img src="<%= reward.imageUrl %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                            </div>
+                        <% } %>
+
+                        <h3 class="text-lg font-black leading-tight mb-2"><%= reward.title %></h3>
+                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-auto"><%= reward.description %></p>
                     </div>
-                    <!-- 2nd Reward -->
-                    <div class="card-silver p-6 rounded-3xl group hover:bg-silver/5 transition-all">
-                        <div class="flex items-center space-x-3 mb-4 text-blue-400">
-                            <i class="fas fa-medal text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest opacity-70">2nd Place</span>
-                        </div>
-                        <h3 class="text-lg font-black leading-tight mb-2">3% Extra Discount on All Orders</h3>
-                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">• Silver Badge • Priority Support</p>
-                    </div>
-                    <!-- 3rd Reward -->
-                    <div class="card-bronze p-6 rounded-3xl group hover:bg-bronze/5 transition-all">
-                        <div class="flex items-center space-x-3 mb-4 text-orange-400">
-                            <i class="fas fa-award text-sm"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest opacity-70">3rd Place</span>
-                        </div>
-                        <h3 class="text-lg font-black leading-tight mb-2">₹500 Cashback Voucher</h3>
-                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">• Bronze Badge • Early Access to New Lots</p>
-                    </div>
+                    <% }); %>
                 </div>
 
                 <p class="text-center text-[10px] text-gray-500 font-bold italic mb-6">🏆 Jitna zyada kharido, utne zyada coins — month end pe top 3 ko rewards milenge!</p>

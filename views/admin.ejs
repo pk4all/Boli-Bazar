@@ -213,6 +213,49 @@
 
             </div>
 
+            <!-- Leaderboard Rewards Management Section -->
+            <div id="rewards" class="mt-12">
+                <section class="bg-white p-8 rounded-[40px] shadow-sm border border-gray-200">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <i class="fas fa-trophy text-[#ffc107] text-2xl"></i>
+                        <h2 class="text-2xl font-black font-heading">Leaderboard <span class="text-primary">Rewards</span></h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <% rewards.forEach(reward => { %>
+                            <div class="bg-gray-50 p-6 rounded-3xl border border-gray-100 flex flex-col items-center">
+                                <div class="w-20 h-20 bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4 shadow-sm">
+                                    <img src="<%= reward.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover">
+                                </div>
+                                <div class="text-center mb-6">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-primary"><%= reward.rank === 1 ? '1st Place' : (reward.rank === 2 ? '2nd Place' : '3rd Place') %></span>
+                                    <h3 class="text-sm font-black text-secondary mt-1"><%= reward.title %></h3>
+                                </div>
+                                
+                                <form action="/admin/rewards/update" method="POST" enctype="multipart/form-data" class="w-full space-y-4 pt-4 border-t border-gray-200">
+                                    <input type="hidden" name="rank" value="<%= reward.rank %>">
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">New Picture</label>
+                                        <input type="file" name="rewardImage" class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Reward Title</label>
+                                        <input type="text" name="title" value="<%= reward.title %>" required class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs focus:border-primary">
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-1">Description line</label>
+                                        <input type="text" name="description" value="<%= reward.description %>" required class="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-xs focus:border-primary">
+                                    </div>
+                                    <button type="submit" class="w-full bg-secondary text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition">
+                                        Update Reward #<%= reward.rank %>
+                                    </button>
+                                </form>
+                            </div>
+                        <% }); %>
+                    </div>
+                </section>
+            </div>
+
         </main>
     </div>
 

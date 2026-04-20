@@ -10,6 +10,7 @@ const Auction = require('./models/Auction');
 const User = require('./models/User');
 const Banner = require('./models/Banner');
 const Order = require('./models/Order');
+const Reward = require('./models/Reward');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -131,6 +132,20 @@ app.get('/', async (req, res) => {
             .select('username shopName city walletBalance profileImage')
             .limit(10)
             .lean();
+
+        // --- FETCH TOP 3 REWARDS ---
+        let rewards = await Reward.find().sort({ rank: 1 }).lean();
+        
+        // Initialize if empty
+        if (rewards.length === 0) {
+            const defaultRewards = [
+                { rank: 1, title: 'FREE Delivery for 1 Month', description: '• Exclusive Gold Badge • 5% Extra Discount', imageUrl: '/lot1.png' },
+                { rank: 2, title: '3% Extra Discount on All Orders', description: '• Silver Badge • Priority Support', imageUrl: '/lot3.png' },
+                { rank: 3, title: '₹500 Cashback Voucher', description: '• Bronze Badge • Early Access to New Lots', imageUrl: '/lot2.png' }
+            ];
+            await Reward.insertMany(defaultRewards);
+            rewards = await Reward.find().sort({ rank: 1 }).lean();
+        }
             
         console.log(`[STABLE-RENDER] Serving ${banners.length} Banners, ${liveProducts.length} Live Products, and ${leaderboard.length} Leaderboard entries [TRACER: PRIMARY_DESKTOP]`);
         
@@ -138,13 +153,14 @@ app.get('/', async (req, res) => {
             banners,
             liveProducts,
             leaderboard,
+            rewards,
             debug: "ALIVE_IN_PRIMARY_DESKTOP",
             user: req.session.user || null,
             v: Date.now() 
         });
     } catch (err) {
         console.error('[STABLE-ERROR] Home Route:', err);
-        res.render('index', { banners: [], liveProducts: [], leaderboard: [], user: req.session.user || null, v: Date.now() });
+        res.render('index', { banners: [], liveProducts: [], leaderboard: [], rewards: [], user: req.session.user || null, v: Date.now() });
     }
 });
 
@@ -206,7 +222,8 @@ app.get('/admin', async (req, res) => {
         const auctions = await Auction.find().sort({ createdAt: -1 });
         const users = await User.find({ role: 'retailer' });
         const banners = await Banner.find().sort({ order: 1 });
-        res.render('admin', { auctions, users, banners });
+        const rewards = await Reward.find().sort({ rank: 1 });
+        res.render('admin', { auctions, users, banners, rewards });
     } catch (err) {
         res.redirect('/');
     }
@@ -263,6 +280,29 @@ app.post('/admin/banners/delete/:id', async (req, res) => {
         }
         res.redirect('/admin');
     } catch (err) {
+        res.redirect('/admin');
+    }
+});
+
+// Admin: Update Reward
+app.post('/admin/rewards/update', upload.single('rewardImage'), async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const { rank, title, description } = req.body;
+        const updateData = { title, description };
+        
+        if (req.file) {
+            updateData.imageUrl = '/uploads/' + req.file.filename;
+        }
+
+        await Reward.findOneAndUpdate(
+            { rank: parseInt(rank) }, 
+            updateData, 
+            { upsert: true, new: true }
+        );
+        res.redirect('/admin#rewards');
+    } catch (err) {
+        console.error('Reward Update Error:', err);
         res.redirect('/admin');
     }
 });
