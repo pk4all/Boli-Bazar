@@ -22,6 +22,13 @@ const AuctionSchema = new mongoose.Schema({
     isFeatured: { type: Boolean, default: false },
     closingSoon: { type: Boolean, default: false },
     totalBuyers: { type: Number, default: 0 },
+    specifications: [
+        {
+            key: String,
+            value: String,
+            isBasic: { type: Boolean, default: false }
+        }
+    ],
     status: { type: String, enum: ['Live', 'Closed', 'Upcoming'], default: 'Live' }
 }, { timestamps: true });
 

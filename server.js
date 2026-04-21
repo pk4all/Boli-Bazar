@@ -322,12 +322,28 @@ app.get('/admin', async (req, res) => {
 app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        let { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status } = req.body;
+        const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values } = req.body;
         
         // Handle New Category Creation
+        let finalCategory = category;
         if (category === 'other' && newCategory) {
-            category = newCategory.trim();
+            finalCategory = newCategory.trim();
         }
+
+        // Process Specifications
+        const specifications = [];
+        if (Array.isArray(spec_keys) && Array.isArray(spec_values)) {
+            for (let i = 0; i < spec_keys.length; i++) {
+                if (spec_keys[i].trim() && spec_values[i].trim()) {
+                    specifications.push({
+                        key: spec_keys[i].trim(),
+                        value: spec_values[i].trim(),
+                        isBasic: false // You can later add logic to mark some as basic
+                    });
+                }
+            }
+        }
+
         const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
         
         const newAuction = new Auction({
@@ -335,7 +351,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
             description,
             initialPrice,
             lotSize,
-            category,
+            category: finalCategory,
             moq: moq || 1,
             hikePercentage: hikePercentage || 0,
             videoUrl,
@@ -347,6 +363,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
             stockRemaining: lotSize,
             stockSoldPercent: 0,
             unitType: 'bag', // Default unit
+            specifications,
             startTime: new Date(), // Default to now
             endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default to 7 days
         });

@@ -206,7 +206,7 @@
 
                                 <div class="md:col-span-1">
                                     <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Category</label>
-                                    <select name="category" onchange="toggleNewCategory(this.value)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                    <select name="category" onchange="handleCategoryChange(this.value)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
                                         <% categories.forEach(cat => { %>
                                             <option value="<%= cat %>"><%= cat %></option>
                                         <% }) %>
@@ -219,7 +219,18 @@
                                 </div>
 
                                 <script>
-                                    function toggleNewCategory(val) {
+                                    const presets = {
+                                        'Clothing': ['Material', 'Size Range', 'Gender', 'Color', 'GSM', 'Brand Origin'],
+                                        'Electronics': ['Battery', 'Screen Size', 'Processor', 'RAM', 'Storage', 'Warranty'],
+                                        'Grocery': ['Expiry Date', 'Net Weight', 'Packaging', 'Origin', 'FSSAI License'],
+                                        'Oils': ['Purity', 'Grade', 'Packaging Type', 'Shelf Life'],
+                                        'Sugar': ['Grade', 'ICUMSA', 'Origin', 'Packaging'],
+                                        'Grains': ['Variety', 'Moisture', 'Broken %', 'Sorting Type'],
+                                        'General': ['Weight', 'Dimensions', 'Warranty', 'Material', 'Color']
+                                    };
+
+                                    function handleCategoryChange(val) {
+                                        // Handle New Category Toggle
                                         const wrapper = document.getElementById('newCategoryWrapper');
                                         if (val === 'other') {
                                             wrapper.classList.remove('hidden');
@@ -227,7 +238,50 @@
                                         } else {
                                             wrapper.classList.add('hidden');
                                         }
+
+                                        // Update Presets
+                                        updatePresets(val);
                                     }
+
+                                    function updatePresets(cat) {
+                                        const container = document.getElementById('spec-presets');
+                                        const catLabel = document.getElementById('current-category-name');
+                                        catLabel.innerText = cat.toUpperCase();
+                                        
+                                        // Clear current presets (keep the label)
+                                        const labelHtml = `<p class="text-[9px] font-bold text-gray-400 w-full mb-1">SUGGESTIONS FOR <span id="current-category-name" class="text-primary font-black">${cat.toUpperCase()}</span>:</p>`;
+                                        container.innerHTML = labelHtml;
+
+                                        const items = presets[cat] || presets['General'];
+                                        items.forEach(item => {
+                                            const btn = document.createElement('button');
+                                            btn.type = 'button';
+                                            btn.className = 'px-3 py-1 bg-white border border-slate-100 rounded-full text-[9px] font-black text-slate-400 hover:border-primary hover:text-primary transition';
+                                            btn.innerText = `+ ${item}`;
+                                            btn.onclick = () => addSpecRow(item);
+                                            container.appendChild(btn);
+                                        });
+                                    }
+
+                                    function addSpecRow(key = '', value = '') {
+                                        const container = document.getElementById('spec-container');
+                                        const row = document.createElement('div');
+                                        row.className = 'flex items-center gap-3 spec-row animate-in fade-in slide-in-from-left-2 duration-300';
+                                        row.innerHTML = `
+                                            <input type="text" name="spec_keys[]" value="${key}" placeholder="e.g. ${key || 'Weight'}" class="w-1/3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary font-bold">
+                                            <input type="text" name="spec_values[]" value="${value}" placeholder="e.g. Value" class="flex-grow bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary">
+                                            <button type="button" onclick="this.parentElement.remove()" class="text-slate-300 hover:text-red-500 transition">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        `;
+                                        container.appendChild(row);
+                                        if (!key) row.querySelector('input').focus();
+                                    }
+
+                                    // Initialize with General presets
+                                    document.addEventListener('DOMContentLoaded', () => {
+                                        updatePresets('General');
+                                    });
                                 </script>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Initial Status</label>
@@ -280,7 +334,33 @@
 
                             <div>
                                 <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Description</label>
-                                <textarea name="description" rows="4" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Provide detailed product specifications..."></textarea>
+                                <textarea name="description" rows="3" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Provide detailed product specifications..."></textarea>
+                            </div>
+
+                            <!-- Dynamic Specifications Section -->
+                            <div class="space-y-4 pt-4 border-t border-slate-100">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Technical Specifications</h3>
+                                    <button type="button" onclick="addSpecRow()" class="bg-slate-100 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition">
+                                        <i class="fas fa-plus mr-1"></i> Add Manual Detail
+                                    </button>
+                                </div>
+                                
+                                <div id="spec-presets" class="flex flex-wrap gap-2 mb-4">
+                                    <p class="text-[9px] font-bold text-gray-400 w-full mb-1">SUGGESTIONS FOR <span id="current-category-name" class="text-primary font-black">GENERAL</span>:</p>
+                                    <!-- Dynamic presets will appear here -->
+                                </div>
+
+                                <div id="spec-container" class="space-y-3">
+                                    <!-- Manual rows will be added here -->
+                                    <div class="flex items-center gap-3 spec-row">
+                                        <input type="text" name="spec_keys[]" placeholder="e.g. Weight" class="w-1/3 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary font-bold">
+                                        <input type="text" name="spec_values[]" placeholder="e.g. 50kg" class="flex-grow bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-primary">
+                                        <button type="button" onclick="this.parentElement.remove()" class="text-slate-300 hover:text-red-500 transition">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
                             <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl text-[11px] uppercase tracking-widest font-black shadow-xl shadow-red-100 hover:scale-[1.02] transition active:scale-95">

@@ -259,21 +259,39 @@
                         </div>
 
                         <div id="specs-tab" class="tab-panel hidden">
-                            <h4 class="text-lg font-black mb-4">Technical Specifications</h4>
-                            <div class="space-y-4">
-                                <div class="flex justify-between py-3 border-b border-gray-50">
-                                    <span class="text-xs font-bold text-gray-400 uppercase">Lot Weight / Unit</span>
-                                    <span class="text-xs font-black text-secondary">50 KG Bag</span>
+                            <!-- Basic Specifications Section -->
+                            <h4 class="text-xs font-black uppercase text-primary tracking-widest mb-6 bg-red-50 inline-block px-4 py-1.5 rounded-lg">Basic Specifications</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1 mb-10">
+                                <div class="flex justify-between py-4 border-b border-gray-50">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Weight / Unit</span>
+                                    <span class="text-xs font-black text-secondary uppercase"><%= auction.lotSize / auction.stockRemaining > 0 ? (auction.lotSize / auction.stockRemaining).toFixed(0) : '1' %> <%= auction.unitType || 'unit' %></span>
                                 </div>
-                                <div class="flex justify-between py-3 border-b border-gray-50">
-                                    <span class="text-xs font-bold text-gray-400 uppercase">Minimum Order</span>
-                                    <span class="text-xs font-black text-secondary"><%= auction.moq || 1 %> Bag</span>
+                                <div class="flex justify-between py-4 border-b border-gray-50">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Minimum Order (MOQ)</span>
+                                    <span class="text-xs font-black text-secondary uppercase"><%= auction.moq || 1 %> <%= auction.unitType || 'unit' %>s</span>
                                 </div>
-                                <div class="flex justify-between py-3 border-b border-gray-50">
-                                    <span class="text-xs font-bold text-gray-400 uppercase">GST Bracket</span>
-                                    <span class="text-xs font-black text-secondary">5% Applicable</span>
+                                <div class="flex justify-between py-4 border-b border-gray-50">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Category</span>
+                                    <span class="text-xs font-black text-secondary uppercase"><%= auction.category %></span>
+                                </div>
+                                <div class="flex justify-between py-4 border-b border-gray-50">
+                                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</span>
+                                    <span class="text-xs font-black text-emerald-500 uppercase"><%= auction.status %></span>
                                 </div>
                             </div>
+
+                            <!-- Dynamic Technical Details Section -->
+                            <% if (auction.specifications && auction.specifications.length > 0) { %>
+                                <h4 class="text-xs font-black uppercase text-secondary tracking-widest mb-6 bg-gray-50 inline-block px-4 py-1.5 rounded-lg mt-4">Technical Details</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
+                                    <% auction.specifications.forEach(spec => { %>
+                                        <div class="flex justify-between py-4 border-b border-gray-50">
+                                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"><%= spec.key %></span>
+                                            <span class="text-xs font-black text-secondary uppercase"><%= spec.value %></span>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
                         </div>
 
                         <div id="history-tab" class="tab-panel hidden">
