@@ -320,6 +320,20 @@
                                     document.addEventListener('DOMContentLoaded', () => {
                                         updatePresets('General');
                                     });
+
+                                    function previewImage(input) {
+                                        const file = input.files[0];
+                                        const container = input.nextElementSibling;
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onload = function(e) {
+                                                container.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-2xl">`;
+                                                container.classList.remove('border-dashed');
+                                                container.classList.add('border-solid', 'border-primary/30');
+                                            }
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }
                                 </script>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Initial Status</label>
@@ -328,6 +342,14 @@
                                         <option value="Upcoming">Upcoming (Schedule)</option>
                                     </select>
                                 </div>
+                                <div class="md:col-span-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Auction End Date</label>
+                                    <input type="date" name="endDate" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
+                                <div class="md:col-span-1">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Auction End Time</label>
+                                    <input type="time" name="endTime" required class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary">
+                                </div>
                             </div>
 
                             <!-- Media Section -->
@@ -335,28 +357,28 @@
                                 <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Product Gallery (Max 4 Pictures)</label>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div class="relative group">
-                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <input type="file" name="images" onchange="previewImage(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                                         <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
                                             <i class="fas fa-camera text-slate-300 text-lg mb-1"></i>
                                             <span class="text-[8px] font-black uppercase text-slate-400">Main Image</span>
                                         </div>
                                     </div>
                                     <div class="relative group">
-                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <input type="file" name="images" onchange="previewImage(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                                         <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
                                             <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
                                             <span class="text-[8px] font-black uppercase text-slate-400">Image 2</span>
                                         </div>
                                     </div>
                                     <div class="relative group">
-                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <input type="file" name="images" onchange="previewImage(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                                         <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
                                             <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
                                             <span class="text-[8px] font-black uppercase text-slate-400">Image 3</span>
                                         </div>
                                     </div>
                                     <div class="relative group">
-                                        <input type="file" name="images" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                        <input type="file" name="images" onchange="previewImage(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                                         <div class="w-full aspect-square bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:border-primary transition p-2 text-center">
                                             <i class="fas fa-image text-slate-300 text-lg mb-1"></i>
                                             <span class="text-[8px] font-black uppercase text-slate-400">Image 4</span>

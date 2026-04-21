@@ -322,7 +322,7 @@ app.get('/admin', async (req, res) => {
 app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values } = req.body;
+        const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values, endDate, endTime } = req.body;
         
         // Handle New Category Creation
         let finalCategory = category;
@@ -346,6 +346,12 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
 
         const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
         
+        // Finalize End Time
+        let finalEndTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
+        if (endDate && endTime) {
+            finalEndTime = new Date(`${endDate}T${endTime}`);
+        }
+
         const newAuction = new Auction({
             title,
             description,
@@ -365,7 +371,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
             unitType: 'bag', // Default unit
             specifications,
             startTime: new Date(), // Default to now
-            endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default to 7 days
+            endTime: finalEndTime
         });
 
         await newAuction.save();
