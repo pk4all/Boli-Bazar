@@ -284,7 +284,7 @@
                                             </div>
                                             <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Order ID: BZ-<%= lot._id.toString().slice(-6).toUpperCase() %></p>
                                             <div class="flex items-center gap-4 text-[10px] font-black">
-                                                <span class="text-secondary tracking-tighter">₹<%= lot.currentBid.toLocaleString() %></span>
+                                                <span class="text-secondary tracking-tighter">₹<%= (lot.currentBid || lot.initialPrice || 0).toLocaleString() %></span>
                                                 <span class="text-gray-300">•</span>
                                                 <span class="text-gray-500 uppercase tracking-widest font-bold"><%= lot.lotSize %> <%= lot.unitType %>s</span>
                                             </div>

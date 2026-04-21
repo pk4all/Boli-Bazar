@@ -342,7 +342,11 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
             status: status || 'Live',
             images: images,
             imageUrl: images[0] || '', // Use first image as primary
+            currentBid: initialPrice, // Initialize currentBid
+            totalBuyers: 0,
             stockRemaining: lotSize,
+            stockSoldPercent: 0,
+            unitType: 'bag', // Default unit
             startTime: new Date(), // Default to now
             endTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Default to 7 days
         });

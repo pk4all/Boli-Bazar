@@ -86,7 +86,7 @@
 <body class="bg-detail-mesh min-h-screen pb-24">
     <!-- Top Sticky Progress Bar (Glass) -->
     <div class="fixed top-0 left-0 w-full h-1 bg-gray-100 z-[200]">
-        <div class="h-full bg-primary transition-all duration-300" style="width: <%= auction.stockSoldPercent %>%"></div>
+        <div class="h-full bg-primary transition-all duration-300" style="width: <%= auction.stockSoldPercent || 0 %>%"></div>
     </div>
 
     <!-- Top Urgent Banner (Matches Screenshot) -->
@@ -322,8 +322,8 @@
                             </defs>
                         </svg>
                         <div class="absolute bottom-0 left-0 w-full flex justify-between px-2 text-[9px] font-bold text-white/30 uppercase tracking-widest mt-4">
-                            <span>Started (₹<%= auction.initialPrice %>)</span>
-                            <span>Highest (₹<%= auction.currentBid %>)</span>
+                            <span>Started (₹<%= auction.initialPrice || 0 %>)</span>
+                            <span>Highest (₹<%= auction.currentBid || auction.initialPrice || 0 %>)</span>
                         </div>
                     </div>
                 </div>
@@ -424,17 +424,17 @@
                         <!-- Current Price -->
                         <div class="bg-[#fff1f2] p-4 rounded-[2rem] border border-red-50 overflow-hidden">
                             <p class="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Current</p>
-                            <p class="text-lg font-black text-[#9d174d]">₹<%= auction.currentBid.toLocaleString() %></p>
+                            <p class="text-lg font-black text-[#9d174d]">₹<%= (auction.currentBid || auction.initialPrice || 0).toLocaleString() %></p>
                         </div>
                         <!-- Total Buyers -->
                         <div class="bg-[#eff6ff] p-4 rounded-[2rem] border border-blue-50 overflow-hidden">
                             <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Buyers</p>
-                            <p class="text-lg font-black text-indigo-600"><%= auction.totalBuyers %></p>
+                            <p class="text-lg font-black text-indigo-600"><%= auction.totalBuyers || 0 %></p>
                         </div>
                         <!-- Remaining Stock -->
                         <div class="bg-[#fff7ed] p-4 rounded-[2rem] border border-orange-50 overflow-hidden">
                             <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-1">Stock</p>
-                            <p class="text-lg font-black text-[#c2410c]"><%= auction.stockRemaining %></p>
+                            <p class="text-lg font-black text-[#c2410c]"><%= auction.stockRemaining || 0 %></p>
                         </div>
                     </div>
 
@@ -442,10 +442,10 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-end">
                             <span class="text-[10px] font-bold text-gray-400">Stock Sold</span>
-                            <span class="text-[10px] font-black text-[#b91c1c] uppercase tracking-widest"><%= auction.stockSoldPercent %>% GONE</span>
+                            <span class="text-[10px] font-black text-[#b91c1c] uppercase tracking-widest"><%= auction.stockSoldPercent || 0 %>% GONE</span>
                         </div>
                         <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent %>%"></div>
+                            <div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: <%= auction.stockSoldPercent || 0 %>%"></div>
                         </div>
                     </div>
 
@@ -707,7 +707,7 @@
     </div>
 
     <script>
-        const currentPrice = <%= auction.currentBid %>;
+        const currentPrice = <%= auction.currentBid || auction.initialPrice || 0 %>;
         let paymentMode = 'full';
 
         function openCheckoutModal() {
