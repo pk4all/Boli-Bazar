@@ -106,7 +106,7 @@
                                         <h4 class="text-[9px] font-black uppercase text-gray-500 tracking-wider truncate mb-1"><%= product.title %></h4>
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center space-x-2">
-                                                <span class="text-base font-black price-glow">₹<%= (product.currentBid || product.initialPrice).toLocaleString() %></span>
+                                                <span class="text-base font-black price-glow">₹<%= (product.currentBid || product.initialPrice || 0).toLocaleString() %></span>
                                                 <span class="w-2 h-2 bg-[#d90429] rounded-full animate-ping opacity-75"></span>
                                             </div>
                                             <div class="bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
@@ -226,7 +226,7 @@
                             <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= runnerUp.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-silver/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span><%= runnerUp.walletBalance.toLocaleString() %></span>
+                                <span><%= (runnerUp.walletBalance || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -252,7 +252,7 @@
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-4 truncate"><%= winner.city || 'India' %></p>
                             <p class="text-xl font-black text-white flex items-center justify-center space-x-2">
                                 <i class="fas fa-coins text-gold"></i>
-                                <span><%= winner.walletBalance.toLocaleString() %></span>
+                                <span><%= (winner.walletBalance || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -273,7 +273,7 @@
                             <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= third.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-orange-500/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span><%= third.walletBalance.toLocaleString() %></span>
+                                <span><%= (third.walletBalance || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -306,7 +306,7 @@
                             <div class="text-right">
                                  <p class="text-base font-black flex items-center justify-end">
                                      <i class="fas fa-coins text-[10px] text-gray-500 mr-2"></i>
-                                     <%= retailer.walletBalance.toLocaleString() %>
+                                     <%= (retailer.walletBalance || 0).toLocaleString() %>
                                  </p>
                             </div>
                         </div>
