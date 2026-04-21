@@ -83,6 +83,13 @@ app.post('/api/checkout/:id', async (req, res) => {
             auction.stockSoldPercent = Math.min(100, Math.round(((auction.lotSize - auction.stockRemaining) / auction.lotSize) * 100));
         }
         
+        // Update current price based on hike percentage
+        if (auction.hikePercentage > 0) {
+            const cp = auction.currentBid || auction.initialPrice;
+            const hike = cp * (auction.hikePercentage / 100);
+            auction.currentBid = Math.round((cp + hike) * 100) / 100;
+        }
+        
         await user.save();
         await auction.save();
 
