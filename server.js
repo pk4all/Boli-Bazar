@@ -68,6 +68,14 @@ app.post('/api/checkout/:id', async (req, res) => {
         if (!auction || !user) return res.status(404).json({ error: 'Auction or User not found' });
         
         const buyQty = parseInt(quantity) || auction.moq;
+        
+        // Strict MOQ Validation
+        if (buyQty < (auction.moq || 1)) {
+            return res.status(400).json({ 
+                error: `Minimum order quantity for this lot is ${auction.moq || 1} bags. Your selection: ${buyQty}` 
+            });
+        }
+
         const totalValue = buyQty * (auction.currentBid || auction.initialPrice);
         const fee = paymentMode === 'cod' ? totalValue * 0.1 : 0;
         const finalPayable = totalValue + fee;
