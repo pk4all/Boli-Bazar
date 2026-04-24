@@ -185,8 +185,8 @@
 
                     <!-- Right Status (Countdown Look) -->
                     <div class="absolute top-8 right-8">
-                        <div class="px-4 py-2 bg-[#b91c1c] text-white rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-2xl">
-                            <i class="far fa-clock"></i> 03:39
+                        <div class="px-4 py-2 bg-[#b91c1c] text-white rounded-xl text-[11px] font-black uppercase tracking-wider flex items-center gap-2 shadow-2xl countdown-timer" data-endtime="<%= auction.endTime %>">
+                            <i class="far fa-clock"></i> <span class="timer-display">03:39</span>
                         </div>
                     </div>
 
@@ -647,6 +647,38 @@
     </div>
 
     <script>
+        function updateTimers() {
+            document.querySelectorAll('.countdown-timer').forEach(timer => {
+                const endTimeStr = timer.dataset.endtime;
+                if (!endTimeStr) return;
+                
+                const endTime = new Date(endTimeStr).getTime();
+                const now = new Date().getTime();
+                const distance = endTime - now;
+
+                const display = timer.querySelector('.timer-display');
+                if (!display) return;
+
+                if (distance < 0) {
+                    display.innerText = "EXPIRED";
+                    return;
+                }
+
+                const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+                if (d > 0) {
+                    display.innerText = `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                } else {
+                    display.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+            });
+        }
+        setInterval(updateTimers, 1000);
+        updateTimers();
+
         const currentPrice = <%= auction.currentBid || auction.initialPrice || 0 %>;
         let paymentMode = 'full';
 
