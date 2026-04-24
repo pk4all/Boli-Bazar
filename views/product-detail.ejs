@@ -401,14 +401,14 @@
                     <div class="p-8 space-y-8">
                         <!-- Quantity Input Area -->
                         <div class="space-y-4">
-                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Quantity (Bags)</label>
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Quantity (<%= (auction.unitType || 'Units').charAt(0).toUpperCase() + (auction.unitType || 'Units').slice(1) %>)</label>
                             
                             <!-- MOQ Banner (Yellow) -->
                             <div class="bg-orange-50/50 px-4 py-3 rounded-xl border border-orange-100 flex items-center gap-3 text-orange-700">
                                 <div class="w-5 h-5 rounded-lg bg-orange-100 flex items-center justify-center text-[10px]">
                                     <i class="fas fa-box-open"></i>
                                 </div>
-                                <span class="text-[10px] font-black uppercase tracking-widest">Min. Order Qty (MOQ): <%= auction.moq || 5 %> bags</span>
+                                <span class="text-[10px] font-black uppercase tracking-widest">Min. Order Qty (MOQ): <%= auction.moq || 5 %> <%= auction.unitType || 'Units' %></span>
                             </div>
 
                             <div class="flex items-center gap-4">
@@ -503,7 +503,7 @@
                             <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-xs">
                                 <i class="fas fa-exclamation-triangle"></i>
                             </div>
-                            <span class="text-[10px] font-black uppercase tracking-widest text-red-700">Min. <%= auction.moq %> bags required to bid</span>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-red-700">Min. <%= auction.moq %> <%= auction.unitType || 'Units' %> required to bid</span>
                         </div>
 
                         <!-- Main Primary CTA (Updated for Checkout) -->
@@ -864,7 +864,7 @@
             const advance = subtotal * 0.1;
             const payableNow = paymentMode === 'cod' ? advance : subtotal;
             
-            document.getElementById('modal-qty').textContent = qty + ' Bags';
+            document.getElementById('modal-qty').textContent = qty + ' <%= (auction.unitType || "Units") %>';
             document.getElementById('modal-payment-mode').textContent = paymentMode === 'full' ? 'Full Payment' : 'Cash on Delivery';
             document.getElementById('modal-total').textContent = `₹${payableNow.toLocaleString()}`;
             

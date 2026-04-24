@@ -144,8 +144,12 @@ mongoose.connect(MONGO_URI)
 // Home Route (Leaderboard + Hero Slider + Live Bidding Strip)
 app.get('/', async (req, res) => {
     try {
+        const now = new Date();
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 }).lean();
-        const liveProducts = await Auction.find({ status: 'Live' }).sort({ totalBuyers: -1 }).limit(5).lean();
+        const liveProducts = await Auction.find({ 
+            startTime: { $lte: now }, 
+            endTime: { $gt: now } 
+        }).sort({ totalBuyers: -1 }).limit(5).lean();
         
         // Fetch real leaderboard data
         const leaderboard = await User.find({ role: 'retailer' })
@@ -188,9 +192,22 @@ app.get('/', async (req, res) => {
 app.get('/auctions', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
-        const auctions = await Auction.find({ status: 'Live' }).lean();
-        const upcomingAuctions = await Auction.find({ status: 'Upcoming' }).lean();
-        const closedAuctions = await Auction.find({ status: 'Closed' }).sort({ endTime: -1 }).limit(3).lean();
+        const now = new Date();
+        // Live: Started AND not yet ended
+        const auctions = await Auction.find({ 
+            startTime: { $lte: now }, 
+            endTime: { $gt: now } 
+        }).lean();
+        
+        // Upcoming: Not yet started
+        const upcomingAuctions = await Auction.find({ 
+            startTime: { $gt: now } 
+        }).lean();
+        
+        // Closed: Already ended
+        const closedAuctions = await Auction.find({ 
+            endTime: { $lte: now } 
+        }).sort({ endTime: -1 }).limit(3).lean();
         
         console.log(`[DEBUG] Rendering auctions with ${auctions.length} live, ${upcomingAuctions.length} upcoming, and ${closedAuctions.length} closed items.`);
         
