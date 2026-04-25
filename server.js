@@ -573,14 +573,27 @@ app.post('/register', async (req, res) => {
 app.get('/dashboard', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
-        const user = await User.findById(req.session.user.id).populate('bids').populate('wonAuctions');
+        const user = await User.findById(req.session.user.id).populate('bids');
         
         if (!user) {
             req.session.destroy();
             return res.redirect('/login');
         }
+
+        // --- FETCH ORDERS (REPLACES wonAuctions) ---
+        const userOrders = await Order.find({ user: user._id }).populate('auction').sort({ createdAt: -1 }).lean();
         
-        // --- SHARED RANKING LOGIC (Must match /api/leaderboard) ---
+        // Calculate Financial Stats
+        let totalPurchased = 0;
+        let totalPaid = 0;
+        userOrders.forEach(o => {
+            const sub = o.totalAmount;
+            const fee = (o.paymentMode === 'cod') ? (sub * 0.1) : 0;
+            totalPurchased += (sub + fee);
+            totalPaid += (o.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
+        });
+
+        // --- SHARED RANKING LOGIC ---
         const allRetailers = await User.find({ role: 'retailer' })
             .sort({ walletBalance: -1, createdAt: 1 })
             .lean();
@@ -594,16 +607,17 @@ app.get('/dashboard', async (req, res) => {
         const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
         const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
         
-        const userProfitMargin = 18.5; 
-        const avgProfitMargin = 12.4;
-        
         res.render('dashboard', { 
             user, 
             rank, 
             totalRetailers, 
             gapToTop3, 
-            userProfitMargin, 
-            avgProfitMargin,
+            orders: userOrders,
+            financials: {
+                totalPurchased,
+                totalPaid,
+                balanceDue: Math.max(0, totalPurchased - totalPaid)
+            },
             topFive: allRetailers.slice(0, 5)
         });
     } catch (err) {
