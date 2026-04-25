@@ -362,7 +362,7 @@ app.get('/admin', async (req, res) => {
 app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values, endDate, endTime } = req.body;
+        const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values, startDate, startTime, endDate, endTime } = req.body;
         
         // Handle New Category Creation
         let finalCategory = category;
@@ -378,7 +378,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
                     specifications.push({
                         key: spec_keys[i].trim(),
                         value: spec_values[i].trim(),
-                        isBasic: false // You can later add logic to mark some as basic
+                        isBasic: false
                     });
                 }
             }
@@ -386,8 +386,13 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
 
         const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
         
-        // Finalize End Time
-        let finalEndTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Default 7 days
+        // Finalize Times
+        let finalStartTime = new Date();
+        if (status === 'Upcoming' && startDate && startTime) {
+            finalStartTime = new Date(`${startDate}T${startTime}`);
+        }
+
+        let finalEndTime = new Date(finalStartTime.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from start
         if (endDate && endTime) {
             finalEndTime = new Date(`${endDate}T${endTime}`);
         }
@@ -403,14 +408,14 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
             videoUrl,
             status: status || 'Live',
             images: images,
-            imageUrl: images[0] || '', // Use first image as primary
-            currentBid: initialPrice, // Initialize currentBid
+            imageUrl: images[0] || '',
+            currentBid: initialPrice,
             totalBuyers: 0,
             stockRemaining: lotSize,
             stockSoldPercent: 0,
-            unitType: 'bag', // Default unit
+            unitType: 'pcs', // Default for electronics
             specifications,
-            startTime: new Date(), // Default to now
+            startTime: finalStartTime,
             endTime: finalEndTime
         });
 
