@@ -63,6 +63,56 @@
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d90429; border-radius: 10px; }
+
+        .premium-shadow {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        }
+
+        /* Tracking Timeline */
+        .timeline-container {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #f1f5f9;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2rem;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid #cbd5e1;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .timeline-item.active .timeline-dot {
+            border-color: #d90429;
+            background: #d90429;
+            box-shadow: 0 0 10px rgba(217, 4, 41, 0.4);
+        }
+        .timeline-item.completed .timeline-dot {
+            border-color: #10b981;
+            background: #10b981;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -112,56 +162,52 @@
             <div class="lg:col-span-4 space-y-8">
                 
                 <!-- Profile Master Card -->
-                <div class="glass-card rounded-[2.5rem] p-10 text-center relative overflow-hidden">
-                    <!-- Background Decor -->
-                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
+                <div class="glass-card rounded-[3rem] p-12 text-center relative overflow-hidden premium-shadow border-white/40">
+                    <div class="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+                    <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
                     
                     <!-- Profile Picture Section -->
-                    <div class="relative w-32 h-32 mx-auto mb-6 profile-container group">
-                        <div class="w-full h-full rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl relative bg-gray-100 flex items-center justify-center text-gray-400 text-5xl font-black">
+                    <div class="relative w-36 h-36 mx-auto mb-8 profile-container group animate-float">
+                        <div class="w-full h-full rounded-[2.5rem] overflow-hidden border-8 border-white shadow-2xl relative bg-slate-50 flex items-center justify-center text-slate-300 text-6xl font-black">
                             <% if (user.profileImage) { %>
-                                <% if (user.profileImage.match(/\.(jpg|jpeg|png|gif|webp)$/i)) { %>
-                                    <img src="<%= user.profileImage %>" class="w-full h-full object-cover">
-                                <% } else { %>
-                                    <div class="flex flex-col items-center">
-                                        <i class="fas fa-file-alt text-2xl mb-1 opacity-20"></i>
-                                        <span class="text-[8px] font-black uppercase tracking-widest opacity-20">Format Error</span>
-                                    </div>
-                                <% } %>
+                                <img src="<%= user.profileImage %>" class="w-full h-full object-cover">
                             <% } else { %>
-                                <span class="opacity-20"><%= user.username.charAt(0).toUpperCase() %></span>
+                                <span class="opacity-10"><i class="fas fa-user"></i></span>
                             <% } %>
                         </div>
                         
                         <!-- Upload Overlay -->
                         <% if (locals.viewMode !== 'admin') { %>
-                            <form action="/dashboard/update-profile" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[2.5rem] opacity-0 profile-overlay transition-opacity cursor-pointer">
+                            <form action="/dashboard/update-profile" method="POST" enctype="multipart/form-data" class="absolute inset-0 flex items-center justify-center bg-slate-900/40 rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all duration-500 cursor-pointer backdrop-blur-sm">
                                 <label for="profileImgInput" class="cursor-pointer text-white flex flex-col items-center">
-                                    <i class="fas fa-camera text-xl mb-1"></i>
-                                    <span class="text-[8px] font-black uppercase tracking-widest">Update</span>
+                                    <i class="fas fa-camera text-2xl mb-2"></i>
+                                    <span class="text-[9px] font-black uppercase tracking-widest">Update Photo</span>
                                 </label>
                                 <input type="file" id="profileImgInput" name="profileImage" class="hidden" onchange="this.form.submit()">
                             </form>
                         <% } %>
                     </div>
 
-                    <h2 class="text-2xl font-black font-heading text-secondary"><%= (locals.user && user.username) ? user.username : 'User' %></h2>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-6"><%= (locals.user && user.shopName) ? user.shopName : 'Shop' %> • <%= (locals.user && user.city) ? user.city : 'City' %></p>
+                    <h2 class="text-3xl font-black font-heading text-slate-800 tracking-tight leading-none mb-2"><%= (locals.user && user.username) ? user.username : 'User' %></h2>
+                    <p class="text-[11px] font-black text-primary uppercase tracking-[0.3em] mb-8 flex items-center justify-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                        <%= (locals.user && user.shopName) ? user.shopName : 'Shop' %>
+                    </p>
                     
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-[9px] font-black uppercase tracking-widest">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Account Active
+                    <div class="inline-flex items-center gap-2 px-6 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100 mb-10">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Verified Partner
                     </div>
 
                     <!-- Rank Stats Row -->
-                    <div class="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-100">
-                        <div>
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Global Rank</p>
-                            <p class="text-xl font-black text-secondary">#<%= d_rank > 0 ? d_rank : '--' %></p>
+                    <div class="grid grid-cols-2 gap-0 border-t border-slate-100 pt-8">
+                        <div class="pr-6 border-r border-slate-100">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Global Rank</p>
+                            <p class="text-2xl font-black text-slate-800">#<%= d_rank > 0 ? d_rank : '--' %></p>
                         </div>
-                        <div class="border-l border-gray-100">
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Elite Status</p>
-                            <p class="text-xl font-black text-primary"><%= (d_rank > 0 && d_rank <= 3) ? 'Gold' : 'Silver' %></p>
+                        <div class="pl-6">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Elite Status</p>
+                            <p class="text-2xl font-black text-primary italic"><%= (d_rank > 0 && d_rank <= 3) ? 'Gold' : 'Silver' %></p>
                         </div>
                     </div>
                 </div>
@@ -302,10 +348,10 @@
                                     </div>
 
                                     <div class="flex items-center gap-4 relative z-10">
-                                        <button class="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-secondary hover:text-white transition shadow-sm">
+                                        <button onclick="downloadReceipt('<%= lot._id %>', '<%= lot.title.replace(/'/g, "\\'") %>', <%= lot.currentBid || lot.initialPrice %>, <%= lot.lotSize %>, '<%= lot.unitType %>')" class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white transition shadow-sm border border-slate-100" title="Download Receipt">
                                             <i class="fas fa-file-invoice text-xs"></i>
                                         </button>
-                                        <button class="btn-primary px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
+                                        <button onclick="trackOrder('<%= lot._id %>')" class="bg-primary text-white px-8 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 transition-all">
                                             Track Order
                                         </button>
                                     </div>
@@ -382,10 +428,154 @@
     <!-- Bottom Spacing -->
     <div class="h-12"></div>
 
+    <!-- Tracking Modal -->
+    <div id="trackingModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeTrackingModal()"></div>
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] relative z-10 overflow-hidden shadow-2xl animate-in zoom-in duration-300">
+            <div class="premium-gradient p-8 text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-8 opacity-20">
+                    <i class="fas fa-truck-fast text-6xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <h3 class="text-2xl font-black font-heading mb-1">Track Your Order</h3>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-white/60" id="trackingID">ID: BZ-549D32</p>
+                </div>
+            </div>
+            <div class="p-8">
+                <div class="flex items-center gap-4 mb-8 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Delivery Partner</p>
+                        <p class="text-sm font-black text-slate-800">Delhivery Express — <span class="text-primary italic">Fastest</span></p>
+                    </div>
+                </div>
+
+                <div class="timeline-container ml-2">
+                    <div class="timeline-item completed">
+                        <div class="timeline-dot"></div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Order Placed</p>
+                        <p class="text-xs font-bold text-slate-600">Inventory reserved and payment confirmed.</p>
+                        <p class="text-[9px] text-slate-400 mt-1">20 Oct, 2026 • 10:30 AM</p>
+                    </div>
+                    <div class="timeline-item active">
+                        <div class="timeline-dot"></div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">In Transit</p>
+                        <p class="text-xs font-bold text-slate-600">Material dispatched from Boli Bazar Hub.</p>
+                        <p class="text-[9px] text-slate-400 mt-1">22 Oct, 2026 • 02:15 PM</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Out for Delivery</p>
+                        <p class="text-xs font-bold text-slate-300 italic">Expect delivery by tomorrow evening.</p>
+                    </div>
+                    <div class="timeline-item pb-0">
+                        <div class="timeline-dot"></div>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Delivered</p>
+                        <p class="text-xs font-bold text-slate-300 italic">Shipment reached destination.</p>
+                    </div>
+                </div>
+
+                <button onclick="closeTrackingModal()" class="w-full mt-10 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition">Close Tracker</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Tab switching logic if needed later
-        function switchTab(tabId) {
-            // Implementation
+        function toggleScheduling(val) {
+            const scheduleDiv = document.getElementById('startSchedule');
+            if (val === 'Upcoming') {
+                scheduleDiv.classList.remove('hidden');
+                scheduleDiv.querySelectorAll('input').forEach(i => i.required = true);
+            } else {
+                scheduleDiv.classList.add('hidden');
+                scheduleDiv.querySelectorAll('input').forEach(i => i.required = false);
+            }
+        }
+
+        function trackOrder(orderId) {
+            document.getElementById('trackingID').innerText = `ID: BZ-${orderId.slice(-6).toUpperCase()}`;
+            document.getElementById('trackingModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTrackingModal() {
+            document.getElementById('trackingModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function downloadReceipt(orderId, title, price, qty, unit) {
+            const receiptWindow = window.open('', '_blank');
+            const date = new Date().toLocaleDateString('en-IN');
+            
+            const html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice BZ-${orderId.slice(-6).toUpperCase()}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Inter', sans-serif; padding: 40px; color: #1a1a1a; }
+                        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; }
+                        .logo { font-weight: 900; font-size: 24px; text-transform: uppercase; letter-spacing: -1px; }
+                        .logo span { color: #d90429; font-style: italic; }
+                        .invoice-info { text-align: right; }
+                        .table { width: 100%; border-collapse: collapse; margin-top: 40px; }
+                        .table th { text-align: left; background: #f8fafc; padding: 15px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #64748b; }
+                        .table td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+                        .total-section { margin-top: 40px; text-align: right; font-weight: 900; font-size: 20px; }
+                        .footer { margin-top: 100px; text-align: center; color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="logo">Boli<span>Bazar</span></div>
+                        <div class="invoice-info">
+                            <p style="font-weight: 900; margin: 0;">INVOICE</p>
+                            <p style="font-size: 10px; color: #64748b; margin: 5px 0 0;">#${orderId.slice(-6).toUpperCase()}</p>
+                            <p style="font-size: 10px; color: #64748b; margin: 2px 0 0;">Date: ${date}</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 40px;">
+                        <p style="font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase;">Billed To:</p>
+                        <p style="font-weight: 900; margin: 5px 0 0;"><%= user.username %></p>
+                        <p style="font-size: 12px; color: #64748b; margin: 2px 0 0;"><%= user.shopName %></p>
+                        <p style="font-size: 12px; color: #64748b; margin: 2px 0 0;"><%= user.address %>, <%= user.city %></p>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Item Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th style="text-align: right;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700;">${title}</td>
+                                <td>${qty} ${unit}s</td>
+                                <td>₹${price.toLocaleString()}</td>
+                                <td style="text-align: right; font-weight: 700;">₹${(price).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="total-section">
+                        <span style="font-size: 12px; color: #94a3b8; margin-right: 20px;">GRAND TOTAL:</span>
+                        ₹${(price).toLocaleString()}
+                    </div>
+                    <div class="footer">
+                        *** This is a computer generated invoice and requires no signature ***<br>
+                        Thank you for your business with BoliBazar!
+                    </div>
+                    <script>window.print();<\/script>
+                </body>
+                </html>
+            `;
+            
+            receiptWindow.document.write(html);
+            receiptWindow.document.close();
         }
     </script>
 

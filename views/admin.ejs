@@ -616,19 +616,31 @@
                     let filteredReceived = 0;
                     let filteredBalance = 0;
                     
+                    let count_delivered = 0;
+                    let count_pending_delivery = 0;
+                    let count_pending_cod_payment = 0;
+                    
                     if (orders && orders.length > 0) {
                         orders.forEach(order => {
                             const sub = order.totalAmount;
                             const f = (order.paymentMode === 'cod') ? (sub * 0.1) : 0;
                             const val = sub + f;
                             
-                            // SUM ALL PAYMENTS from paymentHistory (Initial Advance + Final COD Received)
+                            // SUM ALL PAYMENTS
                             const paid = (order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
                             const bal = Math.max(0, val - paid);
                             
                             filteredOrderValue += val;
                             filteredReceived += paid;
                             filteredBalance += bal;
+
+                            // Operation stats
+                            if (order.status === 'Delivered') count_delivered++;
+                            else count_pending_delivery++;
+
+                            if (order.paymentMode === 'cod' && bal > 0.05) {
+                                count_pending_cod_payment++;
+                            }
                         });
                     }
                 %>
@@ -662,7 +674,7 @@
                 </div>
 
                 <!-- Summary Bar for Winning Orders -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-[30px] border border-slate-200 shadow-sm">
                         <p class="text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Global Order Value</p>
                         <p class="text-2xl font-black text-slate-800">₹<%= filteredOrderValue.toLocaleString() %></p>
@@ -683,6 +695,46 @@
                         <div class="w-full h-1 bg-orange-100 rounded-full mt-4 overflow-hidden">
                             <div class="h-full bg-orange-500" style="width: <%= (filteredOrderValue > 0) ? (filteredBalance / filteredOrderValue * 100) : 0 %>%"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Fulfillment Stats Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:border-slate-300 transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-xs">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Received</span>
+                        </div>
+                        <p class="text-xl font-black text-slate-800"><%= orders.length %></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:border-green-300 transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-xl bg-green-50 text-green-500 flex items-center justify-center text-xs">
+                                <i class="fas fa-box-check"></i>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Delivered Orders</span>
+                        </div>
+                        <p class="text-xl font-black text-slate-800"><%= count_delivered %></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:border-orange-300 transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center text-xs">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Pending Delivery</span>
+                        </div>
+                        <p class="text-xl font-black text-slate-800"><%= count_pending_delivery %></p>
+                    </div>
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:border-red-300 transition">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-xl bg-red-50 text-red-500 flex items-center justify-center text-xs">
+                                <i class="fas fa-hand-holding-dollar"></i>
+                            </div>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">COD Pending</span>
+                        </div>
+                        <p class="text-xl font-black text-slate-800"><%= count_pending_cod_payment %></p>
                     </div>
                 </div>
 
