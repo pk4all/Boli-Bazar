@@ -69,6 +69,14 @@ app.post('/api/checkout/:id', async (req, res) => {
         
         const buyQty = parseInt(quantity) || auction.moq;
         
+        // Strict Stock Validation
+        if (!auction.stockRemaining || auction.stockRemaining <= 0) {
+            return res.status(400).json({ error: 'THIS LOT IS SOLD OUT! Better luck next time.' });
+        }
+        if (buyQty > auction.stockRemaining) {
+            return res.status(400).json({ error: `Sirf ${auction.stockRemaining} units stock mein hain.` });
+        }
+
         // Strict MOQ Validation
         if (buyQty < (auction.moq || 1)) {
             return res.status(400).json({ 
@@ -271,7 +279,7 @@ app.get('/admin', async (req, res) => {
         }
 
         const auctions = await Auction.find().sort({ createdAt: -1 });
-        const users = await User.find({ role: 'retailer' }).sort({ createdAt: -1 });
+        const users = await User.find({ role: 'retailer' }).sort({ walletBalance: -1 });
         const banners = await Banner.find().sort({ order: 1 });
         const rewards = await Reward.find().sort({ rank: 1 });
         

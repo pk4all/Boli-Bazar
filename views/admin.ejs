@@ -529,7 +529,12 @@
             <div id="retailers" class="admin-section p-8">
                 <div class="flex justify-between items-center mb-10">
                     <h1 class="text-3xl font-black font-heading">Retailer <span class="text-blue-600">Network</span></h1>
-                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Registered: <%= users.length %></div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Registered: <%= users.length %></div>
+                        <button onclick="exportRetailersToCSV()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-100 flex items-center gap-2">
+                             <i class="fas fa-file-excel"></i> Export Excel
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-[40px] shadow-sm border border-slate-200 overflow-hidden">
@@ -553,7 +558,8 @@
                                             </div>
                                             <div>
                                                 <p class="text-sm font-black text-slate-800"><%= retailer.username %></p>
-                                                <p class="text-[10px] text-slate-400 font-bold tracking-wider"><%= retailer.email %></p>
+                                                <p class="text-[10px] text-primary font-black uppercase tracking-widest"><%= retailer.shopName || 'No Shop' %></p>
+                                                <p class="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5"><%= retailer.email %> | <%= retailer.phone %></p>
                                             </div>
                                         </div>
                                     </td>
@@ -1067,6 +1073,32 @@
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
             link.download = `Orders_Report_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function exportRetailersToCSV() {
+            const users = <%- JSON.stringify(users) %>;
+            if (!users || users.length === 0) return alert("No retailer data to export.");
+
+            let csv = "Retailer Name,Shop Name,Email,Mobile No,City,Shopping Coins,Registration Date\n";
+            users.forEach(u => {
+                const date = new Date(u.createdAt).toLocaleDateString('en-IN');
+                const row = [
+                    `"${(u.username || '').replace(/"/g, '""')}"`,
+                    `"${(u.shopName || 'N/A').replace(/"/g, '""')}"`,
+                    `"${(u.email || '').replace(/"/g, '""')}"`,
+                    `="${u.phone || 'N/A'}"`, // Use ="text" format for Excel to preserve leading zeros
+                    `"${(u.city || 'N/A').replace(/"/g, '""')}"`,
+                    u.walletBalance || 0,
+                    `"${date}"`
+                ].join(",");
+                csv += row + "\n";
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Retailers_Full_Network_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
         }
     </script>

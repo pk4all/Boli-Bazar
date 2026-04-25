@@ -398,7 +398,19 @@
                         </div>
                     </div>
 
-                    <div class="p-8 space-y-8">
+                    <div class="p-8 space-y-8 relative">
+                        <% if (auction.stockRemaining <= 0) { %>
+                            <div class="absolute inset-0 bg-white/95 z-50 flex flex-col items-center justify-center p-8 text-center animate-fade-in">
+                                <div class="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-red-500/10">
+                                    <i class="fas fa-box-open text-3xl"></i>
+                                </div>
+                                <h4 class="text-2xl font-black text-secondary mb-2 uppercase">LOT SOLD OUT!</h4>
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">Better luck for next time</p>
+                                <div class="w-full h-[1px] bg-gray-100 mb-6"></div>
+                                <a href="/auctions" class="px-8 py-4 bg-secondary text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition">View Other Lots</a>
+                            </div>
+                        <% } %>
+
                         <!-- Quantity Input Area -->
                         <div class="space-y-4">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Quantity (<%= (auction.unitType || 'Units').charAt(0).toUpperCase() + (auction.unitType || 'Units').slice(1) %>)</label>
@@ -837,11 +849,19 @@
                 }
             });
 
-            // MOQ Enforcement (UI)
+            // MOQ & Stock Enforcement (UI)
             const moq = <%= auction.moq || 1 %>;
+            const stockRemaining = <%= auction.stockRemaining || 0 %>;
             const submitBtn = document.getElementById('bid-submit-btn');
             const moqWarning = document.getElementById('moq-warning');
             const btnLabel = document.getElementById('bid-btn-label');
+
+            if (stockRemaining <= 0) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-50', 'grayscale', 'cursor-not-allowed');
+                if (btnLabel) btnLabel.textContent = 'SOLD OUT';
+                return;
+            }
 
             if (qty < moq) {
                 submitBtn.disabled = true;
