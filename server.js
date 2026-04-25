@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const { MongoStore } = require('connect-mongo');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
@@ -41,9 +42,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 
 app.use(session({
-    secret: 'bolibazar_arctic_secret',
+    secret: process.env.SESSION_SECRET || 'bolibazar_arctic_secret',
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar',
+        ttl: 14 * 24 * 60 * 60 // 14 days
+    }),
     cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
@@ -142,9 +147,7 @@ app.post('/api/checkout', (req, res) => {
 });
 
 // MongoDB Connection
-//const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar';
-const MONGO_URI = 'mongodb+srv://Vercel-Admin-boli-bazar:fjwXJwwaqsN5puqv@boli-bazar.5poietb.mongodb.net/bolibazar?retryWrites=true&w=majority';
-//mongodb+srv://Vercel-Admin-boli-bazar:fjwXJwwaqsN5puqv@boli-bazar.5poietb.mongodb.net/bolibazar?retryWrites=true&w=majority
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar';
 mongoose.connect(MONGO_URI)
     .then(() => console.log('[STABLE-DB] Connected Successfully'))
     .catch(err => console.error('[STABLE-DB] Connection Error:', err));

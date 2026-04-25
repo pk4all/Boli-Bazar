@@ -47,12 +47,39 @@
         .swiper-pagination-bullet { background: #fff !important; }
         .swiper-pagination-bullet-active { background: #d90429 !important; }
 
-        /* Live Bidding Strip Customization */
-        .live-strip-container { background: #0c0d19; border-bottom: 1px solid rgba(255,255,255,0.08); position: relative; z-index: 40; min-height: 80px; display: block !important; width: 100%; box-sizing: border-box; }
-        .bidding-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.1); transition: all 0.4s ease; display: flex !important; margin: 5px 0; }
-        .bidding-card:hover { background: rgba(255, 255, 255, 0.05); border-color: #d90429; transform: translateY(-2px); }
-        .live-bidding-swiper { padding: 12px 0; overflow: hidden; height: auto; }
-        .price-glow { color: #fff; text-shadow: 0 0 10px rgba(217, 4, 41, 0.3); }
+        /* Live Bidding Strip: Premium Redesign */
+        .live-strip-container { 
+            background: linear-gradient(180deg, #0c0d19 0%, #080912 100%); 
+            border-bottom: 1px solid rgba(255,255,255,0.03); 
+            position: relative; 
+            z-index: 40; 
+            padding: 15px 0;
+            overflow: hidden;
+        }
+        .bidding-card { 
+            background: rgba(255, 255, 255, 0.02); 
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.05); 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bidding-card:hover { 
+            background: rgba(255, 255, 255, 0.04); 
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .live-bidding-swiper { overflow: visible !important; }
+        .price-glow { 
+            color: #fff; 
+            text-shadow: 0 0 15px rgba(217, 4, 41, 0.5); 
+            font-family: 'Outfit', sans-serif;
+        }
+        .animate-spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -90,27 +117,50 @@
 
     <!-- DEBUG_TRACER: FILE_IN_PRIMARY_VIEWS_FOLDER -->
 
-    <!-- Live Bidding Strip: Top 5 Highlights (Guaranteed Render) -->
+    <!-- Live Bidding Strip: Top 5 Highlights (Creative Redesign) -->
     <div class="live-strip-container">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto px-6">
             <div class="swiper live-bidding-swiper">
                 <div class="swiper-wrapper">
                     <% if (typeof liveProducts !== 'undefined' && liveProducts.length > 0) { %>
                         <% liveProducts.forEach(product => { %>
                             <div class="swiper-slide">
-                                <a href="/auctions" class="bidding-card flex items-center p-3 rounded-2xl space-x-4 group">
-                                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
-                                        <img src="<%= product.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                                    </div>
-                                    <div class="min-w-0 flex-grow">
-                                        <h4 class="text-[9px] font-black uppercase text-gray-500 tracking-wider truncate mb-1"><%= product.title %></h4>
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center space-x-2">
-                                                <span class="text-base font-black price-glow">₹<%= (product.currentBid || product.initialPrice || 0).toLocaleString() %></span>
-                                                <span class="w-2 h-2 bg-[#d90429] rounded-full animate-ping opacity-75"></span>
+                                <a href="/auctions" class="bidding-card group relative p-4 rounded-3xl overflow-hidden shadow-2xl border border-white/5 transition-all duration-500 hover:border-primary/50">
+                                    <!-- Animated Background Glow -->
+                                    <div class="absolute -top-10 -left-10 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all duration-700"></div>
+                                    
+                                    <div class="relative flex items-center space-x-5 z-10 w-full">
+                                        <!-- Image with 3D Effect on Hover -->
+                                        <div class="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-primary/40 transition-all duration-500 shadow-lg shrink-0">
+                                            <img src="<%= product.imageUrl || '/lot1.png' %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-125">
+                                        </div>
+
+                                        <div class="min-w-0 flex-grow relative flex items-center justify-between">
+                                            <div class="flex flex-col space-y-2">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                                                    <h4 class="text-[10px] font-black uppercase text-gray-300 tracking-[0.2em] truncate group-hover:text-primary transition-colors"><%= product.title %></h4>
+                                                </div>
+                                                <div class="flex flex-col">
+                                                    <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Price</span>
+                                                    <span class="text-xl font-black text-white italic tracking-tighter price-glow">₹<%= (product.currentBid || product.initialPrice || 0).toLocaleString() %></span>
+                                                </div>
                                             </div>
-                                            <div class="bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
-                                                <span class="text-[7px] font-black text-primary uppercase tracking-widest">Live Bid</span>
+
+                                            <!-- Large Center Timer (Transparent White - Darker) -->
+                                            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+                                                <span class="text-[7px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Ends In</span>
+                                                <span class="text-2xl font-black font-mono text-white/40 countdown-timer tracking-tight" data-endtime="<%= product.endTime %>">00:00:00</span>
+                                            </div>
+                                            
+                                            <div class="flex flex-col items-end space-y-3">
+                                                <div class="bg-gradient-to-r from-primary to-rose-600 px-5 py-2 rounded-full shadow-lg shadow-red-500/20 group-hover:shadow-red-500/40 transition-all duration-500 border border-white/10 group-hover:scale-105 active:scale-95">
+                                                    <span class="text-[10px] font-black text-white uppercase tracking-tighter">BID NOW</span>
+                                                </div>
+                                                <div class="flex flex-col items-end">
+                                                    <p class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Lot Size</p>
+                                                    <p class="text-sm text-white/70 font-black tracking-tighter"><%= product.lotSize %></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -118,10 +168,11 @@
                             </div>
                         <% }); %>
                     <% } else { %>
-                        <!-- Placeholder if no live ads -->
                         <div class="swiper-slide">
-                            <div class="p-3 text-center text-[10px] uppercase font-black text-gray-400 tracking-widest leading-tight">
-                                <i class="fas fa-satellite-dish mr-2 text-primary animate-pulse"></i> Waiting for Live Bids...
+                            <div class="p-6 text-center rounded-3xl bg-white/5 border border-dashed border-white/10">
+                                <span class="text-[10px] uppercase font-black text-gray-500 tracking-[0.3em]">
+                                    <i class="fas fa-radar text-primary mr-2 animate-spin-slow"></i> Scanning for Live Lots...
+                                </span>
                             </div>
                         </div>
                     <% } %>
@@ -382,6 +433,33 @@
                     }
                 });
             }
+
+            // --- COUNTDOWN TIMER LOGIC ---
+            function updateCountdowns() {
+                document.querySelectorAll('.countdown-timer').forEach(el => {
+                    const endTime = new Date(el.dataset.endtime).getTime();
+                    const now = new Date().getTime();
+                    const distance = endTime - now;
+
+                    if (distance < 0) {
+                        el.innerHTML = "CLOSED";
+                        el.classList.add('text-gray-500');
+                        el.classList.remove('text-primary');
+                        return;
+                    }
+
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    el.innerHTML = 
+                        (hours < 10 ? '0' + hours : hours) + ":" + 
+                        (minutes < 10 ? '0' + minutes : minutes) + ":" + 
+                        (seconds < 10 ? '0' + seconds : seconds);
+                });
+            }
+            setInterval(updateCountdowns, 1000);
+            updateCountdowns(); 
         });
     </script>
 </body>
