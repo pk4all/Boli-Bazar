@@ -64,11 +64,11 @@ app.post('/api/checkout/:id', async (req, res) => {
     try {
         const auction = await Auction.findById(req.params.id);
         const user = await User.findById(req.session.user?.id);
-        
+
         if (!auction || !user) return res.status(404).json({ error: 'Auction or User not found' });
-        
+
         const buyQty = parseInt(quantity) || auction.moq;
-        
+
         // Strict Stock Validation
         if (!auction.stockRemaining || auction.stockRemaining <= 0) {
             return res.status(400).json({ error: 'THIS LOT IS SOLD OUT! Better luck next time.' });
@@ -79,33 +79,33 @@ app.post('/api/checkout/:id', async (req, res) => {
 
         // Strict MOQ Validation
         if (buyQty < (auction.moq || 1)) {
-            return res.status(400).json({ 
-                error: `Minimum order quantity for this lot is ${auction.moq || 1} bags. Your selection: ${buyQty}` 
+            return res.status(400).json({
+                error: `Minimum order quantity for this lot is ${auction.moq || 1} bags. Your selection: ${buyQty}`
             });
         }
 
         const totalValue = buyQty * (auction.currentBid || auction.initialPrice);
         const fee = paymentMode === 'cod' ? totalValue * 0.1 : 0;
         const finalPayable = totalValue + fee;
-        
+
         user.walletBalance = (user.walletBalance || 0) + finalPayable;
         if (!user.wonAuctions) user.wonAuctions = [];
         if (!user.wonAuctions.includes(auction._id)) user.wonAuctions.push(auction._id);
-        
+
         auction.stockRemaining = Math.max(0, (auction.stockRemaining || 0) - buyQty);
         auction.totalBuyers = (auction.totalBuyers || 0) + 1;
 
         if (auction.lotSize > 0) {
             auction.stockSoldPercent = Math.min(100, Math.round(((auction.lotSize - auction.stockRemaining) / auction.lotSize) * 100));
         }
-        
+
         // Update current price based on hike percentage
         if (auction.hikePercentage > 0) {
             const cp = auction.currentBid || auction.initialPrice;
             const hike = cp * (auction.hikePercentage / 100);
             auction.currentBid = Math.round((cp + hike) * 100) / 100;
         }
-        
+
         await user.save();
         await auction.save();
 
@@ -142,7 +142,9 @@ app.post('/api/checkout', (req, res) => {
 });
 
 // MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar';
+//const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar';
+const MONGO_URI = 'mongodb+srv://Vercel-Admin-boli-bazar:fjwXJwwaqsN5puqv@boli-bazar.5poietb.mongodb.net/bolibazar?retryWrites=true&w=majority';
+//mongodb+srv://Vercel-Admin-boli-bazar:fjwXJwwaqsN5puqv@boli-bazar.5poietb.mongodb.net/bolibazar?retryWrites=true&w=majority
 mongoose.connect(MONGO_URI)
     .then(() => console.log('[STABLE-DB] Connected Successfully'))
     .catch(err => console.error('[STABLE-DB] Connection Error:', err));
@@ -154,11 +156,11 @@ app.get('/', async (req, res) => {
     try {
         const now = new Date();
         const banners = await Banner.find({ isActive: true }).sort({ order: 1 }).lean();
-        const liveProducts = await Auction.find({ 
-            startTime: { $lte: now }, 
-            endTime: { $gt: now } 
+        const liveProducts = await Auction.find({
+            startTime: { $lte: now },
+            endTime: { $gt: now }
         }).sort({ totalBuyers: -1 }).limit(5).lean();
-        
+
         // Fetch real leaderboard data
         const leaderboard = await User.find({ role: 'retailer' })
             .sort({ walletBalance: -1, createdAt: 1 })
@@ -168,7 +170,7 @@ app.get('/', async (req, res) => {
 
         // --- FETCH TOP 3 REWARDS ---
         let rewards = await Reward.find().sort({ rank: 1 }).lean();
-        
+
         // Initialize if empty
         if (rewards.length === 0) {
             const defaultRewards = [
@@ -179,17 +181,17 @@ app.get('/', async (req, res) => {
             await Reward.insertMany(defaultRewards);
             rewards = await Reward.find().sort({ rank: 1 }).lean();
         }
-            
+
         console.log(`[STABLE-RENDER] Serving ${banners.length} Banners, ${liveProducts.length} Live Products, and ${leaderboard.length} Leaderboard entries [TRACER: PRIMARY_DESKTOP]`);
-        
-        res.render('index', { 
+
+        res.render('index', {
             banners,
             liveProducts,
             leaderboard,
             rewards,
             debug: "ALIVE_IN_PRIMARY_DESKTOP",
             user: req.session.user || null,
-            v: Date.now() 
+            v: Date.now()
         });
     } catch (err) {
         console.error('[STABLE-ERROR] Home Route:', err);
@@ -202,25 +204,25 @@ app.get('/auctions', async (req, res) => {
     try {
         const now = new Date();
         // Live: Started AND not yet ended
-        const auctions = await Auction.find({ 
-            startTime: { $lte: now }, 
-            endTime: { $gt: now } 
+        const auctions = await Auction.find({
+            startTime: { $lte: now },
+            endTime: { $gt: now }
         }).lean();
-        
+
         // Upcoming: Not yet started
-        const upcomingAuctions = await Auction.find({ 
-            startTime: { $gt: now } 
+        const upcomingAuctions = await Auction.find({
+            startTime: { $gt: now }
         }).lean();
-        
+
         // Closed: Already ended
-        const closedAuctions = await Auction.find({ 
-            endTime: { $lte: now } 
+        const closedAuctions = await Auction.find({
+            endTime: { $lte: now }
         }).sort({ endTime: -1 }).limit(3).lean();
-        
+
         console.log(`[DEBUG] Rendering auctions with ${auctions.length} live, ${upcomingAuctions.length} upcoming, and ${closedAuctions.length} closed items.`);
-        
-        return res.render('auctions', { 
-            auctions: auctions || [], 
+
+        return res.render('auctions', {
+            auctions: auctions || [],
             liveAuctions: auctions || [],
             upcomingAuctions: upcomingAuctions || [],
             closedAuctions: closedAuctions || [],
@@ -248,8 +250,8 @@ app.get('/auctions/:id', async (req, res) => {
 
         const fullUser = await User.findById(req.session.user.id).lean();
 
-        res.render('product-detail', { 
-            auction, 
+        res.render('product-detail', {
+            auction,
             bidHistory,
             user: fullUser || req.session.user
         });
@@ -267,7 +269,7 @@ app.get('/admin', async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
         let query = {};
-        
+
         if (startDate || endDate) {
             query.createdAt = {};
             if (startDate) query.createdAt.$gte = new Date(startDate);
@@ -282,27 +284,27 @@ app.get('/admin', async (req, res) => {
         const users = await User.find({ role: 'retailer' }).sort({ walletBalance: -1 });
         const banners = await Banner.find().sort({ order: 1 });
         const rewards = await Reward.find().sort({ rank: 1 });
-        
+
         // Dynamic Orders with Filter
         const orders = await Order.find(query).populate('user').populate('auction').sort({ createdAt: -1 });
 
         // Financial Metrics Calculations (Source of Truth: paymentHistory)
-        const allOrders = await Order.find(); 
-        
+        const allOrders = await Order.find();
+
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
-        
+
         // Total Received (Lifetime)
         const totalRevenue = allOrders.reduce((sum, order) => {
             return sum + (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
         }, 0);
-        
+
         // Today's Collection
         const todayRevenue = allOrders.reduce((sum, order) => {
             const todayPayments = (order.paymentHistory || []).filter(p => new Date(p.date) >= todayStart);
             return sum + todayPayments.reduce((pSum, p) => pSum + p.amount, 0);
         }, 0);
-            
+
         // Total Outstanding COD (Balance yet to be collected)
         const pendingCod = allOrders.reduce((sum, order) => {
             const subtotal = order.totalAmount;
@@ -329,7 +331,7 @@ app.get('/admin', async (req, res) => {
             endOfDay.setHours(23, 59, 59, 999);
 
             weekLabels.push(date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }));
-            
+
             let dailySum = 0;
             allOrders.forEach(o => {
                 const dayPayments = (o.paymentHistory || []).filter(p => {
@@ -344,8 +346,8 @@ app.get('/admin', async (req, res) => {
         // Unique categories for the launch form
         const categories = [...new Set(auctions.map(a => a.category))].filter(Boolean);
 
-        res.render('admin', { 
-            auctions, users, banners, rewards, orders, 
+        res.render('admin', {
+            auctions, users, banners, rewards, orders,
             totalRevenue, todayRevenue, pendingCod,
             retailerCount, liveProductsCount, upcomingProductsCount,
             weekLabels, weekData, categories,
@@ -363,7 +365,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
         const { title, description, initialPrice, lotSize, category, newCategory, moq, hikePercentage, videoUrl, status, spec_keys, spec_values, startDate, startTime, endDate, endTime } = req.body;
-        
+
         // Handle New Category Creation
         let finalCategory = category;
         if (category === 'other' && newCategory) {
@@ -385,7 +387,7 @@ app.post('/admin/add-product', upload.array('images', 4), async (req, res) => {
         }
 
         const images = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
-        
+
         // Finalize Times
         let finalStartTime = new Date();
         if (status === 'Upcoming' && startDate && startTime) {
@@ -491,14 +493,14 @@ app.post('/admin/rewards/update', upload.single('rewardImage'), async (req, res)
     try {
         const { rank, title, description } = req.body;
         const updateData = { title, description };
-        
+
         if (req.file) {
             updateData.imageUrl = '/uploads/' + req.file.filename;
         }
 
         await Reward.findOneAndUpdate(
-            { rank: parseInt(rank) }, 
-            updateData, 
+            { rank: parseInt(rank) },
+            updateData,
             { upsert: true, new: true }
         );
         res.redirect('/admin#rewards');
@@ -523,13 +525,13 @@ app.get('/admin/retailer/:id', async (req, res) => {
         const top3 = allRetailers.slice(0, 3);
         const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
         const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
-        
-        res.render('dashboard', { 
-            user, 
-            rank, 
-            totalRetailers, 
-            gapToTop3, 
-            userProfitMargin: 18.5, 
+
+        res.render('dashboard', {
+            user,
+            rank,
+            totalRetailers,
+            gapToTop3,
+            userProfitMargin: 18.5,
             avgProfitMargin: 12.4,
             topFive: allRetailers.slice(0, 5),
             viewMode: 'admin' // Signal to template
@@ -574,7 +576,7 @@ app.get('/dashboard', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const user = await User.findById(req.session.user.id).populate('bids');
-        
+
         if (!user) {
             req.session.destroy();
             return res.redirect('/login');
@@ -582,7 +584,7 @@ app.get('/dashboard', async (req, res) => {
 
         // --- FETCH ORDERS (REPLACES wonAuctions) ---
         const userOrders = await Order.find({ user: user._id }).populate('auction').sort({ createdAt: -1 }).lean();
-        
+
         // Calculate Financial Stats
         let totalPurchased = 0;
         let totalPaid = 0;
@@ -597,21 +599,21 @@ app.get('/dashboard', async (req, res) => {
         const allRetailers = await User.find({ role: 'retailer' })
             .sort({ walletBalance: -1, createdAt: 1 })
             .lean();
-        
+
         const userIdx = allRetailers.findIndex(u => u._id.toString() === user._id.toString());
         const rank = userIdx !== -1 ? userIdx + 1 : (allRetailers.length + 1);
         const totalRetailers = Math.max(allRetailers.length, 1);
-        
+
         // Path to Top 3
         const top3 = allRetailers.slice(0, 3);
         const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
         const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
-        
-        res.render('dashboard', { 
-            user, 
-            rank, 
-            totalRetailers, 
-            gapToTop3, 
+
+        res.render('dashboard', {
+            user,
+            rank,
+            totalRetailers,
+            gapToTop3,
             orders: userOrders,
             financials: {
                 totalPurchased,
@@ -648,13 +650,15 @@ app.get('/api/auctions/:id/leaderboard', async (req, res) => {
         // Aggregate top buyers for this specific auction
         const leaderboard = await Order.aggregate([
             { $match: { auction: new mongoose.Types.ObjectId(req.params.id) } },
-            { $group: {
-                _id: "$user",
-                username: { $first: "$username" },
-                city: { $first: "$city" },
-                totalQuantity: { $sum: "$quantity" },
-                totalAmount: { $sum: "$totalAmount" }
-            }},
+            {
+                $group: {
+                    _id: "$user",
+                    username: { $first: "$username" },
+                    city: { $first: "$city" },
+                    totalQuantity: { $sum: "$quantity" },
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            },
             { $sort: { totalQuantity: -1 } },
             { $limit: 10 }
         ]);
@@ -674,24 +678,24 @@ app.post('/admin/finalize-auction/:id', async (req, res) => {
     try {
         const auction = await Auction.findById(req.params.id);
         const winner = await User.findById(winnerId);
-        
+
         if (!auction || !winner) return res.status(404).send('Not Found');
-        
+
         // 1. Award Coins: Shopping Value = Coins
         const coinAward = auction.currentBid || auction.initialPrice;
         winner.walletBalance += coinAward;
-        
+
         // 2. Add to Won Auctions
         if (!winner.wonAuctions.includes(auction._id)) {
             winner.wonAuctions.push(auction._id);
         }
-        
+
         // 3. Close Auction
         auction.status = 'Closed';
-        
+
         await winner.save();
         await auction.save();
-        
+
         console.log(`[STABLE-ECONOMY] Awarded ${coinAward} Coins to ${winner.username} for win: ${auction.title}`);
         res.redirect('/admin');
     } catch (err) {
@@ -729,7 +733,7 @@ app.post('/api/admin/orders/:id/deliver', async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
-        
+
         order.status = 'Delivered';
         order.deliveredAt = new Date();
         await order.save();
@@ -745,7 +749,7 @@ app.post('/api/admin/orders/:id/confirm-payment', async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
-        
+
         const subtotal = order.totalAmount;
         const totalValue = subtotal + (order.paymentMode === 'cod' ? subtotal * 0.1 : 0);
         const balance = totalValue - order.paidAmount;
