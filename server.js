@@ -503,6 +503,38 @@ app.post('/admin/rewards/update', upload.single('rewardImage'), async (req, res)
     }
 });
 
+// Admin: View Retailer Dashboard/History
+app.get('/admin/retailer/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const user = await User.findById(req.params.id).populate('bids').populate('wonAuctions');
+        if (!user) return res.redirect('/admin');
+
+        // Reuse Dashboard Ranking Logic
+        const allRetailers = await User.find({ role: 'retailer' }).sort({ walletBalance: -1, createdAt: 1 }).lean();
+        const userIdx = allRetailers.findIndex(u => u._id.toString() === user._id.toString());
+        const rank = userIdx !== -1 ? userIdx + 1 : (allRetailers.length + 1);
+        const totalRetailers = Math.max(allRetailers.length, 1);
+        const top3 = allRetailers.slice(0, 3);
+        const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
+        const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
+        
+        res.render('dashboard', { 
+            user, 
+            rank, 
+            totalRetailers, 
+            gapToTop3, 
+            userProfitMargin: 18.5, 
+            avgProfitMargin: 12.4,
+            topFive: allRetailers.slice(0, 5),
+            viewMode: 'admin' // Signal to template
+        });
+    } catch (err) {
+        console.error('Admin Retailer View Error:', err);
+        res.redirect('/admin');
+    }
+});
+
 // --- AUTH ROUTES ---
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));

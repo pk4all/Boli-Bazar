@@ -573,7 +573,7 @@
                                         <%= new Date(retailer.createdAt).toLocaleDateString('en-IN') %>
                                     </td>
                                     <td class="p-6 text-right">
-                                        <button class="px-3 py-1 rounded-lg border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-800 transition">View History</button>
+                                        <a href="/admin/retailer/<%= retailer._id %>" class="px-3 py-1 rounded-lg border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-800 transition block text-center">View History</a>
                                     </td>
                                 </tr>
                             <% }) %>
