@@ -562,7 +562,7 @@
                 <div class="flex justify-between items-center mb-10">
                     <h1 class="text-3xl font-black font-heading">Retailer <span class="text-blue-600">Network</span></h1>
                     <div class="flex items-center gap-4">
-                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Registered: <%= users.length %></div>
+                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Registered: <%= totalUsersCount %></div>
                         <button onclick="exportRetailersToCSV()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition shadow-lg shadow-blue-100 flex items-center gap-2">
                              <i class="fas fa-file-excel"></i> Export Excel
                         </button>
@@ -581,35 +581,35 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <% users.forEach((retailer, index) => { %>
+                            <% users.forEach((retailer, index) => { 
+                                let globalRank = (currentPage - 1) * 20 + index;
+                            %>
                                 <tr class="hover:bg-slate-50 transition">
                                     <td class="p-6">
                                         <div class="flex items-center gap-4">
                                             <div class="relative">
                                                 <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 font-black">
-                                                    <%= retailer.username.charAt(0).toUpperCase() %>
+                                                    <%= (retailer.username || 'U').charAt(0).toUpperCase() %>
                                                 </div>
-                                                <% if (index < 3) { 
-                                                    let badgeColor = index === 0 ? 'bg-yellow-400' : (index === 1 ? 'bg-slate-300' : 'bg-amber-600');
+                                                <% if (globalRank < 3) { 
+                                                    let badgeColor = globalRank === 0 ? 'bg-yellow-400' : (globalRank === 1 ? 'bg-slate-300' : 'bg-amber-600');
                                                 %>
                                                     <div class="absolute -top-1 -right-1 w-5 h-5 <%= badgeColor %> text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white font-black shadow-sm" title="Top 3 Ranking">
-                                                        <%= index + 1 %>
+                                                        <%= globalRank + 1 %>
                                                     </div>
                                                 <% } %>
                                             </div>
                                             <div>
-                                                <p class="text-sm font-black text-slate-800 flex items-center">
-                                                    <%= retailer.username %>
-                                                </p>
-                                                <p class="text-[10px] text-primary font-black uppercase tracking-widest"><%= retailer.shopName || 'No Shop' %></p>
-                                                <p class="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5"><%= retailer.email %> | <%= retailer.phone %></p>
+                                                <p class="text-[13px] font-black text-slate-800"><%= retailer.username %></p>
+                                                <p class="text-[9px] text-red-600 font-black uppercase tracking-tighter"><%= retailer.shopName || 'NO SHOP' %></p>
+                                                <p class="text-[8px] text-slate-400 font-bold mt-0.5"><%= retailer.email || 'retailer@bolibazar.com' %> | <%= retailer.phone || '9876543210' %></p>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="p-6 text-center font-bold text-slate-600"><%= retailer.city || 'N/A' %></td>
                                     <td class="p-6 text-center">
                                         <span class="text-sm font-black text-yellow-600">
-                                            <i class="fas fa-coins mr-1"></i><%= retailer.walletBalance ? retailer.walletBalance.toLocaleString() : '0' %>
+                                            <i class="fas fa-coins mr-1"></i><%= retailer.walletBalance ? Math.round(retailer.walletBalance).toLocaleString() : '0' %>
                                         </span>
                                     </td>
                                     <td class="p-6 text-center text-xs text-slate-400 font-bold">
@@ -622,6 +622,39 @@
                             <% }) %>
                         </tbody>
                     </table>
+
+                    <!-- Pagination Controls -->
+                    <% if (totalPages > 1) { %>
+                    <div class="p-8 border-t border-slate-100 flex items-center justify-between">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            Page <%= currentPage %> of <%= totalPages %>
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <% if (currentPage > 1) { %>
+                                <a href="/admin?page=<%= currentPage - 1 %>&section=retailers" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white transition group">
+                                    <i class="fas fa-chevron-left text-[10px]"></i>
+                                </a>
+                            <% } %>
+
+                            <% let startPage = Math.max(1, currentPage - 2); 
+                               let endPage = Math.min(totalPages, startPage + 4);
+                               if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+                            %>
+
+                            <% for(let i = startPage; i <= endPage; i++) { %>
+                                <a href="/admin?page=<%= i %>&section=retailers" class="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition <%= i === currentPage ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+
+                            <% if (currentPage < totalPages) { %>
+                                <a href="/admin?page=<%= currentPage + 1 %>&section=retailers" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white transition group">
+                                    <i class="fas fa-chevron-right text-[10px]"></i>
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
             </div>
 
@@ -1090,6 +1123,21 @@
             // Save active tab
             localStorage.setItem('adminActiveTab', sectionId);
         }
+
+        // Initialize active section on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sectionParam = urlParams.get('section');
+            const savedSection = localStorage.getItem('adminActiveTab');
+            
+            if (sectionParam) {
+                showSection(sectionParam);
+            } else if (savedSection) {
+                showSection(savedSection);
+            } else {
+                showSection('overview');
+            }
+        });
 
         async function forceResetLeaderboard() {
             if (!confirm('WARNING: This will finalize the current month, archive top 3 winners, and RESET ALL RETAILER BALANCES to 0. Proceed?')) return;

@@ -369,7 +369,19 @@ app.get('/admin', async (req, res) => {
         }
 
         const auctions = await Auction.find().sort({ createdAt: -1 });
-        const users = await User.find({ role: 'retailer' }).sort({ walletBalance: -1 });
+        
+        // Pagination for Retailers
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+        const totalUsersCount = await User.countDocuments({ role: 'retailer' });
+        const totalPages = Math.ceil(totalUsersCount / limit);
+
+        const users = await User.find({ role: 'retailer' })
+            .sort({ walletBalance: -1 })
+            .skip(skip)
+            .limit(limit);
+
         const banners = await Banner.find().sort({ order: 1 });
         const rewards = await Reward.find().sort({ rank: 1 });
 
@@ -459,7 +471,10 @@ app.get('/admin', async (req, res) => {
             weekLabels: chartLabels, weekData: chartTotalData, categories,
             hallOfFameSnapshots,
             startDate: startDate || '',
-            endDate: endDate || ''
+            endDate: endDate || '',
+            currentPage: page,
+            totalPages,
+            totalUsersCount
         });
     } catch (err) {
         console.error('Admin Route Error:', err);
@@ -621,8 +636,21 @@ app.post('/admin/rewards/update', upload.single('rewardImage'), async (req, res)
 app.get('/admin/retailer/:id', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
     try {
-        const user = await User.findById(req.params.id).populate('bids').populate('wonAuctions');
+        const user = await User.findById(req.params.id).populate('bids');
         if (!user) return res.redirect('/admin');
+
+        // Fetch Orders for this retailer
+        const userOrders = await Order.find({ user: user._id }).populate('auction').sort({ createdAt: -1 }).lean();
+
+        // Calculate Financial Stats
+        let totalPurchased = 0;
+        let totalPaid = 0;
+        userOrders.forEach(o => {
+            const sub = Math.round(o.totalAmount || 0);
+            const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+            totalPurchased += Math.round(sub + fee);
+            totalPaid += Math.round((o.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0));
+        });
 
         // Reuse Dashboard Ranking Logic
         const allRetailers = await User.find({ role: 'retailer' }).sort({ walletBalance: -1, createdAt: 1 }).lean();
@@ -630,18 +658,22 @@ app.get('/admin/retailer/:id', async (req, res) => {
         const rank = userIdx !== -1 ? userIdx + 1 : (allRetailers.length + 1);
         const totalRetailers = Math.max(allRetailers.length, 1);
         const top3 = allRetailers.slice(0, 3);
-        const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
-        const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
+        const top3Balance = (top3.length >= 3) ? (top3[2].walletBalance || 0) : (top3.length > 0 ? top3[0].walletBalance : 10000);
+        const gapToTop3 = (rank > 3) ? Math.round(Math.max(0, top3Balance - (user.walletBalance || 0) + 1)) : 0;
 
         res.render('dashboard', {
             user,
             rank,
             totalRetailers,
             gapToTop3,
-            userProfitMargin: 18.5,
-            avgProfitMargin: 12.4,
+            orders: userOrders,
+            financials: {
+                totalPurchased,
+                totalPaid,
+                balanceDue: Math.max(0, totalPurchased - totalPaid)
+            },
             topFive: allRetailers.slice(0, 5),
-            viewMode: 'admin' // Signal to template
+            viewMode: 'admin' 
         });
     } catch (err) {
         console.error('Admin Retailer View Error:', err);

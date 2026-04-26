@@ -338,49 +338,37 @@
                             <h3 class="text-2xl font-black font-heading text-secondary">Winning <span class="text-primary italic">Lots</span></h3>
                             <p class="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-1">Your successful acquisitions</p>
                         </div>
-                        <a href="#winning-lots" class="text-[10px] font-black uppercase text-primary tracking-widest hover:translate-x-1 transition-transform inline-flex items-center gap-2">View All Orders <i class="fas fa-arrow-right text-[8px]"></i></a>
+                        <div id="lot-page-info" class="text-[10px] font-black text-gray-400 uppercase tracking-widest"></div>
                     </div>
 
                     <% if (orders && orders.length > 0) { %>
-                        <div class="space-y-4">
-                            <% orders.forEach(order => { 
-                                const auction = order.auction || { title: 'Deleted Product', imageUrl: '/lot1.png' };
-                            %>
-                                <div class="glass-card rounded-3xl p-6 border border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:border-primary/30 transition-all overflow-hidden relative gap-6">
-                                    <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:rotate-12 transition-transform duration-700">
-                                        <i class="fas fa-shopping-cart text-8xl text-secondary"></i>
-                                    </div>
-                                    
-                                    <div class="flex items-center gap-6 relative z-10 flex-grow">
-                                        <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-white flex-shrink-0">
-                                            <img src="<%= auction.images && auction.images[0] ? auction.images[0] : (auction.imageUrl || '/lot1.png') %>" class="w-full h-full object-cover group-hover:scale-110 transition duration-1000">
-                                        </div>
-                                        <div>
-                                            <div class="flex flex-wrap items-center gap-3 mb-1">
-                                                <h4 class="font-black text-secondary group-hover:text-primary transition"><%= auction.title %></h4>
-                                                <span class="px-2 py-0.5 <%= order.status === 'Delivered' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600' %> rounded-md text-[8px] font-black uppercase tracking-widest">
-                                                    <%= order.status %>
-                                                </span>
-                                            </div>
-                                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Order ID: BZ-<%= order._id.toString().slice(-6).toUpperCase() %></p>
-                                            <div class="flex items-center gap-4 text-[10px] font-black">
-                                                <span class="text-secondary tracking-tighter">Budget: ₹<%= order.totalAmount.toLocaleString() %></span>
-                                                <span class="text-gray-300">•</span>
-                                                <span class="text-gray-500 uppercase tracking-widest font-bold"><%= order.quantity %> Units Won</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Order Data for JS Pagination -->
+                        <script>
+                            const allOrders = <%- JSON.stringify(orders.map(o => ({
+                                _id: o._id,
+                                status: o.status,
+                                totalAmount: Math.round(o.totalAmount || 0),
+                                quantity: o.quantity,
+                                paymentMode: o.paymentMode,
+                                title: (o.auction && o.auction.title) ? o.auction.title : 'Deleted Product',
+                                imageUrl: (o.auction && o.auction.images && o.auction.images[0]) ? o.auction.images[0] : ((o.auction && o.auction.imageUrl) ? o.auction.imageUrl : '/lot1.png')
+                            }))) %>;
+                        </script>
 
-                                    <div class="flex items-center gap-3 relative z-10">
-                                        <button onclick="downloadReceipt('<%= order._id %>', '<%= auction.title.replace(/'/g, "\\'") %>', <%= order.totalAmount %>, <%= order.quantity %>, 'Unit')" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white transition shadow-sm border border-slate-100" title="Download Receipt">
-                                            <i class="fas fa-file-invoice text-xs"></i>
-                                        </button>
-                                        <button onclick="trackOrder('<%= order._id %>')" class="bg-primary text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 transition-all">
-                                            Track Order
-                                        </button>
-                                    </div>
-                                </div>
-                            <% }); %>
+                        <div id="lots-container" class="space-y-4"></div>
+
+                        <!-- Pagination Controls -->
+                        <div id="lots-pagination" class="mt-8 flex items-center justify-between hidden">
+                            <p id="lots-page-label" class="text-[10px] font-black text-gray-400 uppercase tracking-widest"></p>
+                            <div class="flex items-center gap-2">
+                                <button id="lots-prev" onclick="changeLotPage(-1)" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <i class="fas fa-chevron-left text-[10px]"></i>
+                                </button>
+                                <div id="lots-page-btns" class="flex items-center gap-2"></div>
+                                <button id="lots-next" onclick="changeLotPage(1)" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-900 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed">
+                                    <i class="fas fa-chevron-right text-[10px]"></i>
+                                </button>
+                            </div>
                         </div>
                     <% } else { %>
                         <div class="text-center py-20 bg-slate-50/50 rounded-[3rem] border border-dashed border-slate-200">
@@ -392,6 +380,7 @@
                         </div>
                     <% } %>
                 </section>
+
 
                 <!-- Section: Global Leaderboard (Top 5 Preview) -->
                 <section>
@@ -598,6 +587,106 @@
             receiptWindow.document.write(html);
             receiptWindow.document.close();
         }
+
+        // ---- WINNING LOTS PAGINATION ----
+        (function() {
+            if (typeof allOrders === 'undefined' || !allOrders.length) return;
+
+            const ITEMS_PER_PAGE = 5;
+            let currentPage = 1;
+            const totalPages = Math.ceil(allOrders.length / ITEMS_PER_PAGE);
+
+            function renderOrders(page) {
+                const container = document.getElementById('lots-container');
+                if (!container) return;
+
+                const start = (page - 1) * ITEMS_PER_PAGE;
+                const slice = allOrders.slice(start, start + ITEMS_PER_PAGE);
+
+                container.innerHTML = slice.map(order => {
+                    const statusClass = order.status === 'Delivered'
+                        ? 'bg-green-50 text-green-600'
+                        : 'bg-blue-50 text-blue-600';
+                    const titleSafe = order.title.replace(/'/g, "\\'");
+                    return `
+                    <div class="glass-card rounded-3xl p-6 border border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:border-primary/30 transition-all overflow-hidden relative gap-6" style="animation: fadeIn 0.3s ease">
+                        <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:rotate-12 transition-transform duration-700">
+                            <i class="fas fa-shopping-cart text-8xl text-secondary"></i>
+                        </div>
+                        <div class="flex items-center gap-6 relative z-10 flex-grow">
+                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-lg border-2 border-white flex-shrink-0">
+                                <img src="${order.imageUrl}" class="w-full h-full object-cover group-hover:scale-110 transition duration-1000" onerror="this.src='/lot1.png'">
+                            </div>
+                            <div>
+                                <div class="flex flex-wrap items-center gap-3 mb-1">
+                                    <h4 class="font-black text-secondary group-hover:text-primary transition">${order.title}</h4>
+                                    <span class="px-2 py-0.5 ${statusClass} rounded-md text-[8px] font-black uppercase tracking-widest">
+                                        ${order.status}
+                                    </span>
+                                </div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-3">Order ID: BZ-${order._id.toString().slice(-6).toUpperCase()}</p>
+                                <div class="flex items-center gap-4 text-[10px] font-black">
+                                    <span class="text-secondary tracking-tighter">Budget: ₹${order.totalAmount.toLocaleString()}</span>
+                                    <span class="text-gray-300">•</span>
+                                    <span class="text-gray-500 uppercase tracking-widest font-bold">${order.quantity} Units Won</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 relative z-10">
+                            <button onclick="downloadReceipt('${order._id}', '${titleSafe}', ${order.totalAmount}, ${order.quantity}, 'Unit')" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-secondary hover:text-white transition shadow-sm border border-slate-100" title="Download Receipt">
+                                <i class="fas fa-file-invoice text-xs"></i>
+                            </button>
+                            <button onclick="trackOrder('${order._id}')" class="bg-primary text-white px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-red-500/20 hover:scale-105 transition-all">
+                                Track Order
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            function renderPagination(page) {
+                if (totalPages <= 1) return;
+
+                const paginationEl = document.getElementById('lots-pagination');
+                const labelEl = document.getElementById('lots-page-label');
+                const btnsEl = document.getElementById('lots-page-btns');
+                const prevBtn = document.getElementById('lots-prev');
+                const nextBtn = document.getElementById('lots-next');
+
+                paginationEl.classList.remove('hidden');
+                labelEl.textContent = `Page ${page} of ${totalPages} • ${allOrders.length} Total Orders`;
+                prevBtn.disabled = (page === 1);
+                nextBtn.disabled = (page === totalPages);
+
+                // Numbered buttons (show up to 5 around current page)
+                const startP = Math.max(1, page - 2);
+                const endP = Math.min(totalPages, startP + 4);
+                let btns = '';
+                for (let i = startP; i <= endP; i++) {
+                    btns += `<button onclick="goToLotPage(${i})" class="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black transition ${i === page ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}">${i}</button>`;
+                }
+                btnsEl.innerHTML = btns;
+            }
+
+            window.changeLotPage = function(delta) {
+                const newPage = currentPage + delta;
+                if (newPage < 1 || newPage > totalPages) return;
+                currentPage = newPage;
+                renderOrders(currentPage);
+                renderPagination(currentPage);
+                document.getElementById('winning-lots').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+
+            window.goToLotPage = function(page) {
+                currentPage = page;
+                renderOrders(currentPage);
+                renderPagination(currentPage);
+            };
+
+            // Initial render
+            renderOrders(currentPage);
+            renderPagination(currentPage);
+        })();
     </script>
 
 </body>
