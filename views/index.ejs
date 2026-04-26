@@ -446,19 +446,19 @@
     </footer>
 
     <!-- High-Contrast Dynamic Global Alert (Bottom Right) -->
-    <div id="live-notification" class="fixed bottom-8 right-8 z-[200] hidden">
-        <div class="bg-gradient-to-br from-primary via-[#ff3d71] to-rose-700 p-4 rounded-2xl shadow-[0_20px_50px_rgba(217,4,41,0.3)] flex items-center space-x-4 max-w-sm border border-white/20 animate-pulse-subtle overflow-hidden">
+    <a id="live-notification" href="/auctions" class="fixed bottom-8 right-8 z-[200] hidden cursor-pointer group" style="text-decoration:none;">
+        <div class="bg-gradient-to-br from-primary via-[#ff3d71] to-rose-700 p-4 rounded-2xl shadow-[0_20px_50px_rgba(217,4,41,0.3)] flex items-center space-x-4 max-w-sm border border-white/20 animate-pulse-subtle overflow-hidden group-hover:scale-105 transition-transform duration-300">
              <div class="w-10 h-10 bg-white/10 text-[#e2e8f0] rounded-xl flex items-center justify-center text-lg shrink-0 shadow-inner">
                  <i class="fas fa-bolt"></i>
              </div>
-             <div>
-                <p class="text-[9px] font-black text-[#e2e8f0]/60 mb-0.5 uppercase tracking-[0.2em]">Live Bidding War</p>
+             <div class="flex-grow">
+                <p class="text-[9px] font-black text-[#e2e8f0]/60 mb-0.5 uppercase tracking-[0.2em]">Live Bidding War ↗ Tap to Bid</p>
                 <p id="notif-text" class="text-[11px] font-black text-[#e2e8f0] leading-tight">
                     <!-- Dynamic content will be injected here -->
                 </p>
              </div>
         </div>
-    </div>
+    </a>
 
     <style>
         .animate-pulse-subtle {
@@ -550,6 +550,9 @@
                     const price = (product.currentBid || product.initialPrice || 0).toLocaleString();
                     
                     notifText.innerHTML = `${randomEmoji} <span class="text-[#e2e8f0] font-black">${product.title}</span> — price <span class="text-[#e2e8f0] font-black tracking-tighter">₹${price}</span> ho gaya!`;
+                    
+                    // Update the link to point to THIS product's page
+                    notifContainer.href = `/auctions/${product._id}`;
                     
                     // Show animation
                     notifContainer.classList.remove('hidden', 'notif-exit');

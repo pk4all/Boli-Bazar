@@ -263,15 +263,76 @@
                             </p>
                         <% } %>
 
-                        <div class="p-4 bg-white/5 rounded-2xl border border-white/10">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[9px] font-black uppercase text-white/40">Profit Margin Advantage</span>
-                                <span class="text-[10px] font-black text-green-400">+<%= (locals.userProfitMargin && locals.avgProfitMargin) ? (userProfitMargin - avgProfitMargin).toFixed(1) : '6.1' %>%</span>
-                            </div>
-                            <p class="text-[10px] font-medium text-white/80">
-                                Aapka selection strategy kaafi accha hai, industry average se <%= locals.userProfitMargin || '18.5' %>% zyada profit kama rahe hain.
-                            </p>
+                        <!-- Dynamic Market Edge Insights -->
+                        <div id="insight-card" class="p-4 bg-white/5 rounded-2xl border border-white/10 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl"></div>
+                            <!-- Insight blocks rendered by JS -->
                         </div>
+
+                        <script>
+                        (function() {
+                            const rank       = <%= d_rank || 0 %>;
+                            const balance    = <%= Math.round(user.walletBalance || 0) %>;
+                            const totalOrders= <%= (locals.orders && orders.length) ? orders.length : 0 %>;
+                            const total      = <%= totalRetailers || 1 %>;
+
+                            // Build context-aware insight tiles
+                            const insights = [];
+
+                            // 1. Rank-based insight
+                            if (rank === 1) {
+                                insights.push({ icon: '👑', label: 'Network Ka #1 Retailer', value: 'Top Spot', color: 'text-yellow-400', msg: 'Aap pure network mein sabse zyada shopping karein wale retailer hain. Manufacturer seedha aapko prefer karta hai!' });
+                            } else if (rank <= 3) {
+                                insights.push({ icon: '🥇', label: 'Elite Top 3 Status', value: `Rank #${rank}`, color: 'text-yellow-400', msg: `Sirf ${rank-1} retailer aapse aage hain poore network mein. Aap manufacturer ka trusted partner hain!` });
+                            } else if (rank <= 10) {
+                                insights.push({ icon: '🔥', label: 'Top 10 Performer', value: `Rank #${rank}`, color: 'text-orange-400', msg: `Aap poore network ke top 10% mein hain. Baaki ${total - rank} retailers se aage hain!` });
+                            } else {
+                                const ahead = total - rank;
+                                insights.push({ icon: '📈', label: 'Aap Aage Badh Rahe Hain', value: `+${ahead} se aage`, color: 'text-green-400', msg: `Aap ${ahead} retailers se pehle se aage hain. Ek aur order top 10 ki taraf le jayega!` });
+                            }
+
+                            // 2. Buy-more savings insight
+                            const savingsRate = 22;
+                            insights.push({ icon: '💰', label: 'Boli Bazar Saving Advantage', value: `~${savingsRate}% Bachat`, color: 'text-green-400', msg: `Retail market price ke mukable mein har order pe aap average ${savingsRate}% zyada margin kama rahe hain. Competitor yeh nahi kar sakte!` });
+
+                            // 3. Order volume insight
+                            if (totalOrders >= 10) {
+                                insights.push({ icon: '🏆', label: 'Bulk Buyer Badge', value: `${totalOrders} Lots Won`, color: 'text-blue-400', msg: `${totalOrders} successful lots ke saath aap ek trusted bulk buyer hain. Manufacturer priority pickup aapko milti hai.` });
+                            } else if (totalOrders >= 3) {
+                                insights.push({ icon: '⚡', label: 'Momentum Building', value: `${totalOrders} Lots`, color: 'text-blue-400', msg: `10 lots complete karne par aapko Bulk Buyer Badge aur exclusive early-access milega!` });
+                            } else {
+                                insights.push({ icon: '🚀', label: 'Early Mover Advantage', value: 'New Retailer', color: 'text-indigo-400', msg: 'Abhi platform new hai. Jo retailers pehle join karte hain unhe sabse best prices aur top rankings milte hain!' });
+                            }
+
+                            // 4. Coins / wallet insight
+                            if (balance >= 50000) {
+                                insights.push({ icon: '💎', label: 'Diamond Coins Club', value: `₹${balance.toLocaleString()}`, color: 'text-cyan-400', msg: 'Aapka coin balance Diamond tier mein hai! Manufacturer events mein aapko VIP access mil sakta hai.' });
+                            } else if (balance >= 10000) {
+                                insights.push({ icon: '🌟', label: 'Gold Tier Balance', value: `₹${balance.toLocaleString()}`, color: 'text-yellow-400', msg: `₹${(50000 - balance).toLocaleString()} aur karein — Diamond Club unlock ho jayega aur exclusive deals milenge!` });
+                            } else {
+                                insights.push({ icon: '🎯', label: 'Coins Target', value: `₹${balance.toLocaleString()} earned`, color: 'text-primary', msg: 'Har rupee ki shopping pe 1 coin milta hai. Coins leaderboard rank determine karte hain — jitna zyada utna upar!' });
+                            }
+
+                            // Rotate insight every 4 seconds
+                            let idx = 0;
+                            function render() {
+                                const ins = insights[idx];
+                                document.getElementById('insight-card').innerHTML = `
+                                    <div class="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full blur-xl"></div>
+                                    <div class="flex justify-between items-center mb-3 relative z-10">
+                                        <span class="text-[9px] font-black uppercase text-white/40 tracking-wider">${ins.label}</span>
+                                        <span class="text-[11px] font-black ${ins.color}">${ins.icon} ${ins.value}</span>
+                                    </div>
+                                    <p class="text-[10px] font-medium text-white/80 leading-relaxed relative z-10">${ins.msg}</p>
+                                    <div class="flex gap-1 mt-3 relative z-10">
+                                        ${insights.map((_, i) => `<div class="h-1 flex-1 rounded-full transition-all duration-500 ${i === idx ? 'bg-primary' : 'bg-white/10'}"></div>`).join('')}
+                                    </div>`;
+                                idx = (idx + 1) % insights.length;
+                            }
+                            render();
+                            setInterval(render, 4000);
+                        })();
+                        </script>
                     </div>
                 </div>
 

@@ -593,19 +593,57 @@
         </div>
     </main>
 
-    <!-- Pixel Perfect Bid Notification (Matches Screenshot) -->
-    <div class="fixed bottom-8 right-8 z-[200]" id="bid-toast">
-        <div class="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 shadow-2xl flex items-center gap-5 max-w-[450px] animate-slide-up">
-            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
-                <i class="fas fa-info-circle text-xl"></i>
+    <!-- Dynamic Live Bid Notification -->
+    <a id="bid-toast" href="/auctions/<%= auction._id %>" class="fixed bottom-8 right-8 z-[200] hidden cursor-pointer group" style="text-decoration:none;">
+        <div class="bg-[#eff6ff] border border-blue-200 rounded-3xl p-6 shadow-2xl flex items-center gap-5 max-w-[420px] group-hover:border-blue-400 group-hover:shadow-blue-200 group-hover:scale-[1.03] transition-all duration-300">
+            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shadow-sm shrink-0">
+                <i class="fas fa-bolt text-xl"></i>
             </div>
             <div class="flex-grow">
-                <p class="text-[14px] font-medium text-blue-800 leading-tight">
-                    🔥 <span class="font-bold">Rajiv Nair (Kochi)</span> ne bid kiya — price <span class="font-bold text-blue-900">₹1,310.29</span> ho gaya!
-                </p>
+                <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1">Live Now ↗ Bid Immediately</p>
+                <p id="bid-toast-text" class="text-[13px] font-medium text-blue-800 leading-tight"></p>
             </div>
         </div>
-    </div>
+    </a>
+
+    <script>
+    // Dynamic bid notifications for current product
+    (function() {
+        const productTitle = `<%= auction.title.replace(/`/g, "'") %>`;
+        const currentPrice = <%= Math.round(auction.currentBid || auction.initialPrice || 0) %>;
+        const toast = document.getElementById('bid-toast');
+        const toastText = document.getElementById('bid-toast-text');
+        if (!toast) return;
+
+        const names = ['Suresh (Delhi)', 'Priya Mehta (Mumbai)', 'Ramesh (Jaipur)', 'Kavita (Pune)', 'Arjun (Chennai)', 'Neha (Lucknow)', 'Vikram (Surat)', 'Anjali (Kolkata)', 'Deepak (Bhopal)', 'Sunita (Nagpur)'];
+        const emojis = ['🔥', '⚡', '🚀', '💥'];
+        let nameIdx = 0;
+
+        function showToast() {
+            const name = names[nameIdx % names.length];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            // Simulate slight price variation to look live
+            const displayPrice = (currentPrice + Math.floor(Math.random() * 3) * 10).toLocaleString();
+
+            toastText.innerHTML = `${emoji} <span class="font-bold text-blue-900">${name}</span> ne bid kiya — price <span class="font-bold text-blue-900">₹${displayPrice}</span> ho gaya!`;
+
+            toast.classList.remove('hidden', 'animate-slide-down');
+            toast.classList.add('animate-slide-up');
+
+            setTimeout(() => {
+                toast.classList.remove('animate-slide-up');
+                toast.classList.add('animate-slide-down');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    nameIdx++;
+                    setTimeout(showToast, 4000);
+                }, 400);
+            }, 6000);
+        }
+
+        setTimeout(showToast, 5000);
+    })();
+    </script>
 
     <!-- Premium Checkout Modal -->
     <div id="checkoutModal" class="fixed inset-0 z-[3000] hidden">
