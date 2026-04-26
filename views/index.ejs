@@ -380,26 +380,39 @@
         <p class="text-[9px] font-black uppercase tracking-[0.5em]">© 2026 BOLIBAZAR TECHNOLOGIES PVT LTD</p>
     </footer>
 
-    <!-- Floating Global Alert (Bottom Right) -->
-    <div class="fixed bottom-8 right-8 z-[200]">
-        <div class="bg-[#1c1e2d] border border-white/10 p-4 rounded-2xl shadow-2xl flex items-center space-x-4 max-w-sm border-l-4 border-l-blue-500 animate-slide-in">
-             <div class="w-10 h-10 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center text-lg">
-                 <i class="fas fa-bell"></i>
+    <!-- High-Contrast Dynamic Global Alert (Bottom Right) -->
+    <div id="live-notification" class="fixed bottom-8 right-8 z-[200] hidden">
+        <div class="bg-gradient-to-br from-primary via-[#ff3d71] to-rose-700 p-4 rounded-2xl shadow-[0_20px_50px_rgba(217,4,41,0.3)] flex items-center space-x-4 max-w-sm border border-white/20 animate-pulse-subtle overflow-hidden">
+             <div class="w-10 h-10 bg-white/10 text-[#e2e8f0] rounded-xl flex items-center justify-center text-lg shrink-0 shadow-inner">
+                 <i class="fas fa-bolt"></i>
              </div>
              <div>
-                <p class="text-[10px] font-medium leading-tight">
-                    🔥 <span class="text-white font-black">Toor Dal Premium 25kg</span> — price <span class="text-primary font-black tracking-tighter">₹4,697.57</span> ho gaya!
+                <p class="text-[9px] font-black text-[#e2e8f0]/60 mb-0.5 uppercase tracking-[0.2em]">Live Bidding War</p>
+                <p id="notif-text" class="text-[11px] font-black text-[#e2e8f0] leading-tight">
+                    <!-- Dynamic content will be injected here -->
                 </p>
              </div>
         </div>
     </div>
 
     <style>
-        @keyframes slide-in {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .animate-pulse-subtle {
+            animation: pulse-border 3s infinite;
         }
-        .animate-slide-in { animation: slide-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 20px 50px rgba(217,4,41,0.3); }
+            50% { box-shadow: 0 20px 60px rgba(217,4,41,0.6); }
+        }
+        @keyframes slide-in {
+            from { transform: translateX(120%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes slide-out {
+            from { transform: translateX(0) scale(1); opacity: 1; }
+            to { transform: translateX(120%) scale(0.9); opacity: 0; }
+        }
+        .notif-enter { animation: slide-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .notif-exit { animation: slide-out 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -455,6 +468,43 @@
             }
             setInterval(updateCountdowns, 1000);
             updateCountdowns(); 
+
+            // --- DYNAMIC NOTIFICATION ROTATION ---
+            const liveProducts = <%- JSON.stringify(liveProducts || []) %>;
+            const notifContainer = document.getElementById('live-notification');
+            const notifText = document.getElementById('notif-text');
+            let currentNotifIndex = 0;
+
+            if (liveProducts.length > 0) {
+                function showNextNotification() {
+                    const product = liveProducts[currentNotifIndex];
+                    
+                    // Prepare content
+                    const emojis = ['🔥', '⚡', '🚀', '💎'];
+                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    const price = (product.currentBid || product.initialPrice || 0).toLocaleString();
+                    
+                    notifText.innerHTML = `${randomEmoji} <span class="text-[#e2e8f0] font-black">${product.title}</span> — price <span class="text-[#e2e8f0] font-black tracking-tighter">₹${price}</span> ho gaya!`;
+                    
+                    // Show animation
+                    notifContainer.classList.remove('hidden', 'notif-exit');
+                    notifContainer.classList.add('notif-enter');
+                    
+                    // Auto-hide after some time
+                    setTimeout(() => {
+                        notifContainer.classList.remove('notif-enter');
+                        notifContainer.classList.add('notif-exit');
+                        
+                        setTimeout(() => {
+                            currentNotifIndex = (currentNotifIndex + 1) % liveProducts.length;
+                            showNextNotification();
+                        }, 1000); // Wait for exit animation to finish
+                    }, 5000); // Stay visible for 5s
+                }
+
+                // Start rotation with a small delay
+                setTimeout(showNextNotification, 3000);
+            }
         });
     </script>
 </body>
