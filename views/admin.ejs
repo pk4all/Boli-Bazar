@@ -200,9 +200,11 @@
                 <!-- Sales Performance Trend -->
                 <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-200 mb-12">
                     <div class="flex justify-between items-center mb-8">
-                        <div>
-                            <h3 class="text-xl font-black">Sales <span class="text-red-600">Performance</span></h3>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Collection Trend (Last 7 Days)</p>
+                        <div class="flex flex-col">
+                            <h2 class="text-2xl font-black text-slate-800">Sales <span class="text-primary">Performance</span></h2>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                <%= (startDate || endDate) ? 'Filtered Range Trend' : 'Monthly Collection Trend (Current Month)' %>
+                            </p>
                         </div>
                         <div class="flex items-center space-x-2">
                              <div class="px-3 py-1 bg-green-50 border border-green-100 rounded-lg">
@@ -579,15 +581,26 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
-                            <% users.forEach(retailer => { %>
+                            <% users.forEach((retailer, index) => { %>
                                 <tr class="hover:bg-slate-50 transition">
                                     <td class="p-6">
                                         <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 font-black">
-                                                <%= retailer.username.charAt(0).toUpperCase() %>
+                                            <div class="relative">
+                                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 font-black">
+                                                    <%= retailer.username.charAt(0).toUpperCase() %>
+                                                </div>
+                                                <% if (index < 3) { 
+                                                    let badgeColor = index === 0 ? 'bg-yellow-400' : (index === 1 ? 'bg-slate-300' : 'bg-amber-600');
+                                                %>
+                                                    <div class="absolute -top-1 -right-1 w-5 h-5 <%= badgeColor %> text-white text-[8px] flex items-center justify-center rounded-full border-2 border-white font-black shadow-sm" title="Top 3 Ranking">
+                                                        <%= index + 1 %>
+                                                    </div>
+                                                <% } %>
                                             </div>
                                             <div>
-                                                <p class="text-sm font-black text-slate-800"><%= retailer.username %></p>
+                                                <p class="text-sm font-black text-slate-800 flex items-center">
+                                                    <%= retailer.username %>
+                                                </p>
                                                 <p class="text-[10px] text-primary font-black uppercase tracking-widest"><%= retailer.shopName || 'No Shop' %></p>
                                                 <p class="text-[9px] text-slate-400 font-bold tracking-wider mt-0.5"><%= retailer.email %> | <%= retailer.phone %></p>
                                             </div>
@@ -927,10 +940,15 @@
                     </div>
                     
                     <!-- Filter for Archive -->
-                    <div class="flex items-center space-x-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="flex items-center space-x-2 px-3 border-r border-slate-100">
-                            <i class="fas fa-search text-slate-300"></i>
-                            <input type="text" id="hofSearch" placeholder="Search Month/Year..." class="text-xs font-bold focus:outline-none bg-transparent w-40" onkeyup="filterHOF()">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="forceResetLeaderboard()" class="px-6 py-3 bg-red-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition shadow-lg shadow-red-100/20">
+                             Force Finalize Month <i class="fas fa-flag-checkered ml-2"></i>
+                        </button>
+                        <div class="flex items-center space-x-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                            <div class="flex items-center space-x-2 px-3 border-r border-slate-100">
+                                <i class="fas fa-search text-slate-300"></i>
+                                <input type="text" id="hofSearch" placeholder="Search Month/Winner/City..." class="text-xs font-bold focus:outline-none bg-transparent w-44" onkeyup="filterHOF()">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1073,12 +1091,30 @@
             localStorage.setItem('adminActiveTab', sectionId);
         }
 
+        async function forceResetLeaderboard() {
+            if (!confirm('WARNING: This will finalize the current month, archive top 3 winners, and RESET ALL RETAILER BALANCES to 0. Proceed?')) return;
+            try {
+                const res = await fetch('/api/admin/force-reset-leaderboard', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Server Error');
+            }
+        }
+
         function filterHOF() {
             const query = document.getElementById('hofSearch').value.toLowerCase();
             const snapshots = document.querySelectorAll('.hof-snapshot');
             snapshots.forEach(s => {
                 const month = s.getAttribute('data-month').toLowerCase();
-                if (month.includes(query)) {
+                const textContent = s.innerText.toLowerCase();
+                
+                if (month.includes(query) || textContent.includes(query)) {
                     s.style.display = 'block';
                 } else {
                     s.style.display = 'none';

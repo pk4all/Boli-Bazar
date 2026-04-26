@@ -354,6 +354,7 @@ app.get('/admin', async (req, res) => {
         return res.redirect('/login');
     }
     try {
+        const now = new Date();
         const { startDate, endDate } = req.query;
         let query = {};
 
@@ -407,27 +408,42 @@ app.get('/admin', async (req, res) => {
         const liveProductsCount = await Auction.countDocuments({ status: 'Live' });
         const upcomingProductsCount = await Auction.countDocuments({ status: 'Upcoming' });
 
-        // Weekly Sales Performance Data (Labels & Values)
-        const weekLabels = [];
-        const weekData = [];
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            date.setHours(0, 0, 0, 0);
-            const endOfDay = new Date(date);
-            endOfDay.setHours(23, 59, 59, 999);
+        // --- DYNAMIC CHART DATA (Monthly or Filtered Range) ---
+        const chartLabels = [];
+        const chartTotalData = [];
+        
+        let chartStart = startDate ? new Date(startDate) : new Date(now.getFullYear(), now.getMonth(), 1);
+        let chartEnd = endDate ? new Date(endDate) : new Date(now);
+        chartEnd.setHours(23, 59, 59, 999);
 
-            weekLabels.push(date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }));
+        // Limit range to prevent performance issues (max 60 days)
+        let diffTime = Math.abs(chartEnd - chartStart);
+        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 60) {
+            chartStart = new Date(chartEnd);
+            chartStart.setDate(chartStart.getDate() - 60);
+        }
+
+        let currentLoopDate = new Date(chartStart);
+        while (currentLoopDate <= chartEnd) {
+            const dayStart = new Date(currentLoopDate);
+            dayStart.setHours(0, 0, 0, 0);
+            const dayEnd = new Date(currentLoopDate);
+            dayEnd.setHours(23, 59, 59, 999);
+
+            chartLabels.push(dayStart.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }));
 
             let dailySum = 0;
             allOrders.forEach(o => {
                 const dayPayments = (o.paymentHistory || []).filter(p => {
                     const pDate = new Date(p.date);
-                    return pDate >= date && pDate <= endOfDay;
+                    return pDate >= dayStart && pDate <= dayEnd;
                 });
                 dailySum += dayPayments.reduce((s, p) => s + p.amount, 0);
             });
-            weekData.push(dailySum);
+            chartTotalData.push(dailySum);
+
+            currentLoopDate.setDate(currentLoopDate.getDate() + 1);
         }
 
         // Unique categories for the launch form
@@ -440,14 +456,14 @@ app.get('/admin', async (req, res) => {
             auctions, users, banners, rewards, orders,
             totalRevenue, todayRevenue, pendingCod,
             retailerCount, liveProductsCount, upcomingProductsCount,
-            weekLabels, weekData, categories,
+            weekLabels: chartLabels, weekData: chartTotalData, categories,
             hallOfFameSnapshots,
             startDate: startDate || '',
             endDate: endDate || ''
         });
     } catch (err) {
         console.error('Admin Route Error:', err);
-        res.redirect('/');
+        res.status(500).send('Admin Error: ' + err.message);
     }
 });
 
@@ -855,6 +871,17 @@ app.post('/api/admin/orders/:id/confirm-payment', async (req, res) => {
             await order.save();
         }
         res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Force Manual Leaderboard Reset (Archive + Reset Balances)
+app.post('/api/admin/force-reset-leaderboard', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        await runMonthlyReset();
+        res.json({ success: true, message: 'Monthly leaderboard has been finalized and archived.' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

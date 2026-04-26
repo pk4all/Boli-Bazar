@@ -128,7 +128,7 @@
                 <!-- Tokens -->
                 <div class="bg-red-50 border border-red-100 px-4 py-2 rounded-xl flex items-center gap-3">
                     <i class="fas fa-wallet text-primary text-xs"></i>
-                    <span class="text-[10px] font-black uppercase text-secondary">₹2,450 <span class="text-primary">Tokens</span></span>
+                    <span class="text-[10px] font-black uppercase text-secondary">₹<%= (user && user.walletBalance) ? user.walletBalance.toLocaleString() : '0' %> <span class="text-primary">Coins</span></span>
                 </div>
                 <!-- Notifs -->
                 <div class="relative">

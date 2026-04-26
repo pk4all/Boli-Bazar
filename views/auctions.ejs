@@ -46,6 +46,10 @@
             <div class="flex items-center space-x-6">
                  <% if (user) { %>
                     <a href="/dashboard" class="group flex items-center space-x-3 bg-gray-50 border border-gray-100 px-5 py-2.5 rounded-full hover:bg-primary transition shadow-sm relative z-[1001]">
+                        <div class="flex flex-col items-end mr-1 text-right">
+                             <span class="text-[7px] font-black text-gray-400 uppercase group-hover:text-white/60 transition">Coins</span>
+                             <span class="text-[10px] font-black text-secondary group-hover:text-white transition">₹<%= (user.walletBalance) ? user.walletBalance.toLocaleString() : '0' %></span>
+                        </div>
                         <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] group-hover:bg-white/20">
                             <i class="fas fa-user-circle text-white"></i>
                         </div>
