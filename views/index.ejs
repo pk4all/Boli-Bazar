@@ -47,30 +47,37 @@
         .swiper-pagination-bullet { background: #fff !important; }
         .swiper-pagination-bullet-active { background: #d90429 !important; }
 
-        /* Live Bidding Strip: Reverted to Previous Premium Design */
+        /* Live Bidding Strip: Clearly Separated Design */
         .live-strip-container { 
-            background: linear-gradient(180deg, #0c0d19 0%, #080912 100%); 
-            border-bottom: 1px solid rgba(255,255,255,0.03); 
+            background: #1a1b2e; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 2px solid #d90429; 
             position: relative; 
             z-index: 40; 
-            padding: 15px 0;
-            overflow: hidden;
+            padding: 25px 0;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
         }
         .bidding-card { 
-            background: rgba(255, 255, 255, 0.02); 
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.05); 
+            background: rgba(255, 255, 255, 0.04); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 1.5rem;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .bidding-card:hover { 
-            background: rgba(255, 255, 255, 0.04); 
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            background: rgba(255, 255, 255, 0.08); 
+            transform: translateY(-8px);
+            border-color: #d90429;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(217, 4, 41, 0.2);
         }
         .price-glow { 
             color: #fff; 
-            text-shadow: 0 0 15px rgba(217, 4, 41, 0.5); 
+            text-shadow: 0 0 20px rgba(217, 4, 41, 0.6); 
             font-family: 'Outfit', sans-serif;
+        }
+        .timer-glow {
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
         }
     </style>
 </head>
@@ -134,15 +141,15 @@
                                                      <h4 class="text-[10px] font-black uppercase text-gray-300 tracking-[0.2em] truncate group-hover:text-primary transition-colors"><%= product.title %></h4>
                                                  </div>
                                                  <div class="flex flex-col">
-                                                     <span class="text-[8px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Price</span>
+                                                     <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Price</span>
                                                      <span class="text-xl font-black text-white italic tracking-tighter price-glow">₹<%= (product.currentBid || product.initialPrice || 0).toLocaleString() %></span>
                                                  </div>
                                              </div>
 
-                                             <!-- Large Center Timer (Transparent White - Darker) -->
+                                             <!-- Large Center Timer (Bright & Glowing) -->
                                              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
-                                                 <span class="text-[7px] font-black text-white/50 uppercase tracking-[0.4em] mb-1">Ends In</span>
-                                                 <span class="text-2xl font-black font-mono text-white/40 countdown-timer tracking-tight" data-endtime="<%= product.endTime %>">00:00:00</span>
+                                                 <span class="text-[7px] font-black text-white/70 uppercase tracking-[0.4em] mb-1">Ends In</span>
+                                                 <span class="text-2xl font-black font-mono text-white countdown-timer tracking-tight timer-glow" data-endtime="<%= product.endTime %>">00:00:00</span>
                                              </div>
                                              
                                              <div class="flex flex-col items-end space-y-3">
@@ -150,8 +157,8 @@
                                                      <span class="text-[10px] font-black text-white uppercase tracking-tighter">BID NOW</span>
                                                  </div>
                                                  <div class="flex flex-col items-end">
-                                                     <p class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Lot Size</p>
-                                                     <p class="text-sm text-white/70 font-black tracking-tighter"><%= product.lotSize %></p>
+                                                     <p class="text-[8px] text-gray-400 font-bold uppercase tracking-widest">Lot Size</p>
+                                                     <p class="text-sm text-white font-black tracking-tighter"><%= product.lotSize %></p>
                                                  </div>
                                              </div>
                                          </div>
@@ -272,7 +279,7 @@
                             <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= runnerUp.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-silver/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span><%= (runnerUp.walletBalance || 0).toLocaleString() %></span>
+                                <span><%= (runnerUp.monthlyCoins || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -298,7 +305,7 @@
                             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-4 truncate"><%= winner.city || 'India' %></p>
                             <p class="text-xl font-black text-white flex items-center justify-center space-x-2">
                                 <i class="fas fa-coins text-gold"></i>
-                                <span><%= (winner.walletBalance || 0).toLocaleString() %></span>
+                                <span><%= (winner.monthlyCoins || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -319,7 +326,7 @@
                             <p class="text-[9px] text-gray-500 uppercase tracking-widest font-bold mb-3 truncate"><%= third.city || 'Retailer' %></p>
                             <p class="text-sm font-black text-orange-500/80 flex items-center justify-center space-x-1">
                                 <i class="fas fa-coins text-[10px]"></i>
-                                <span><%= (third.walletBalance || 0).toLocaleString() %></span>
+                                <span><%= (third.monthlyCoins || 0).toLocaleString() %></span>
                             </p>
                         </div>
                     </div>
@@ -352,7 +359,7 @@
                             <div class="text-right">
                                  <p class="text-base font-black flex items-center justify-end">
                                      <i class="fas fa-coins text-[10px] text-gray-500 mr-2"></i>
-                                     <%= (retailer.walletBalance || 0).toLocaleString() %>
+                                     <%= (retailer.monthlyCoins || 0).toLocaleString() %>
                                  </p>
                             </div>
                         </div>
@@ -374,6 +381,60 @@
             </div>
         </div>
 
+        <!-- KING-SIZE Hall of Fame: LAST MONTH WINNERS (Relocated to Bottom) -->
+        <% if (typeof lastMonthWinners !== 'undefined' && lastMonthWinners.length > 0) { %>
+        <div class="mt-16 mb-20 bg-[#161729] rounded-[3rem] p-10 border border-white/10 shadow-2xl relative overflow-hidden">
+             <!-- Cyber Decorative Elements -->
+             <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 blur-[100px] -z-10"></div>
+             <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-[100px] -z-10"></div>
+
+             <div class="flex flex-col items-center text-center mb-12">
+                <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-3xl flex items-center justify-center shadow-lg shadow-yellow-500/20 mb-6 border border-white/20">
+                    <i class="fas fa-history text-3xl text-white"></i>
+                </div>
+                <h2 class="text-3xl font-black uppercase tracking-[0.2em] text-white">Hall of Fame</h2>
+                <p class="text-xs font-bold text-gray-500 uppercase tracking-[0.4em] mt-2">Last Month's Legendary Champions</p>
+             </div>
+
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <% lastMonthWinners.forEach(winner => { 
+                    let rankColor = winner.rank === 1 ? 'text-yellow-400 shadow-yellow-500/20' : (winner.rank === 2 ? 'text-slate-300 shadow-slate-300/20' : 'text-amber-600 shadow-amber-600/20');
+                    let rankBg = winner.rank === 1 ? 'bg-yellow-400/10' : (winner.rank === 2 ? 'bg-slate-300/10' : 'bg-amber-600/10');
+                    let cardBorder = winner.rank === 1 ? 'border-yellow-400/20' : (winner.rank === 2 ? 'border-white/10' : 'border-white/10');
+                %>
+                <div class="bg-black/40 border <%= cardBorder %> p-8 rounded-[2.5rem] flex flex-col items-center text-center relative overflow-hidden group hover:bg-white/5 transition-all duration-500">
+                    <!-- Dynamic Large Rank Number -->
+                    <span class="absolute -left-4 -top-6 text-[120px] font-black italic text-white/5 pointer-events-none group-hover:text-white/10 transition-all uppercase"><%= winner.rank %></span>
+                    
+                    <div class="relative mb-6">
+                        <div class="w-24 h-24 rounded-[2rem] overflow-hidden border-4 border-white/10 shadow-2xl relative z-10">
+                            <img src="<%= winner.profileImage || '/lot1.png' %>" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-3 -right-3 w-10 h-10 <%= rankBg %> text-white rounded-full flex items-center justify-center border-4 border-[#161729] z-20 <%= rankColor %>">
+                            <i class="fas <%= winner.rank === 1 ? 'fa-crown' : 'fa-medal' %> text-sm"></i>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] font-black uppercase tracking-[0.3em] <%= rankColor %> mb-2">Rank #<%= winner.rank %></p>
+                    <h4 class="text-xl font-black text-white mb-4 group-hover:text-primary transition-colors"><%= winner.shopName || winner.username %></h4>
+                    
+                    <div class="flex items-center space-x-3 bg-white/5 px-6 py-2.5 rounded-full border border-white/10">
+                        <i class="fas fa-phone text-xs text-primary"></i>
+                        <span class="text-xs font-black tracking-widest text-white/80"><%= winner.mobileNumber %></span>
+                    </div>
+
+                    <div class="mt-6 pt-6 border-t border-white/5 w-full">
+                        <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest">Score Achieved</p>
+                        <p class="text-lg font-black text-white/90">
+                            <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                            <%= (winner.coins || 0).toLocaleString() %>
+                        </p>
+                    </div>
+                </div>
+                <% }); %>
+             </div>
+        </div>
+        <% } %>
     </main>
 
     <footer class="py-12 border-t border-white/5 text-center mt-10 opacity-30">

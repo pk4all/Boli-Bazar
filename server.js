@@ -12,6 +12,8 @@ const User = require('./models/User');
 const Banner = require('./models/Banner');
 const Order = require('./models/Order');
 const Reward = require('./models/Reward');
+const LeaderboardSnapshot = require('./models/LeaderboardSnapshot');
+const cron = require('node-cron');
 
 const app = express();
 const PORT = process.env.PORT || 3005;
@@ -94,6 +96,7 @@ app.post('/api/checkout/:id', async (req, res) => {
         const finalPayable = totalValue + fee;
 
         user.walletBalance = (user.walletBalance || 0) + finalPayable;
+        user.monthlyCoins = (user.monthlyCoins || 0) + finalPayable;
         if (!user.wonAuctions) user.wonAuctions = [];
         if (!user.wonAuctions.includes(auction._id)) user.wonAuctions.push(auction._id);
 
@@ -147,10 +150,87 @@ app.post('/api/checkout', (req, res) => {
 });
 
 // MongoDB Connection
+// MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/bolibazar';
 mongoose.connect(MONGO_URI)
     .then(() => console.log('[STABLE-DB] Connected Successfully'))
     .catch(err => console.error('[STABLE-DB] Connection Error:', err));
+
+// --- MONTHLY RESET LOGIC ---
+async function runMonthlyReset() {
+    console.log('[LEADERBOARD-RESET] Starting monthly reset process...');
+    try {
+        const now = new Date();
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const lastMonthName = monthNames[now.getMonth()] + " " + now.getFullYear();
+
+        // 1. Get Top 3 Winners with their data
+        const topRetailers = await User.find({ role: 'retailer' })
+            .sort({ monthlyCoins: -1, createdAt: 1 })
+            .limit(3)
+            .lean();
+
+        if (topRetailers.length > 0) {
+            const winners = topRetailers.map((u, index) => ({
+                rank: index + 1,
+                username: u.username,
+                shopName: u.shopName,
+                city: u.city,
+                coins: u.monthlyCoins,
+                profileImage: u.profileImage,
+                mobileNumber: u.phone
+            }));
+
+            // 2. Save Snapshot
+            const snapshot = new LeaderboardSnapshot({
+                month: lastMonthName,
+                year: now.getFullYear(),
+                winners: winners
+            });
+            await snapshot.save();
+            console.log(`[LEADERBOARD-RESET] Snapshot saved for ${lastMonthName}`);
+        }
+
+        // 3. Reset all monthlyCoins to 0
+        await User.updateMany({ role: 'retailer' }, { $set: { monthlyCoins: 0 } });
+        console.log('[LEADERBOARD-RESET] All retailer monthlyCoins reset to 0');
+    } catch (err) {
+        console.error('[LEADERBOARD-RESET] CRITICAL ERROR:', err);
+    }
+}
+
+// Schedule Reset: 11:59 PM on the last day of the month
+cron.schedule('59 23 28-31 * *', async () => {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    
+    if (tomorrow.getDate() === 1) { // If tomorrow is the 1st, then today is the last day
+        await runMonthlyReset();
+    }
+});
+
+// --- SAMPLE DATA FOR HALL OF FAME (Auto-Seed) ---
+(async () => {
+    try {
+        const count = await LeaderboardSnapshot.countDocuments();
+        if (count === 0) {
+            const sampleSnapshot = new LeaderboardSnapshot({
+                month: "March 2026",
+                year: 2026,
+                winners: [
+                    { rank: 1, username: "Ramesh Store", shopName: "Ramesh General Store", city: "Delhi", coins: 45200, mobileNumber: "9876543210" },
+                    { rank: 2, username: "Priya Traders", shopName: "Priya Wholesale Traders", city: "Mumbai", coins: 38900, mobileNumber: "9988776655" },
+                    { rank: 3, username: "Mehul Retailer", shopName: "Mehul Kirana", city: "Surat", coins: 35400, mobileNumber: "9122334455" }
+                ]
+            });
+            await sampleSnapshot.save();
+            console.log('[LEADERBOARD-SEED] Sample Hall of Fame data created.');
+        }
+    } catch (err) {
+        console.error('[LEADERBOARD-SEED] Error:', err);
+    }
+})();
 
 // --- ROUTES ---
 
@@ -164,12 +244,16 @@ app.get('/', async (req, res) => {
             endTime: { $gt: now }
         }).sort({ totalBuyers: -1 }).limit(5).lean();
 
-        // Fetch real leaderboard data
+        // Fetch real leaderboard data using monthlyCoins
         const leaderboard = await User.find({ role: 'retailer' })
-            .sort({ walletBalance: -1, createdAt: 1 })
-            .select('username shopName city walletBalance profileImage')
+            .sort({ monthlyCoins: -1, createdAt: 1 })
+            .select('username shopName city monthlyCoins profileImage')
             .limit(10)
             .lean();
+
+        // Fetch Last Month Winners (Hall of Fame)
+        const lastMonthSnapshot = await LeaderboardSnapshot.findOne().sort({ createdAt: -1 }).lean();
+        const lastMonthWinners = lastMonthSnapshot ? lastMonthSnapshot.winners : [];
 
         // --- FETCH TOP 3 REWARDS ---
         let rewards = await Reward.find().sort({ rank: 1 }).lean();
@@ -191,6 +275,7 @@ app.get('/', async (req, res) => {
             banners,
             liveProducts,
             leaderboard,
+            lastMonthWinners,
             rewards,
             debug: "ALIVE_IN_PRIMARY_DESKTOP",
             user: req.session.user || null,
