@@ -48,7 +48,7 @@
                     <a href="/dashboard" class="group flex items-center space-x-3 bg-gray-50 border border-gray-100 px-5 py-2.5 rounded-full hover:bg-primary transition shadow-sm relative z-[1001]">
                         <div class="flex flex-col items-end mr-1 text-right">
                              <span class="text-[7px] font-black text-gray-400 uppercase group-hover:text-white/60 transition">Coins</span>
-                             <span class="text-[10px] font-black text-secondary group-hover:text-white transition">₹<%= (user.walletBalance) ? Math.round(user.walletBalance).toLocaleString() : '0' %></span>
+                             <span class="text-[10px] font-black text-secondary group-hover:text-white transition"><%= (user.walletBalance) ? Math.round(user.walletBalance).toLocaleString() : '0' %></span>
                         </div>
                         <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] group-hover:bg-white/20">
                             <i class="fas fa-user-circle text-white"></i>
@@ -70,7 +70,7 @@
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
             <div class="relative w-full md:max-w-xl">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-300"></i>
-                <input type="text" id="productSearch" placeholder="Product name search karein..." class="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-gray-100 text-sm focus:outline-none focus:border-primary/30 search-input-shadow">
+                <input type="text" id="productSearch" placeholder="Search product name..." class="w-full pl-14 pr-6 py-4 rounded-3xl bg-white border border-gray-100 text-sm focus:outline-none focus:border-primary/30 search-input-shadow">
             </div>
             
             <div class="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
@@ -425,7 +425,7 @@
                 const emoji = emojis[Math.floor(Math.random() * emojis.length)];
                 const price = Math.round(product.currentBid).toLocaleString();
 
-                toastText.innerHTML = `${emoji} <span class="font-bold text-blue-900">${name}</span> ne bid kiya — <span class="font-bold text-blue-900">${product.title}</span> ₹${price} ho gaya!`;
+                toastText.innerHTML = `${emoji} <span class="font-bold text-blue-900">${name}</span> placed a bid — <span class="font-bold text-blue-900">${product.title}</span> is now ₹${price}!`;
                 toast.href = `/auctions/${product._id}`;
 
                 toast.classList.remove('hidden', 'animate-slide-down');
@@ -565,14 +565,14 @@
                 <i class="fas fa-money-bill-wave"></i>
                 <div class="trust-info">
                     <h5>10% Advance Mandatory</h5>
-                    <p>Token se booking confirm karein</p>
+                    <p>Confirm booking via token</p>
                 </div>
             </div>
             <div class="trust-item">
                 <i class="fas fa-truck-fast"></i>
                 <div class="trust-info">
                     <h5>100% Full Payment = FREE Delivery</h5>
-                    <p>Poora pay karo, delivery free pao</p>
+                    <p>Pay full amount for free delivery</p>
                 </div>
             </div>
             <div class="trust-item">
@@ -593,7 +593,7 @@
                 <i class="fas fa-file-invoice-dollar"></i>
                 <div class="trust-info">
                     <h5>GST Invoice Available</h5>
-                    <p>Business tax credit claim karein</p>
+                    <p>Business tax credit claim</p>
                 </div>
             </div>
             <!-- Duplicate for infinite loop -->
@@ -601,14 +601,14 @@
                 <i class="fas fa-money-bill-wave"></i>
                 <div class="trust-info">
                     <h5>10% Advance Mandatory</h5>
-                    <p>Token se booking confirm karein</p>
+                    <p>Confirm booking via token</p>
                 </div>
             </div>
             <div class="trust-item">
                 <i class="fas fa-truck-fast"></i>
                 <div class="trust-info">
                     <h5>100% Full Payment = FREE Delivery</h5>
-                    <p>Poora pay karo, delivery free pao</p>
+                    <p>Pay full amount for free delivery</p>
                 </div>
             </div>
             <div class="trust-item">
@@ -629,7 +629,7 @@
                 <i class="fas fa-file-invoice-dollar"></i>
                 <div class="trust-info">
                     <h5>GST Invoice Available</h5>
-                    <p>Business tax credit claim karein</p>
+                    <p>Business tax credit claim</p>
                 </div>
             </div>
         </div>

@@ -102,7 +102,7 @@
                         <a href="/dashboard" class="group flex items-center space-x-3 bg-white/5 border border-white/10 px-5 py-2.5 rounded-full hover:bg-primary transition shadow-xl relative z-[1001]">
                             <div class="flex flex-col items-end mr-1 text-right">
                                 <span class="text-[7px] font-black text-white/40 uppercase group-hover:text-white/60 transition">Coins</span>
-                                <span class="text-[10px] font-black text-white">₹<%= (user.walletBalance) ? Math.round(user.walletBalance).toLocaleString() : '0' %></span>
+                                <span class="text-[10px] font-black text-white"><%= (user.walletBalance) ? Math.round(user.walletBalance).toLocaleString() : '0' %></span>
                             </div>
                             <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] group-hover:bg-white/20">
                                 <i class="fas fa-user text-white"></i>
@@ -234,7 +234,7 @@
                 <!-- Rewards Section -->
                 <div class="flex items-center space-x-3 mb-8">
                     <i class="fas fa-calendar-alt text-[#ffc107] text-lg"></i>
-                    <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[#ffc107]">Monthly Rewards Scheme — Top 3 ko Milega</h2>
+                    <h2 class="text-xs font-black uppercase tracking-[0.3em] text-[#ffc107]">Monthly Rewards Scheme — For the Top 3</h2>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-16">
@@ -263,7 +263,7 @@
                     <% }); %>
                 </div>
 
-                <p class="text-center text-[10px] text-gray-500 font-bold italic mb-6">🏆 Jitna zyada kharido, utne zyada coins — month end pe top 3 ko rewards milenge!</p>
+                <p class="text-center text-[10px] text-gray-500 font-bold italic mb-6">🏆 The more you spend, the more you earn — Top 3 win rewards at month end!</p>
 
                 <!-- Podium Section (Dynamic) -->
                 <div class="flex items-end justify-center space-x-3 md:space-x-10 mb-20 min-h-[300px]">
@@ -377,8 +377,8 @@
                         <i class="fas fa-info-circle"></i>
                     </div>
                     <div>
-                        <h5 class="text-sm font-black uppercase tracking-[0.2em] text-yellow-500 mb-1">Coin System — Har Rupee Counts!</h5>
-                        <p class="text-[10px] text-yellow-500/60 font-bold leading-relaxed">Jitna kharido utne coins milenge. 1 Spend = 1 Coin • Coins ke hissab se rank upar-neeche hota hai</p>
+                        <h5 class="text-sm font-black uppercase tracking-[0.2em] text-yellow-500 mb-1">Coin System — Every Rupee Counts!</h5>
+                        <p class="text-[10px] text-yellow-500/60 font-bold leading-relaxed">Earn coins as you spend. 1 Spend = 1 Coin • Your rank changes based on your coin count.</p>
                     </div>
                 </div>
 

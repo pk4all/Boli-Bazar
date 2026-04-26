@@ -247,7 +247,7 @@
                         <% if (d_rank > 3) { %>
                             <div>
                                 <p class="text-[11px] font-medium text-white/80 leading-relaxed mb-4">
-                                    Aap sirf <span class="text-white font-bold">₹<%= d_gap.toLocaleString() %></span> ki aur shopping karein toh aap <span class="text-primary font-black uppercase">Top 3</span> mein aa jayenge!
+                                    Shop for <span class="text-white font-bold">₹<%= d_gap.toLocaleString() %></span> more to enter the <span class="text-primary font-black uppercase">Top 3</span>!
                                 </p>
                                 <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
                                     <div class="h-full bg-primary" style="width: <%= (locals.user && d_gap >= 0) ? Math.min(100, (user.walletBalance / (user.walletBalance + d_gap) * 100)) : '0' %>%"></div>
@@ -255,11 +255,11 @@
                             </div>
                         <% } else if (d_rank > 0 && d_rank <= 3) { %>
                             <p class="text-[11px] font-medium text-white/60 leading-relaxed mb-4">
-                                Excellent! Aap pehle se hi <span class="text-primary font-black uppercase">Top 3 Retailers</span> mein hain. Aapka trust humara sabse bada asset hai.
+                                Excellent! You are already among the <span class="text-primary font-black uppercase">Top 3 Retailers</span>. Your trust is our greatest asset.
                             </p>
                         <% } else { %>
                             <p class="text-[11px] font-medium text-white/60 leading-relaxed mb-4">
-                                Bidding start karein leaderboard mein apni jagah banane ke liye!
+                                Start bidding to make your place on the leaderboard!
                             </p>
                         <% } %>
 
@@ -277,40 +277,40 @@
                             const total      = <%= totalRetailers || 1 %>;
 
                             // Build context-aware insight tiles
-                            const insights = [];
-
-                            // 1. Rank-based insight
+                            const insights = [];                            // 1. Rank-based insight
                             if (rank === 1) {
-                                insights.push({ icon: '👑', label: 'Network Ka #1 Retailer', value: 'Top Spot', color: 'text-yellow-400', msg: 'Aap pure network mein sabse zyada shopping karein wale retailer hain. Manufacturer seedha aapko prefer karta hai!' });
+                                insights.push({ icon: '👑', label: 'Network #1 Retailer', value: 'Top Spot', color: 'text-yellow-400', msg: 'You are the top-shopping retailer in the entire network. Manufacturers prefer you directly!' });
                             } else if (rank <= 3) {
-                                insights.push({ icon: '🥇', label: 'Elite Top 3 Status', value: `Rank #${rank}`, color: 'text-yellow-400', msg: `Sirf ${rank-1} retailer aapse aage hain poore network mein. Aap manufacturer ka trusted partner hain!` });
+                                insights.push({ icon: '🥇', label: 'Elite Top 3 Status', value: `Rank #${rank}`, color: 'text-yellow-400', msg: `Only ${rank-1} retailers are ahead of you in the network. You are a trusted partner for manufacturers!` });
                             } else if (rank <= 10) {
-                                insights.push({ icon: '🔥', label: 'Top 10 Performer', value: `Rank #${rank}`, color: 'text-orange-400', msg: `Aap poore network ke top 10% mein hain. Baaki ${total - rank} retailers se aage hain!` });
+                                insights.push({ icon: '🔥', label: 'Top 10 Performer', value: `Rank #${rank}`, color: 'text-orange-400', msg: `You are in the top 10% of the entire network, ahead of ${total - rank} other retailers!` });
                             } else {
                                 const ahead = total - rank;
-                                insights.push({ icon: '📈', label: 'Aap Aage Badh Rahe Hain', value: `+${ahead} se aage`, color: 'text-green-400', msg: `Aap ${ahead} retailers se pehle se aage hain. Ek aur order top 10 ki taraf le jayega!` });
+                                insights.push({ icon: '📈', label: "You're Moving Up!", value: `Ahead of ${ahead}+`, color: 'text-green-400', msg: `You are already ahead of ${ahead} retailers. One more order will pull you toward the top 10!` });
                             }
 
                             // 2. Buy-more savings insight
                             const savingsRate = 22;
-                            insights.push({ icon: '💰', label: 'Boli Bazar Saving Advantage', value: `~${savingsRate}% Bachat`, color: 'text-green-400', msg: `Retail market price ke mukable mein har order pe aap average ${savingsRate}% zyada margin kama rahe hain. Competitor yeh nahi kar sakte!` });
+                            insights.push({ icon: '💰', label: 'Boli Bazar Savings Advantage', value: `~${savingsRate}% Savings`, color: 'text-green-400', msg: `Compared to retail market prices, you earn an average of ${savingsRate}% more margin on every order. Competitors can't match this!` });
 
                             // 3. Order volume insight
                             if (totalOrders >= 10) {
-                                insights.push({ icon: '🏆', label: 'Bulk Buyer Badge', value: `${totalOrders} Lots Won`, color: 'text-blue-400', msg: `${totalOrders} successful lots ke saath aap ek trusted bulk buyer hain. Manufacturer priority pickup aapko milti hai.` });
+                                insights.push({ icon: '🏆', label: 'Bulk Buyer Badge', value: `${totalOrders} Lots Won`, color: 'text-blue-400', msg: `With ${totalOrders} successful lots, you are a trusted bulk buyer. You get priority manufacturer pickups.` });
                             } else if (totalOrders >= 3) {
-                                insights.push({ icon: '⚡', label: 'Momentum Building', value: `${totalOrders} Lots`, color: 'text-blue-400', msg: `10 lots complete karne par aapko Bulk Buyer Badge aur exclusive early-access milega!` });
+                                insights.push({ icon: '⚡', label: 'Building Momentum', value: `${totalOrders} Lots`, color: 'text-blue-400', msg: `Complete 10 lots to earn the Bulk Buyer Badge and exclusive early access!` });
                             } else {
-                                insights.push({ icon: '🚀', label: 'Early Mover Advantage', value: 'New Retailer', color: 'text-indigo-400', msg: 'Abhi platform new hai. Jo retailers pehle join karte hain unhe sabse best prices aur top rankings milte hain!' });
+                                insights.push({ icon: '🚀', label: 'Early Mover Advantage', value: 'New Retailer', color: 'text-indigo-400', msg: 'The platform is new. Early retailers get the best prices and top rankings!' });
                             }
 
                             // 4. Coins / wallet insight
                             if (balance >= 50000) {
-                                insights.push({ icon: '💎', label: 'Diamond Coins Club', value: `₹${balance.toLocaleString()}`, color: 'text-cyan-400', msg: 'Aapka coin balance Diamond tier mein hai! Manufacturer events mein aapko VIP access mil sakta hai.' });
+                                insights.push({ icon: '💎', label: 'Diamond Coins Club', value: `₹${balance.toLocaleString()}`, color: 'text-cyan-400', msg: 'Your coin balance is in the Diamond tier! You may get VIP access to manufacturer events.' });
                             } else if (balance >= 10000) {
-                                insights.push({ icon: '🌟', label: 'Gold Tier Balance', value: `₹${balance.toLocaleString()}`, color: 'text-yellow-400', msg: `₹${(50000 - balance).toLocaleString()} aur karein — Diamond Club unlock ho jayega aur exclusive deals milenge!` });
+                                insights.push({ icon: '🌟', label: 'Gold Tier Balance', value: `₹${balance.toLocaleString()}`, color: 'text-yellow-400', msg: `Shop ₹${(50000 - balance).toLocaleString()} more to unlock the Diamond Club and exclusive deals!` });
                             } else {
-                                insights.push({ icon: '🎯', label: 'Coins Target', value: `₹${balance.toLocaleString()} earned`, color: 'text-primary', msg: 'Har rupee ki shopping pe 1 coin milta hai. Coins leaderboard rank determine karte hain — jitna zyada utna upar!' });
+                                insights.push({ icon: '🎯', label: 'Coins Target', value: `₹${balance.toLocaleString()} earned`, color: 'text-primary', msg: 'Earn 1 coin for every rupee spent. Coins determine your leaderboard rank—the more you have, the higher you go!' });
+                            }
+utna upar!' });
                             }
 
                             // Rotate insight every 4 seconds
