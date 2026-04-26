@@ -1097,8 +1097,15 @@
                                         </td>
                                         <td class="p-6 text-right">
                                             <div class="flex justify-end gap-2">
-                                                <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Contacted')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg transition" title="Mark as Contacted"><i class="fas fa-phone"></i></button>
-                                                <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Approved')" class="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-lg transition" title="Approve Request"><i class="fas fa-check"></i></button>
+                                                <% if (mfgRequest.status === 'Pending' || mfgRequest.status === 'Contacted') { %>
+                                                    <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Contacted')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg transition" title="Mark as Contacted"><i class="fas fa-phone"></i></button>
+                                                    <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Approved')" class="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-lg transition" title="Approve Request"><i class="fas fa-check"></i></button>
+                                                    <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Rejected')" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg transition" title="Reject Request"><i class="fas fa-times"></i></button>
+                                                <% } else { %>
+                                                    <span class="text-[8px] font-black uppercase text-slate-300 flex items-center gap-1.5 px-3 py-2 bg-slate-50 rounded-lg">
+                                                        <i class="fas fa-lock text-[6px]"></i> Finalized
+                                                    </span>
+                                                <% } %>
                                                 <button onclick="viewMfgDetails('<%= (mfgRequest.message || 'No additional message').replace(/'/g, '').replace(/\n/g, ' ') %>', '<%= mfgRequest.gstNumber || 'N/A' %>')" class="text-slate-400 hover:text-slate-600 bg-slate-50 p-2 rounded-lg transition" title="View Details"><i class="fas fa-info-circle"></i></button>
                                             </div>
                                         </td>
