@@ -67,6 +67,10 @@
                     <i class="fas fa-trophy w-5"></i>
                     <span>Rewards</span>
                 </button>
+                <button onclick="showSection('hallOfFame')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-history w-5"></i>
+                    <span>Hall of Fame Archive</span>
+                </button>
             </nav>
             <div class="p-6 border-t border-white/5">
                 <a href="/logout" class="text-xs font-bold text-red-500 uppercase flex items-center space-x-2">
@@ -914,6 +918,73 @@
                 </div>
             </div>
 
+            <!-- HALL OF FAME ARCHIVE SECTION -->
+            <div id="hallOfFame" class="admin-section p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                    <div>
+                        <h1 class="text-3xl font-black">Hall of Fame <span class="text-primary">Archive</span></h1>
+                        <p class="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">History of Monthly Champions</p>
+                    </div>
+                    
+                    <!-- Filter for Archive -->
+                    <div class="flex items-center space-x-4 bg-white p-3 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center space-x-2 px-3 border-r border-slate-100">
+                            <i class="fas fa-search text-slate-300"></i>
+                            <input type="text" id="hofSearch" placeholder="Search Month/Year..." class="text-xs font-bold focus:outline-none bg-transparent w-40" onkeyup="filterHOF()">
+                        </div>
+                    </div>
+                </div>
+
+                <% if (typeof hallOfFameSnapshots !== 'undefined' && hallOfFameSnapshots.length > 0) { %>
+                    <div class="grid grid-cols-1 gap-10" id="hofContainer">
+                        <% hallOfFameSnapshots.forEach(snapshot => { %>
+                            <div class="hof-snapshot bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden" data-month="<%= snapshot.month %>">
+                                <!-- Snapshot Header -->
+                                <div class="bg-slate-900 p-6 flex justify-between items-center">
+                                    <h3 class="text-white text-xl font-black italic"><%= snapshot.month %></h3>
+                                    <div class="bg-primary text-[10px] font-black uppercase px-4 py-1 rounded-full text-white tracking-widest">Archived Data</div>
+                                </div>
+
+                                <div class="p-8">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <% snapshot.winners.forEach(winner => { 
+                                            let rankColor = winner.rank === 1 ? 'text-yellow-500' : (winner.rank === 2 ? 'text-slate-400' : 'text-amber-700');
+                                        %>
+                                        <div class="bg-slate-50 border border-slate-100 p-6 rounded-3xl flex flex-col items-center text-center relative hover:shadow-lg transition">
+                                            <div class="absolute top-4 right-4 text-xs font-black <%= rankColor %>">#<%= winner.rank %></div>
+                                            
+                                            <div class="w-16 h-16 rounded-2xl overflow-hidden mb-4 border border-slate-200 bg-white">
+                                                <img src="<%= winner.profileImage || '/lot1.png' %>" class="w-full h-full object-cover">
+                                            </div>
+                                            
+                                            <h4 class="font-black text-slate-900"><%= winner.shopName || winner.username %></h4>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4"><%= winner.city %></p>
+                                            
+                                            <div class="w-full bg-white border border-slate-100 rounded-2xl py-3 px-4 flex justify-between items-center mt-auto">
+                                                <div class="text-left">
+                                                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 text-slate-400">Score</p>
+                                                    <p class="text-[10px] font-black text-slate-900"><%= (winner.coins || 0).toLocaleString() %></p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1 text-slate-400">Contact</p>
+                                                    <p class="text-[10px] font-black text-primary"><%= winner.mobileNumber %></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <div class="bg-white rounded-[3rem] p-20 text-center border border-dashed border-slate-300">
+                        <i class="fas fa-folder-open text-6xl text-slate-200 mb-6 block"></i>
+                        <h3 class="text-xl font-bold text-slate-400">No Archives Found Yet</h3>
+                        <p class="text-sm text-slate-300 mt-2">Archives will appear here after the first monthly reset.</p>
+                    </div>
+                <% } %>
+            </div>
         </main>
     </div>
 
@@ -1000,6 +1071,19 @@
 
             // Save active tab
             localStorage.setItem('adminActiveTab', sectionId);
+        }
+
+        function filterHOF() {
+            const query = document.getElementById('hofSearch').value.toLowerCase();
+            const snapshots = document.querySelectorAll('.hof-snapshot');
+            snapshots.forEach(s => {
+                const month = s.getAttribute('data-month').toLowerCase();
+                if (month.includes(query)) {
+                    s.style.display = 'block';
+                } else {
+                    s.style.display = 'none';
+                }
+            });
         }
 
         // Persistent Tab Logic & Chart Initialization

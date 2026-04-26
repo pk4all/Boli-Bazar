@@ -433,11 +433,15 @@ app.get('/admin', async (req, res) => {
         // Unique categories for the launch form
         const categories = [...new Set(auctions.map(a => a.category))].filter(Boolean);
 
+        // Historical Hall of Fame Snapshots
+        const hallOfFameSnapshots = await LeaderboardSnapshot.find().sort({ createdAt: -1 }).lean();
+
         res.render('admin', {
             auctions, users, banners, rewards, orders,
             totalRevenue, todayRevenue, pendingCod,
             retailerCount, liveProductsCount, upcomingProductsCount,
             weekLabels, weekData, categories,
+            hallOfFameSnapshots,
             startDate: startDate || '',
             endDate: endDate || ''
         });
