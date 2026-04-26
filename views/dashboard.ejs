@@ -341,34 +341,55 @@
             <div class="lg:col-span-8 space-y-10">
                 
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
-                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-primary mb-3 shadow-sm">
-                            <i class="fas fa-hammer text-xs"></i>
-                        </div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Bids</p>
-                        <p class="text-xl font-black text-secondary"><%= user.bids.length %></p>
-                    </div>
+
+                    <%
+                        // Compute unique stats not shown elsewhere
+                        const totalUnits = orders.reduce((sum, o) => sum + (o.quantity || 0), 0);
+                        const avgDeal = orders.length > 0 ? Math.round(financials.totalPurchased / orders.length) : 0;
+                        const deliveredCount = orders.filter(o => o.status === 'Delivered').length;
+                        const pendingCount = orders.length - deliveredCount;
+                    %>
+
+                    <!-- Card 1: Won Lots -->
                     <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-green-400/20 transition-all stat-card">
                         <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-500 mb-3 shadow-sm">
                             <i class="fas fa-box text-xs"></i>
                         </div>
                         <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Won Lots</p>
                         <p class="text-xl font-black text-secondary"><%= orders.length %></p>
+                        <p class="text-[9px] text-gray-400 font-bold mt-0.5">Successful Auctions</p>
                     </div>
+
+                    <!-- Card 2: Total Units Won (sum of all quantities) -->
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-indigo-400/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500 mb-3 shadow-sm">
+                            <i class="fas fa-cubes text-xs"></i>
+                        </div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Units</p>
+                        <p class="text-xl font-black text-secondary"><%= totalUnits.toLocaleString() %></p>
+                        <p class="text-[9px] text-gray-400 font-bold mt-0.5">Units Won Across All Lots</p>
+                    </div>
+
+                    <!-- Card 3: Avg Deal Size (total order value / number of orders) -->
                     <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-blue-400/20 transition-all stat-card">
                         <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 mb-3 shadow-sm">
-                            <i class="fas fa-hand-holding-heart text-xs"></i>
+                            <i class="fas fa-chart-bar text-xs"></i>
                         </div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Savings</p>
-                        <p class="text-xl font-black text-secondary">~25% Extra</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Avg Deal Size</p>
+                        <p class="text-xl font-black text-secondary">₹<%= avgDeal.toLocaleString() %></p>
+                        <p class="text-[9px] text-gray-400 font-bold mt-0.5">Per Order Average</p>
                     </div>
-                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-primary/20 transition-all stat-card">
-                        <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 mb-3 shadow-sm">
-                            <i class="fas fa-shield-heart text-xs"></i>
+
+                    <!-- Card 4: Delivery Status -->
+                    <div class="glass-card p-6 rounded-[2rem] border border-gray-100/50 hover:border-emerald-400/20 transition-all stat-card">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-3 shadow-sm">
+                            <i class="fas fa-truck text-xs"></i>
                         </div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Trust Score</p>
-                        <p class="text-xl font-black text-secondary">9.8/10</p>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Delivered</p>
+                        <p class="text-xl font-black text-secondary"><%= deliveredCount %><span class="text-sm text-gray-400 font-bold">/<%= orders.length %></span></p>
+                        <p class="text-[9px] <%= pendingCount > 0 ? 'text-orange-400' : 'text-emerald-400' %> font-bold mt-0.5"><%= pendingCount > 0 ? pendingCount + ' Pending Dispatch' : 'All Delivered ✓' %></p>
                     </div>
+
                 </div>
 
                 <!-- Financial Statement Summary -->
