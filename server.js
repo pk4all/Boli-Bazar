@@ -96,7 +96,6 @@ app.post('/api/checkout/:id', async (req, res) => {
         const finalPayable = totalValue + fee;
 
         user.walletBalance = (user.walletBalance || 0) + finalPayable;
-        user.monthlyCoins = (user.monthlyCoins || 0) + finalPayable;
         if (!user.wonAuctions) user.wonAuctions = [];
         if (!user.wonAuctions.includes(auction._id)) user.wonAuctions.push(auction._id);
 
@@ -166,7 +165,7 @@ async function runMonthlyReset() {
 
         // 1. Get Top 3 Winners with their data
         const topRetailers = await User.find({ role: 'retailer' })
-            .sort({ monthlyCoins: -1, createdAt: 1 })
+            .sort({ walletBalance: -1, createdAt: 1 })
             .limit(3)
             .lean();
 
@@ -176,7 +175,7 @@ async function runMonthlyReset() {
                 username: u.username,
                 shopName: u.shopName,
                 city: u.city,
-                coins: u.monthlyCoins,
+                coins: u.walletBalance,
                 profileImage: u.profileImage,
                 mobileNumber: u.phone
             }));
@@ -191,9 +190,9 @@ async function runMonthlyReset() {
             console.log(`[LEADERBOARD-RESET] Snapshot saved for ${lastMonthName}`);
         }
 
-        // 3. Reset all monthlyCoins to 0
-        await User.updateMany({ role: 'retailer' }, { $set: { monthlyCoins: 0 } });
-        console.log('[LEADERBOARD-RESET] All retailer monthlyCoins reset to 0');
+        // 3. Reset all walletBalance to 0 (Full Reset as requested)
+        await User.updateMany({ role: 'retailer' }, { $set: { walletBalance: 0 } });
+        console.log('[LEADERBOARD-RESET] All retailer balances reset to 0 for the new month');
     } catch (err) {
         console.error('[LEADERBOARD-RESET] CRITICAL ERROR:', err);
     }
@@ -244,10 +243,10 @@ app.get('/', async (req, res) => {
             endTime: { $gt: now }
         }).sort({ totalBuyers: -1 }).limit(5).lean();
 
-        // Fetch real leaderboard data using monthlyCoins
+        // Fetch real leaderboard data using walletBalance (Sync with Dashboard)
         const leaderboard = await User.find({ role: 'retailer' })
-            .sort({ monthlyCoins: -1, createdAt: 1 })
-            .select('username shopName city monthlyCoins profileImage')
+            .sort({ walletBalance: -1, createdAt: 1 })
+            .select('username shopName city walletBalance profileImage')
             .limit(10)
             .lean();
 
