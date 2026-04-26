@@ -76,8 +76,8 @@
                         <p class="text-xs text-gray-400 mt-1">Lot ID: <%= order.auction ? order.auction._id.toString().slice(-6).toUpperCase() : 'N/A' %></p>
                     </td>
                     <td class="text-center font-bold text-gray-700"><%= order.quantity %></td>
-                    <td class="text-right font-bold text-gray-700">₹<%= (order.totalAmount/order.quantity).toLocaleString() %></td>
-                    <td class="text-right font-black text-gray-800">₹<%= order.totalAmount.toLocaleString() %></td>
+                    <td class="text-right font-bold text-gray-700">₹<%= Math.round(order.totalAmount/order.quantity).toLocaleString() %></td>
+                    <td class="text-right font-black text-gray-800">₹<%= Math.round(order.totalAmount).toLocaleString() %></td>
                 </tr>
             </tbody>
         </table>
@@ -86,27 +86,27 @@
             <div class="w-64 space-y-3">
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-400 font-bold">Subtotal:</span>
-                    <span class="font-bold text-gray-800">₹<%= order.totalAmount.toLocaleString() %></span>
+                    <span class="font-bold text-gray-800">₹<%= Math.round(order.totalAmount).toLocaleString() %></span>
                 </div>
                 <% if(order.paymentMode === 'cod') { %>
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-400 font-bold">COD Carry Fee (10%):</span>
-                    <span class="font-bold text-gray-800">₹<%= (order.totalAmount * 0.1).toLocaleString() %></span>
+                    <span class="font-bold text-gray-800">₹<%= Math.round(order.totalAmount * 0.1).toLocaleString() %></span>
                 </div>
                 <% } %>
                 <div class="flex justify-between text-lg border-t pt-3 border-gray-100">
                     <span class="font-black text-gray-800">Total Due:</span>
-                    <span class="font-black text-red-600">₹<%= (order.totalAmount + (order.paymentMode === 'cod' ? order.totalAmount * 0.1 : 0)).toLocaleString() %></span>
+                    <span class="font-black text-red-600">₹<%= Math.round(order.totalAmount + (order.paymentMode === 'cod' ? order.totalAmount * 0.1 : 0)).toLocaleString() %></span>
                 </div>
                 <div class="flex justify-between text-sm bg-green-50 p-2 rounded-lg mt-4">
                     <span class="text-green-600 font-black uppercase text-[10px]">Total Paid:</span>
-                    <span class="font-black text-green-700">₹<%= (order.paidAmount || 0).toLocaleString() %></span>
+                    <span class="font-black text-green-700">₹<%= Math.round(order.paidAmount || 0).toLocaleString() %></span>
                 </div>
 
                 <% if(order.paymentMode === 'cod' && (order.totalAmount + (order.totalAmount * 0.1) - (order.paidAmount || 0)) > 0) { %>
                     <div class="bg-red-600 text-white p-4 rounded-2xl mt-6 shadow-xl shadow-red-100">
                         <p class="text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">Collective Amount</p>
-                        <p class="text-2xl font-black italic">₹<%= (order.totalAmount + (order.totalAmount * 0.1) - (order.paidAmount || 0)).toLocaleString() %></p>
+                        <p class="text-2xl font-black italic">₹<%= Math.round(order.totalAmount + (order.totalAmount * 0.1) - (order.paidAmount || 0)).toLocaleString() %></p>
                         <p class="text-[8px] font-bold mt-1 uppercase tracking-tighter">Amount to be collected on delivery</p>
                     </div>
                 <% } %>

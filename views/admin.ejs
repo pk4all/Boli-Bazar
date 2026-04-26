@@ -639,13 +639,13 @@
                     
                     if (orders && orders.length > 0) {
                         orders.forEach(order => {
-                            const sub = order.totalAmount;
-                            const f = (order.paymentMode === 'cod') ? (sub * 0.1) : 0;
-                            const val = sub + f;
+                            const sub = Math.round(order.totalAmount);
+                            const f = (order.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                            const val = Math.round(sub + f);
                             
                             // SUM ALL PAYMENTS
-                            const paid = (order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
-                            const bal = Math.max(0, val - paid);
+                            const paid = Math.round((order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0));
+                            const bal = Math.round(Math.max(0, val - paid));
                             
                             filteredOrderValue += val;
                             filteredReceived += paid;
@@ -773,12 +773,12 @@
                             <tbody class="divide-y divide-slate-100">
                                 <% if (orders && orders.length > 0) { %>
                                     <% orders.forEach(order => { 
-                                        const subtotal = order.totalAmount;
-                                        const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
-                                        const orderValue = subtotal + fee;
-                                        const paidNowTotal = (order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
-                                        const balance = orderValue - paidNowTotal;
-                                        const isFullyPaid = paidNowTotal >= (orderValue - 0.01); // Handle float precision
+                                        const subtotal = Math.round(order.totalAmount);
+                                        const fee = (order.paymentMode === 'cod') ? Math.round(subtotal * 0.1) : 0;
+                                        const orderValue = Math.round(subtotal + fee);
+                                        const paidNowTotal = Math.round((order.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0));
+                                        const balance = Math.round(orderValue - paidNowTotal);
+                                        const isFullyPaid = paidNowTotal >= (orderValue - 1); 
                                     %>
                                         <tr class="hover:bg-slate-50 transition border-b border-slate-50">
                                             <td class="p-6">

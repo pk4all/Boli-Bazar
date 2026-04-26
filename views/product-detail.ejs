@@ -819,13 +819,13 @@
 
         function calculateTotal() {
             const qty = parseInt(document.getElementById('bidQty').value) || 0;
-            const subtotal = qty * currentPrice;
-            const advance = subtotal * 0.1;
-            const balance = subtotal * 0.9;
-            const fee = paymentMode === 'cod' ? subtotal * 0.1 : 0;
+            const subtotal = Math.round(qty * currentPrice);
+            const advance = Math.round(subtotal * 0.1);
+            const balance = Math.round(subtotal * 0.9);
+            const fee = paymentMode === 'cod' ? Math.round(subtotal * 0.1) : 0;
             
             // USER'S LOGIC: 10% Advance for COD, 100% for Full Payment
-            const payableNow = paymentMode === 'cod' ? advance : subtotal;
+            const payableNow = Math.round(paymentMode === 'cod' ? advance : subtotal);
 
             document.getElementById('display-qty').textContent = qty;
             document.getElementById('display-subtotal').textContent = `₹${subtotal.toLocaleString()}`;

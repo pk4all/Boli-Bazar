@@ -91,11 +91,11 @@ app.post('/api/checkout/:id', async (req, res) => {
             });
         }
 
-        const totalValue = buyQty * (auction.currentBid || auction.initialPrice);
-        const fee = paymentMode === 'cod' ? totalValue * 0.1 : 0;
-        const finalPayable = totalValue + fee;
+        const totalValue = Math.round(buyQty * (auction.currentBid || auction.initialPrice));
+        const fee = paymentMode === 'cod' ? Math.round(totalValue * 0.1) : 0;
+        const finalPayable = Math.round(totalValue + fee);
 
-        user.walletBalance = (user.walletBalance || 0) + finalPayable;
+        user.walletBalance = Math.round((user.walletBalance || 0) + finalPayable);
         if (!user.wonAuctions) user.wonAuctions = [];
         if (!user.wonAuctions.includes(auction._id)) user.wonAuctions.push(auction._id);
 
@@ -110,7 +110,7 @@ app.post('/api/checkout/:id', async (req, res) => {
         if (auction.hikePercentage > 0) {
             const cp = auction.currentBid || auction.initialPrice;
             const hike = cp * (auction.hikePercentage / 100);
-            auction.currentBid = Math.round((cp + hike) * 100) / 100;
+            auction.currentBid = Math.round(cp + hike);
         }
 
         await user.save();
@@ -383,25 +383,25 @@ app.get('/admin', async (req, res) => {
         todayStart.setHours(0, 0, 0, 0);
 
         // Total Received (Lifetime)
-        const totalRevenue = allOrders.reduce((sum, order) => {
+        const totalRevenue = Math.round(allOrders.reduce((sum, order) => {
             return sum + (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
-        }, 0);
+        }, 0));
 
         // Today's Collection
-        const todayRevenue = allOrders.reduce((sum, order) => {
+        const todayRevenue = Math.round(allOrders.reduce((sum, order) => {
             const todayPayments = (order.paymentHistory || []).filter(p => new Date(p.date) >= todayStart);
             return sum + todayPayments.reduce((pSum, p) => pSum + p.amount, 0);
-        }, 0);
+        }, 0));
 
         // Total Outstanding COD (Balance yet to be collected)
-        const pendingCod = allOrders.reduce((sum, order) => {
+        const pendingCod = Math.round(allOrders.reduce((sum, order) => {
             const subtotal = order.totalAmount;
             const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
             const orderValue = subtotal + fee;
             const paidNowTotal = (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
             const remaining = orderValue - paidNowTotal;
             return sum + (remaining > 0 ? remaining : 0);
-        }, 0);
+        }, 0));
 
         // NEW: Operational Metrics
         const retailerCount = await User.countDocuments({ role: 'retailer' });
@@ -696,10 +696,10 @@ app.get('/dashboard', async (req, res) => {
         let totalPurchased = 0;
         let totalPaid = 0;
         userOrders.forEach(o => {
-            const sub = o.totalAmount;
-            const fee = (o.paymentMode === 'cod') ? (sub * 0.1) : 0;
-            totalPurchased += (sub + fee);
-            totalPaid += (o.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0);
+            const sub = Math.round(o.totalAmount || 0);
+            const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+            totalPurchased += Math.round(sub + fee);
+            totalPaid += Math.round((o.paymentHistory || []).reduce((sum, p) => sum + p.amount, 0));
         });
 
         // --- SHARED RANKING LOGIC ---
@@ -713,8 +713,8 @@ app.get('/dashboard', async (req, res) => {
 
         // Path to Top 3
         const top3 = allRetailers.slice(0, 3);
-        const top3Balance = (top3.length >= 3) ? top3[2].walletBalance : (top3.length > 0 ? top3[0].walletBalance : 10000);
-        const gapToTop3 = (rank > 3) ? Math.max(0, top3Balance - user.walletBalance + 1) : 0;
+        const top3Balance = (top3.length >= 3) ? (top3[2].walletBalance || 0) : (top3.length > 0 ? top3[0].walletBalance : 10000);
+        const gapToTop3 = (rank > 3) ? Math.round(Math.max(0, top3Balance - (user.walletBalance || 0) + 1)) : 0;
 
         res.render('dashboard', {
             user,
@@ -857,9 +857,9 @@ app.post('/api/admin/orders/:id/confirm-payment', async (req, res) => {
         const order = await Order.findById(req.params.id);
         if (!order) return res.status(404).json({ error: 'Order not found' });
 
-        const subtotal = order.totalAmount;
-        const totalValue = subtotal + (order.paymentMode === 'cod' ? subtotal * 0.1 : 0);
-        const balance = totalValue - order.paidAmount;
+        const subtotal = Math.round(order.totalAmount);
+        const totalValue = Math.round(subtotal + (order.paymentMode === 'cod' ? subtotal * 0.1 : 0));
+        const balance = Math.round(totalValue - order.paidAmount);
 
         if (balance > 0) {
             order.paidAmount = totalValue;
