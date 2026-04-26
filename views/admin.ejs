@@ -71,6 +71,10 @@
                     <i class="fas fa-history w-5"></i>
                     <span>Hall of Fame Archive</span>
                 </button>
+                <button onclick="showSection('manufacturerRequests')" class="sidebar-link w-full flex items-center space-x-3 p-3 text-slate-400 hover:bg-white/5 rounded-xl text-sm font-bold transition">
+                    <i class="fas fa-industry w-5"></i>
+                    <span>Vendor Requests</span>
+                </button>
             </nav>
             <div class="p-6 border-t border-white/5">
                 <a href="/logout" class="text-xs font-bold text-red-500 uppercase flex items-center space-x-2">
@@ -1036,6 +1040,75 @@
                     </div>
                 <% } %>
             </div>
+
+            <!-- MANUFACTURER REQUESTS SECTION -->
+            <div id="manufacturerRequests" class="admin-section p-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                    <h1 class="text-3xl font-black">Vendor <span class="text-red-600">Requests</span></h1>
+                    <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                        <i class="fas fa-industry text-slate-400"></i>
+                        <p class="text-xs font-black uppercase text-slate-400 tracking-widest">Total Entries: <%= (typeof manufacturerRequests !== 'undefined' ? manufacturerRequests.length : 0) %></p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-100">
+                                    <th class="text-left p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Company & Contact</th>
+                                    <th class="text-left p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Location</th>
+                                    <th class="text-left p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Product Categories</th>
+                                    <th class="text-left p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Date</th>
+                                    <th class="text-left p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Status</th>
+                                    <th class="text-right p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <% (typeof manufacturerRequests !== 'undefined' ? manufacturerRequests : []).forEach(mfgRequest => { %>
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="p-6">
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-black text-slate-800"><%= mfgRequest.companyName %></span>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase mt-0.5"><%= mfgRequest.contactPerson %> • <%= mfgRequest.phone %></span>
+                                                <span class="text-[10px] font-bold text-primary lowercase mt-0.5"><%= mfgRequest.email %></span>
+                                            </div>
+                                        </td>
+                                        <td class="p-6">
+                                            <span class="text-xs font-bold text-slate-600 uppercase"><%= mfgRequest.city %>, <%= mfgRequest.state %></span>
+                                        </td>
+                                        <td class="p-6">
+                                            <span class="text-[10px] font-black text-blue-500 uppercase bg-blue-50 px-2.5 py-1 rounded-lg">
+                                                <%= mfgRequest.categories ? (mfgRequest.categories.length > 20 ? mfgRequest.categories.substring(0, 20) + '...' : mfgRequest.categories) : 'N/A' %>
+                                            </span>
+                                        </td>
+                                        <td class="p-6 text-xs text-slate-400 font-bold">
+                                            <%= new Date(mfgRequest.createdAt).toLocaleDateString('en-IN') %>
+                                        </td>
+                                        <td class="p-6">
+                                            <% let colorClass = 'bg-yellow-50 text-yellow-600'; 
+                                               if(mfgRequest.status === 'Contacted') colorClass = 'bg-blue-50 text-blue-600';
+                                               if(mfgRequest.status === 'Approved') colorClass = 'bg-green-50 text-green-600';
+                                               if(mfgRequest.status === 'Rejected') colorClass = 'bg-red-50 text-red-600';
+                                            %>
+                                            <span class="text-[10px] font-black uppercase px-2 py-1 rounded-lg <%= colorClass %>">
+                                                <%= mfgRequest.status %>
+                                            </span>
+                                        </td>
+                                        <td class="p-6 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Contacted')" class="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg transition" title="Mark as Contacted"><i class="fas fa-phone"></i></button>
+                                                <button onclick="updateMfgStatus('<%= mfgRequest._id %>', 'Approved')" class="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-lg transition" title="Approve Request"><i class="fas fa-check"></i></button>
+                                                <button onclick="viewMfgDetails('<%= (mfgRequest.message || 'No additional message').replace(/'/g, '').replace(/\n/g, ' ') %>', '<%= mfgRequest.gstNumber || 'N/A' %>')" class="text-slate-400 hover:text-slate-600 bg-slate-50 p-2 rounded-lg transition" title="View Details"><i class="fas fa-info-circle"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -1346,6 +1419,25 @@
             link.href = URL.createObjectURL(blob);
             link.download = `Retailers_Full_Network_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
+        }
+        function viewMfgDetails(msg, gst) {
+            alert("Message: " + msg + "\n\nGST: " + gst);
+        }
+
+        async function updateMfgStatus(id, status) {
+            try {
+                const res = await fetch(`/admin/manufacturer-requests/${id}/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                if (res.ok) {
+                    alert('Status updated successfully!');
+                    location.reload();
+                }
+            } catch (err) {
+                alert('Error updating status: ' + err.message);
+            }
         }
     </script>
 </body>

@@ -13,6 +13,7 @@ const Banner = require('./models/Banner');
 const Order = require('./models/Order');
 const Reward = require('./models/Reward');
 const LeaderboardSnapshot = require('./models/LeaderboardSnapshot');
+const ManufacturerRequest = require('./models/ManufacturerRequest');
 const cron = require('node-cron');
 
 const app = express();
@@ -464,12 +465,16 @@ app.get('/admin', async (req, res) => {
         // Historical Hall of Fame Snapshots
         const hallOfFameSnapshots = await LeaderboardSnapshot.find().sort({ createdAt: -1 }).lean();
 
+        // Fetch Manufacturer Requests
+        const manufacturerRequests = await ManufacturerRequest.find().sort({ createdAt: -1 });
+
         res.render('admin', {
             auctions, users, banners, rewards, orders,
             totalRevenue, todayRevenue, pendingCod,
             retailerCount, liveProductsCount, upcomingProductsCount,
             weekLabels: chartLabels, weekData: chartTotalData, categories,
             hallOfFameSnapshots,
+            manufacturerRequests,
             startDate: startDate || '',
             endDate: endDate || '',
             currentPage: page,
@@ -684,6 +689,44 @@ app.get('/admin/retailer/:id', async (req, res) => {
 // --- AUTH ROUTES ---
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));
+
+// --- MANUFACTURER REGISTRATION ROUTES ---
+app.get('/manufacturer-register', (req, res) => {
+    res.render('manufacturer-register', { success: false });
+});
+
+app.post('/manufacturer-register', async (req, res) => {
+    try {
+        const { companyName, contactPerson, email, phone, categories, city, state, gstNumber, message } = req.body;
+        await ManufacturerRequest.create({
+            companyName,
+            contactPerson,
+            email,
+            phone,
+            categories,
+            city,
+            state,
+            gstNumber,
+            message
+        });
+        res.render('manufacturer-register', { success: true });
+    } catch (err) {
+        console.error('[MANUFACTURER-REG-ERROR]', err);
+        res.status(500).send('Registration Error: ' + err.message);
+    }
+});
+
+// Admin Route for updating status (Optional but good for completeness)
+app.post('/admin/manufacturer-requests/:id/status', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(403).json({ error: 'Access denied' });
+    try {
+        const { status } = req.body;
+        await ManufacturerRequest.findByIdAndUpdate(req.params.id, { status });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
