@@ -14,6 +14,8 @@ const Order = require('./models/Order');
 const Reward = require('./models/Reward');
 const LeaderboardSnapshot = require('./models/LeaderboardSnapshot');
 const ManufacturerRequest = require('./models/ManufacturerRequest');
+const ExecutiveSnapshot = require('./models/ExecutiveSnapshot');
+const ExecutivePayout = require('./models/ExecutivePayout');
 const cron = require('node-cron');
 
 const app = express();
@@ -162,7 +164,27 @@ async function runMonthlyReset() {
     try {
         const now = new Date();
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const lastMonthName = monthNames[now.getMonth()] + " " + now.getFullYear();
+        
+        let targetMonthIndex = now.getMonth();
+        let targetYear = now.getFullYear();
+        
+        // If it runs on the 1st to 5th of the month, we are closing the PREVIOUS month.
+        if (now.getDate() <= 5) {
+            targetMonthIndex -= 1;
+            if (targetMonthIndex < 0) {
+                targetMonthIndex = 11;
+                targetYear -= 1;
+            }
+        }
+        
+        const targetMonthName = monthNames[targetMonthIndex] + " " + targetYear;
+
+        // Check if we already did the reset for this month
+        const existing = await LeaderboardSnapshot.findOne({ month: targetMonthName });
+        if (existing) {
+            console.log(`[LEADERBOARD-RESET] Snapshot for ${targetMonthName} already exists. Skipping reset to avoid duplication.`);
+            return;
+        }
 
         // 1. Get Top 3 Winners with their data
         const topRetailers = await User.find({ role: 'retailer' })
@@ -183,24 +205,74 @@ async function runMonthlyReset() {
 
             // 2. Save Snapshot
             const snapshot = new LeaderboardSnapshot({
-                month: lastMonthName,
-                year: now.getFullYear(),
+                month: targetMonthName,
+                year: targetYear,
                 winners: winners
             });
             await snapshot.save();
-            console.log(`[LEADERBOARD-RESET] Snapshot saved for ${lastMonthName}`);
+            console.log(`[LEADERBOARD-RESET] Snapshot saved for ${targetMonthName}`);
         }
 
         // 3. Reset all walletBalance to 0 (Full Reset as requested)
         await User.updateMany({ role: 'retailer' }, { $set: { walletBalance: 0 } });
         console.log('[LEADERBOARD-RESET] All retailer balances reset to 0 for the new month');
+
+        // 4. Save Executive Performance Snapshots
+        const executives = await User.find({ role: 'sales_executive' });
+        for (const exec of executives) {
+            // Find retailers linked to this executive
+            const retailers = await User.find({ linkedExecutive: exec._id, role: 'retailer' });
+            const retailerIds = retailers.map(r => r._id);
+
+            // Filter orders for the target month
+            const startOfMonth = new Date(targetYear, targetMonthIndex, 1);
+            const endOfMonth = new Date(targetYear, targetMonthIndex + 1, 0, 23, 59, 59);
+
+            const orders = await Order.find({ 
+                user: { $in: retailerIds },
+                createdAt: { $gte: startOfMonth, $lte: endOfMonth }
+            }).lean();
+
+            let execTotalSales = 0;
+            const retailerPerf = retailers.map(r => {
+                const rOrders = orders.filter(o => o.user.toString() === r._id.toString());
+                let rSales = 0;
+                rOrders.forEach(o => {
+                    const sub = Math.round(o.totalAmount || 0);
+                    const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                    rSales += (sub + fee);
+                });
+                execTotalSales += rSales;
+                return {
+                    retailerId: r._id,
+                    username: r.username,
+                    shopName: r.shopName,
+                    phone: r.phone,
+                    sales: rSales,
+                    commission: Math.round(rSales * 0.03)
+                };
+            });
+
+            const execSnapshot = new ExecutiveSnapshot({
+                executiveId: exec._id,
+                month: targetMonthName,
+                year: targetYear,
+                totalSales: execTotalSales,
+                totalCommission: Math.round(execTotalSales * 0.03),
+                retailerCount: retailers.length,
+                retailerPerformance: retailerPerf.sort((a, b) => b.sales - a.sales) // Rank top performers
+            });
+
+            await execSnapshot.save();
+            console.log(`[LEADERBOARD-RESET] Snapshot saved for Executive: ${exec.username}`);
+        }
     } catch (err) {
         console.error('[LEADERBOARD-RESET] CRITICAL ERROR:', err);
     }
 }
 
-// Schedule Reset: 11:59 PM on the last day of the month
-cron.schedule('59 23 28-31 * *', async () => {
+// Schedule Reset: 11:55 PM (23:55) on the last day of the month
+cron.schedule('55 23 28-31 * *', async () => {
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
@@ -209,6 +281,14 @@ cron.schedule('59 23 28-31 * *', async () => {
         await runMonthlyReset();
     }
 });
+
+// Startup Safety Check: If the server was off during the midnight reset, do it now.
+setTimeout(async () => {
+    const today = new Date();
+    if (today.getDate() <= 3) {
+        await runMonthlyReset();
+    }
+}, 5000);
 
 // --- SAMPLE DATA FOR HALL OF FAME (Auto-Seed) ---
 (async () => {
@@ -392,21 +472,18 @@ app.get('/admin', async (req, res) => {
         // Financial Metrics Calculations (Source of Truth: paymentHistory)
         const allOrders = await Order.find();
 
-        const todayStart = new Date();
-        todayStart.setHours(0, 0, 0, 0);
-
-        // Total Received (Lifetime)
+        // 1. Calculate Summary Stats for current view
         const totalRevenue = Math.round(allOrders.reduce((sum, order) => {
             return sum + (order.paymentHistory || []).reduce((pSum, p) => pSum + p.amount, 0);
         }, 0));
 
-        // Today's Collection
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
         const todayRevenue = Math.round(allOrders.reduce((sum, order) => {
             const todayPayments = (order.paymentHistory || []).filter(p => new Date(p.date) >= todayStart);
             return sum + todayPayments.reduce((pSum, p) => pSum + p.amount, 0);
         }, 0));
 
-        // Total Outstanding COD (Balance yet to be collected)
         const pendingCod = Math.round(allOrders.reduce((sum, order) => {
             const subtotal = order.totalAmount;
             const fee = (order.paymentMode === 'cod') ? (subtotal * 0.1) : 0;
@@ -415,6 +492,49 @@ app.get('/admin', async (req, res) => {
             const remaining = orderValue - paidNowTotal;
             return sum + (remaining > 0 ? remaining : 0);
         }, 0));
+
+        // 2. NEW: Month-wise & Date-range detailed reports
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthlyStatsMap = {};
+
+        allOrders.forEach(o => {
+            const sub = o.totalAmount;
+            const fee = (o.paymentMode === 'cod') ? (sub * 0.1) : 0;
+            const totalOrderValue = Math.round(sub + fee);
+            
+            // Total Paid vs COD Balance
+            const totalPaid = Math.round((o.paymentHistory || []).reduce((s, p) => s + p.amount, 0));
+            const balance = Math.round(totalOrderValue - totalPaid);
+
+            // Month-wise Aggregation (Based on Order Creation Date)
+            const oDate = new Date(o.createdAt);
+            const monthKey = `${monthNames[oDate.getMonth()]} ${oDate.getFullYear()}`;
+            
+            if (!monthlyStatsMap[monthKey]) {
+                monthlyStatsMap[monthKey] = { sales: 0, collected: 0, codBalance: 0 };
+            }
+            monthlyStatsMap[monthKey].sales += totalOrderValue;
+            monthlyStatsMap[monthKey].collected += totalPaid;
+            monthlyStatsMap[monthKey].codBalance += (balance > 0 ? balance : 0);
+        });
+
+        const monthlyReports = Object.keys(monthlyStatsMap).map(m => ({
+            month: m,
+            ...monthlyStatsMap[m]
+        })).reverse(); // Latest months first
+
+        // Filtered Report (Based on selected date range)
+        let filteredStats = { sales: 0, collected: 0, codBalance: 0 };
+        const filteredOrders = await Order.find(query); // 'query' is already defined with date filter
+        filteredOrders.forEach(o => {
+            const sub = o.totalAmount;
+            const fee = (o.paymentMode === 'cod') ? (sub * 0.1) : 0;
+            const totalVal = Math.round(sub + fee);
+            const paid = Math.round((o.paymentHistory || []).reduce((s, p) => s + p.amount, 0));
+            filteredStats.sales += totalVal;
+            filteredStats.collected += paid;
+            filteredStats.codBalance += Math.max(0, totalVal - paid);
+        });
 
         // NEW: Operational Metrics
         const retailerCount = await User.countDocuments({ role: 'retailer' });
@@ -465,8 +585,40 @@ app.get('/admin', async (req, res) => {
         // Historical Hall of Fame Snapshots
         const hallOfFameSnapshots = await LeaderboardSnapshot.find().sort({ createdAt: -1 }).lean();
 
-        // Fetch Manufacturer Requests
         const manufacturerRequests = await ManufacturerRequest.find().sort({ createdAt: -1 });
+
+        // Fetch Sales Executives and calculate their stats
+        const allSalesExecutives = await User.find({ role: 'sales_executive' }).lean();
+        const pendingExecutives = allSalesExecutives.filter(e => e.approvalStatus === 'Pending');
+        const salesExecutives = allSalesExecutives.filter(e => e.approvalStatus !== 'Pending');
+
+        for (let exec of salesExecutives) {
+            const linkedRetailers = await User.find({ linkedExecutive: exec._id });
+            exec.retailerCount = linkedRetailers.length;
+            
+            const retailerIds = linkedRetailers.map(r => r._id);
+            const execOrders = await Order.find({ user: { $in: retailerIds } });
+            
+            let totalOrderValue = 0;
+            let pendingOrderValue = 0;
+            
+            execOrders.forEach(o => {
+                const sub = Math.round(o.totalAmount || 0);
+                const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                const fullValue = sub + fee;
+                
+                totalOrderValue += fullValue;
+                
+                // Calculate pending if after last payout
+                if (!exec.lastPayoutDate || new Date(o.createdAt) > new Date(exec.lastPayoutDate)) {
+                    pendingOrderValue += fullValue;
+                }
+            });
+            
+            exec.totalSales = totalOrderValue;
+            exec.totalCommission = Math.round(totalOrderValue * 0.03);
+            exec.pendingCommission = Math.round(pendingOrderValue * 0.03);
+        }
 
         res.render('admin', {
             auctions, users, banners, rewards, orders,
@@ -475,11 +627,15 @@ app.get('/admin', async (req, res) => {
             weekLabels: chartLabels, weekData: chartTotalData, categories,
             hallOfFameSnapshots,
             manufacturerRequests,
+            salesExecutives,
+            pendingExecutives,
             startDate: startDate || '',
             endDate: endDate || '',
             currentPage: page,
             totalPages,
-            totalUsersCount
+            totalUsersCount,
+            monthlyReports,
+            filteredStats
         });
     } catch (err) {
         console.error('Admin Route Error:', err);
@@ -686,6 +842,213 @@ app.get('/admin/retailer/:id', async (req, res) => {
     }
 });
 
+// Admin: View Sales Executive Dashboard
+app.get('/admin/executive/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const executive = await User.findById(req.params.id).lean();
+        if (!executive || executive.role !== 'sales_executive') return res.redirect('/admin');
+
+        // Fetch retailers linked to this executive
+        const retailers = await User.find({ linkedExecutive: executive._id }).lean();
+        const retailerIds = retailers.map(r => r._id);
+
+        // Fetch current month's orders (to match Executive Dashboard view)
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const orders = await Order.find({ 
+            user: { $in: retailerIds },
+            createdAt: { $gte: startOfMonth }
+        }).populate('user').populate('auction').sort({ createdAt: -1 }).lean();
+
+        // Calculate Stats
+        let totalPurchases = 0;
+        const retailerPerformance = retailers.map(r => {
+            const rOrders = orders.filter(o => o.user && o.user._id.toString() === r._id.toString());
+            let rSales = 0;
+            rOrders.forEach(o => {
+                const sub = Math.round(o.totalAmount || 0);
+                const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                rSales += (sub + fee);
+            });
+            totalPurchases += rSales;
+            return {
+                ...r,
+                monthlySales: rSales,
+                monthlyCommission: Math.round(rSales * 0.03)
+            };
+        }).sort((a, b) => b.monthlySales - a.monthlySales);
+
+        // Calculate Pending Stats (all time since last payout)
+        const allExecOrders = await Order.find({ user: { $in: retailerIds } }).lean();
+        let totalAllTimePurchases = 0;
+        let pendingPurchases = 0;
+        
+        allExecOrders.forEach(o => {
+            const sub = Math.round(o.totalAmount || 0);
+            const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+            const fullVal = sub + fee;
+            totalAllTimePurchases += fullVal;
+            if (!executive.lastPayoutDate || new Date(o.createdAt) > new Date(executive.lastPayoutDate)) {
+                pendingPurchases += fullVal;
+            }
+        });
+
+        const pendingCommission = Math.round(pendingPurchases * 0.03);
+        const payoutHistory = await ExecutivePayout.find({ executiveId: executive._id }).sort({ payoutDate: -1 }).lean();
+
+        // Fetch historical reports (Snapshots)
+        const reports = await ExecutiveSnapshot.find({ executiveId: executive._id }).sort({ createdAt: -1 }).lean();
+
+        res.render('executive-dashboard', {
+            executive,
+            retailers: retailerPerformance,
+            orders,
+            totalPurchases,
+            totalCommission,
+            pendingCommission,
+            payoutHistory,
+            reports,
+            viewMode: 'admin'
+        });
+    } catch (err) {
+        console.error('Admin Executive View Error:', err);
+        res.redirect('/admin');
+    }
+});
+
+// Admin: Add Sales Executive
+app.post('/admin/add-executive', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const { username, email, phone, password, bankName, bankAccountNo, ifscCode } = req.body;
+        const executiveCode = 'SE' + Math.floor(1000 + Math.random() * 9000);
+        
+        const newExec = new User({
+            username,
+            email,
+            phone,
+            password,
+            bankName,
+            bankAccountNo,
+            ifscCode,
+            role: 'sales_executive',
+            executiveCode,
+            shopName: 'BoliBazar Sales',
+            address: 'Head Office',
+            city: 'HQ',
+            state: 'HQ',
+            pincode: '000000'
+        });
+        await newExec.save();
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error adding sales executive:', err);
+        res.redirect('/admin');
+    }
+});
+
+// Admin: Approve Sales Executive
+app.post('/admin/approve-executive/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        const executiveCode = 'SE' + Math.floor(1000 + Math.random() * 9000);
+        await User.findByIdAndUpdate(req.params.id, { 
+            approvalStatus: 'Approved', 
+            executiveCode 
+        });
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error approving executive:', err);
+        res.redirect('/admin');
+    }
+});
+
+// Admin: Reject Sales Executive
+app.post('/admin/reject-executive/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Error rejecting executive:', err);
+        res.redirect('/admin');
+    }
+});
+
+// Sales Executive Dashboard
+app.get('/executive', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'sales_executive') return res.redirect('/login');
+    try {
+        const executive = await User.findById(req.session.user.id);
+        if (executive.approvalStatus === 'Pending') {
+            return res.redirect('/pending-approval');
+        }
+        
+        // Fetch linked retailers
+        const retailers = await User.find({ linkedExecutive: executive._id }).lean();
+        const retailerIds = retailers.map(r => r._id);
+        
+        // Fetch current month's orders
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const orders = await Order.find({ 
+            user: { $in: retailerIds },
+            createdAt: { $gte: startOfMonth }
+        }).populate('user').populate('auction').sort({ createdAt: -1 }).lean();
+        
+        let totalPurchases = 0;
+        const retailerPerformance = retailers.map(r => {
+            const rOrders = orders.filter(o => o.user && o.user._id.toString() === r._id.toString());
+            let rSales = 0;
+            rOrders.forEach(o => {
+                const sub = Math.round(o.totalAmount || 0);
+                const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                rSales += (sub + fee);
+            });
+            totalPurchases += rSales;
+            return {
+                ...r,
+                monthlySales: rSales,
+                monthlyCommission: Math.round(rSales * 0.03)
+            };
+        }).sort((a, b) => b.monthlySales - a.monthlySales); // Top performer first
+        
+        const totalCommission = Math.round(totalPurchases * 0.03);
+
+        // Calculate Pending Stats (since last payout)
+        const allExecOrders = await Order.find({ user: { $in: retailerIds } }).lean();
+        let pendingPurchases = 0;
+        allExecOrders.forEach(o => {
+            const sub = Math.round(o.totalAmount || 0);
+            const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+            if (!executive.lastPayoutDate || new Date(o.createdAt) > new Date(executive.lastPayoutDate)) {
+                pendingPurchases += (sub + fee);
+            }
+        });
+
+        const pendingCommission = Math.round(pendingPurchases * 0.03);
+        const payoutHistory = await ExecutivePayout.find({ executiveId: executive._id }).sort({ payoutDate: -1 }).lean();
+
+        // Fetch historical reports
+        const reports = await ExecutiveSnapshot.find({ executiveId: executive._id }).sort({ createdAt: -1 }).lean();
+
+        res.render('executive-dashboard', {
+            executive,
+            retailers: retailerPerformance,
+            orders,
+            totalPurchases,
+            totalCommission,
+            pendingCommission,
+            payoutHistory,
+            reports
+        });
+    } catch (err) {
+        console.error('Executive Dashboard Error:', err);
+        res.redirect('/login');
+    }
+});
+
 // --- AUTH ROUTES ---
 app.get('/login', (req, res) => res.render('login', { error: null }));
 app.get('/register', (req, res) => res.render('register', { error: null }));
@@ -729,12 +1092,16 @@ app.post('/admin/manufacturer-requests/:id/status', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+    const { phone, password } = req.body;
     try {
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await User.findOne({ phone: phone.trim() });
         if (user && await user.comparePassword(password)) {
+            if (user.role === 'sales_executive' && user.approvalStatus === 'Pending') {
+                return res.redirect('/pending-approval');
+            }
             req.session.user = { id: user._id, username: user.username, role: user.role };
             if (user.role === 'admin') return res.redirect('/admin');
+            if (user.role === 'sales_executive') return res.redirect('/executive');
             return res.redirect('/auctions');
         }
         res.render('login', { error: 'Invalid credentials' });
@@ -745,13 +1112,87 @@ app.post('/login', async (req, res) => {
 
 app.post('/register', async (req, res) => {
     try {
-        const newUser = new User(req.body);
+        const { username, shopName, phone, email, address, city, state, pincode, password, executiveCode } = req.body;
+        
+        // Check for duplicate phone
+        const cleanPhone = phone.trim();
+        const existingUser = await User.findOne({ phone: cleanPhone });
+        if (existingUser) {
+            return res.render('register', { error: 'Mobile number already registered.' });
+        }
+
+        const newUser = new User({
+            username,
+            shopName,
+            phone: cleanPhone,
+            email,
+            address,
+            city,
+            state,
+            pincode,
+            password,
+            role: 'retailer'
+        });
+        
+        if (executiveCode && executiveCode.trim() !== '') {
+            const execUser = await User.findOne({ executiveCode: executiveCode.trim(), role: 'sales_executive' });
+            if (execUser) {
+                newUser.linkedExecutive = execUser._id;
+            }
+        }
+
         await newUser.save();
         req.session.user = { id: newUser._id, username: newUser.username, role: newUser.role };
         res.redirect('/auctions');
     } catch (err) {
-        res.render('register', { error: 'Registration failed' });
+        console.error('[REGISTRATION-ERROR]', err);
+        res.render('register', { error: 'Registration failed: ' + err.message });
     }
+});
+
+// --- SALES EXECUTIVE PUBLIC REGISTRATION ROUTES ---
+app.get('/executive-register', (req, res) => {
+    res.render('executive-register', { error: null });
+});
+
+app.post('/executive-register', upload.single('profileImage'), async (req, res) => {
+    try {
+        const { username, email, phone, password, address, city, state, pincode, bankName, bankAccountNo, ifscCode } = req.body;
+        const profileImage = req.file ? '/uploads/' + req.file.filename : null;
+
+        // Check for duplicate phone
+        const existingUser = await User.findOne({ phone: phone.trim() });
+        if (existingUser) {
+            return res.render('executive-register', { error: 'Mobile number already registered.' });
+        }
+
+        const newExec = new User({
+            username,
+            email,
+            phone,
+            password,
+            role: 'sales_executive',
+            approvalStatus: 'Pending',
+            shopName: 'BoliBazar Sales',
+            address,
+            city,
+            state,
+            pincode,
+            bankName,
+            bankAccountNo,
+            ifscCode,
+            profileImage
+        });
+        await newExec.save();
+        res.redirect('/pending-approval');
+    } catch (err) {
+        console.error('Registration Error:', err);
+        res.render('executive-register', { error: 'Registration failed: ' + err.message });
+    }
+});
+
+app.get('/pending-approval', (req, res) => {
+    res.render('pending-approval');
 });
 
 app.get('/dashboard', async (req, res) => {
@@ -962,6 +1403,54 @@ app.post('/api/admin/force-reset-leaderboard', async (req, res) => {
     }
 });
 
+// Admin: Process Executive Payout
+app.post('/api/admin/payout-executive/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const executive = await User.findById(req.params.id);
+        if (!executive || executive.role !== 'sales_executive') return res.status(404).json({ error: 'Executive not found' });
+
+        // Calculate pending commission again for safety
+        const retailers = await User.find({ linkedExecutive: executive._id });
+        const retailerIds = retailers.map(r => r._id);
+        const orders = await Order.find({ 
+            user: { $in: retailerIds }
+        });
+
+        let pendingPurchases = 0;
+        orders.forEach(o => {
+            if (!executive.lastPayoutDate || new Date(o.createdAt) > new Date(executive.lastPayoutDate)) {
+                const sub = Math.round(o.totalAmount || 0);
+                const fee = (o.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                pendingPurchases += (sub + fee);
+            }
+        });
+
+        const pendingCommission = Math.round(pendingPurchases * 0.03);
+
+        if (pendingCommission <= 0) {
+            return res.status(400).json({ error: 'No pending commission to pay.' });
+        }
+
+        // Create Payout Record
+        const payout = new ExecutivePayout({
+            executiveId: executive._id,
+            amount: pendingCommission,
+            transactionId: 'PAY-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            periodEnd: new Date()
+        });
+        await payout.save();
+
+        // Update Executive Last Payout Date
+        executive.lastPayoutDate = new Date();
+        await executive.save();
+
+        res.json({ success: true, message: `Payout of ₹${pendingCommission.toLocaleString()} processed successfully.` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Invoice Route
 app.get('/admin/invoice/:id', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'admin') return res.redirect('/login');
@@ -973,6 +1462,7 @@ app.get('/admin/invoice/:id', async (req, res) => {
         res.status(500).send(err.message);
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

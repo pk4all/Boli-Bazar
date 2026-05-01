@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Executive Dashboard | Boli Bazar</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#d90429',
+                        secondary: '#001f3f',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .tab-btn.active {
+            background: #001f3f;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0,31,63,0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <!-- Top Navigation -->
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-2xl font-black uppercase tracking-tighter">Boli<span class="text-primary">Bazar</span></a>
+                <span class="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest">Executive Portal</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <% if (locals.viewMode === 'admin') { %>
+                    <a href="/admin" class="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> Back to Admin
+                    </a>
+                    <div class="h-6 w-[1px] bg-slate-700"></div>
+                <% } %>
+                <div class="text-right hidden md:block">
+                    <p class="text-sm font-black"><%= executive.username %></p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: <%= executive.executiveCode %></p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-slate-300 shadow-lg">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <a href="/logout" class="text-slate-400 hover:text-white transition">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        
+        <!-- Welcome Section -->
+        <div class="bg-white rounded-[40px] p-8 shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-blue-50 to-white">
+            <div>
+                <h1 class="text-3xl font-black mb-2 tracking-tight">Welcome, <span class="text-blue-600"><%= executive.username %></span></h1>
+                <p class="text-sm text-slate-500 font-medium">Monitoring <%= retailers.length %> retailers in your network.</p>
+            </div>
+            <div class="mt-6 md:mt-0 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm text-center min-w-[200px]">
+                <p class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Your Executive Code</p>
+                <div class="text-2xl font-black tracking-[0.2em] text-slate-800"><%= executive.executiveCode %></div>
+                <p class="text-[9px] text-blue-500 font-bold mt-1 italic">Link retailers using this code.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap gap-2 mb-8 bg-slate-200/50 p-1.5 rounded-2xl w-fit">
+            <button onclick="showTab('dashboard')" id="btn-dashboard" class="tab-btn active px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-chart-pie text-xs"></i> Overview
+            </button>
+            <button onclick="showTab('network')" id="btn-network" class="tab-btn px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-users text-xs"></i> Retailer Network
+            </button>
+            <button onclick="showTab('reports')" id="btn-reports" class="tab-btn px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 flex items-center gap-2">
+                <i class="fas fa-file-invoice-dollar text-xs"></i> Monthly Reports
+            </button>
+        </div>
+
+        <!-- TAB: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- KPI Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">Network</span>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Shops</p>
+                    <h3 class="text-4xl font-black text-slate-800"><%= retailers.length %></h3>
+                </div>
+                
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:shadow-md transition group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+                            <i class="fas fa-box-open"></i>
+                        </div>
+                        <span class="bg-slate-100 text-slate-800 text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">Current Month</span>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Material Purchased</p>
+                    <h3 class="text-3xl font-black text-slate-800">₹<%= totalPurchases.toLocaleString() %></h3>
+                </div>
+
+                <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-xl hover:-translate-y-1 transition group relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-green-500/20 blur-2xl rounded-full"></div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div class="w-12 h-12 bg-white/10 text-green-400 border border-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <span class="bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] font-black px-2 py-1 rounded uppercase tracking-widest">Pending Payout</span>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 relative z-10">Unpaid Balance (3%)</p>
+                    <h3 class="text-4xl font-black text-white relative z-10">₹<%= pendingCommission.toLocaleString() %></h3>
+                    <div class="mt-4 flex justify-between items-center relative z-10">
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Lifetime: ₹<%= totalCommission.toLocaleString() %></p>
+                        <% if (executive.lastPayoutDate) { %>
+                            <p class="text-[8px] text-slate-500 font-bold uppercase">Last: <%= new Date(executive.lastPayoutDate).toLocaleDateString('en-IN') %></p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-[30px] p-8 shadow-sm border border-slate-200">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-2">
+                    <i class="fas fa-history text-blue-600"></i> Recent Orders
+                </h2>
+                <% if (orders.length === 0) { %>
+                    <div class="text-center py-12">
+                        <p class="text-sm font-bold text-slate-500">No orders recorded this month yet.</p>
+                    </div>
+                <% } else { %>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400 rounded-tl-xl">Date</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Retailer / Shop</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Product</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Order Value</th>
+                                    <th class="p-4 text-[10px] font-black uppercase tracking-widest text-green-600 text-right rounded-tr-xl">Commission</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <% orders.slice(0, 10).forEach(order => { 
+                                    const sub = Math.round(order.totalAmount || 0);
+                                    const fee = (order.paymentMode === 'cod') ? Math.round(sub * 0.1) : 0;
+                                    const totalValue = sub + fee;
+                                    const comm = Math.round(totalValue * 0.03);
+                                %>
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-4 text-xs font-bold text-slate-600"><%= new Date(order.createdAt).toLocaleDateString('en-IN') %></td>
+                                        <td class="p-4">
+                                            <p class="text-sm font-black text-slate-800"><%= order.user ? order.user.username : order.username %></p>
+                                        </td>
+                                        <td class="p-4">
+                                            <p class="text-xs font-bold text-slate-600 truncate max-w-[150px]"><%= order.auction ? order.auction.title : 'Deleted Product' %></p>
+                                        </td>
+                                        <td class="p-4 text-right text-sm font-bold text-slate-800">₹<%= totalValue.toLocaleString() %></td>
+                                        <td class="p-4 text-right text-sm font-black text-green-600">+₹<%= comm.toLocaleString() %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- TAB: NETWORK -->
+        <div id="tab-network" class="tab-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="bg-white rounded-[30px] p-8 shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black tracking-tight">Retailer <span class="text-blue-600">Performance</span></h2>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-4 py-2 rounded-full border border-slate-100">Sorted by Sales (Current Month)</p>
+                </div>
+
+                <% if (retailers.length === 0) { %>
+                    <div class="text-center py-20">
+                        <i class="fas fa-users-slash text-5xl text-slate-200 mb-4 block"></i>
+                        <p class="text-sm font-black text-slate-400 uppercase tracking-widest">No Retailers in Network</p>
+                    </div>
+                <% } else { %>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-900 text-white">
+                                <tr>
+                                    <th class="p-5 text-[10px] font-black uppercase tracking-widest rounded-tl-2xl">Rank</th>
+                                    <th class="p-5 text-[10px] font-black uppercase tracking-widest">Shop & Mobile</th>
+                                    <th class="p-5 text-[10px] font-black uppercase tracking-widest text-center">Location</th>
+                                    <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right">Total Sale</th>
+                                    <th class="p-5 text-[10px] font-black uppercase tracking-widest text-right rounded-tr-2xl">Commission</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 border-x border-b border-slate-100 rounded-b-2xl">
+                                <% retailers.forEach((retailer, idx) => { %>
+                                    <tr class="hover:bg-blue-50/30 transition group">
+                                        <td class="p-5">
+                                            <div class="w-10 h-10 rounded-xl <%= idx === 0 ? 'bg-yellow-400 text-white' : 'bg-slate-100 text-slate-400' %> flex items-center justify-center font-black text-sm shadow-sm">
+                                                #<%= idx + 1 %>
+                                            </div>
+                                        </td>
+                                        <td class="p-5">
+                                            <p class="text-sm font-black text-slate-800 group-hover:text-blue-600 transition"><%= retailer.shopName %></p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5"><i class="fas fa-user mr-1 text-[8px]"></i> <%= retailer.username %> | <i class="fas fa-phone mx-1 text-[8px]"></i> <%= retailer.phone %></p>
+                                        </td>
+                                        <td class="p-5 text-center">
+                                            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-50 border border-slate-100 px-3 py-1 rounded-full inline-block"><%= retailer.city %></p>
+                                        </td>
+                                        <td class="p-5 text-right">
+                                            <p class="text-sm font-black text-slate-800">₹<%= (retailer.monthlySales || 0).toLocaleString() %></p>
+                                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Order Value</p>
+                                        </td>
+                                        <td class="p-5 text-right">
+                                            <p class="text-sm font-black text-green-600">+₹<%= (retailer.monthlyCommission || 0).toLocaleString() %></p>
+                                            <p class="text-[9px] font-black text-green-400 uppercase tracking-widest mt-0.5">Your 3% Share</p>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- TAB: REPORTS -->
+        <div id="tab-reports" class="tab-content hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <% if (!reports || reports.length === 0) { %>
+                    <div class="col-span-full text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-slate-200">
+                        <i class="fas fa-file-invoice text-5xl text-slate-200 mb-4 block"></i>
+                        <p class="text-sm font-black text-slate-400 uppercase tracking-widest">No reports generated yet.</p>
+                        <p class="text-xs text-slate-400 mt-1 font-bold">Reports are automatically generated at the end of each month.</p>
+                    </div>
+                <% } else { %>
+                    <% reports.forEach(report => { %>
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 hover:border-blue-400 transition group">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest"><%= report.month %></span>
+                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition">
+                                    <i class="fas fa-download text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between border-b border-slate-50 pb-3">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Network Sales</p>
+                                    <p class="text-sm font-black text-slate-800">₹<%= report.totalSales.toLocaleString() %></p>
+                                </div>
+                                <div class="flex justify-between border-b border-slate-50 pb-3">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Commission</p>
+                                    <p class="text-sm font-black text-green-600">₹<%= report.totalCommission.toLocaleString() %></p>
+                                </div>
+                                <div class="flex justify-between">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active Shops</p>
+                                    <p class="text-sm font-black text-slate-800"><%= report.retailerCount %></p>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <!-- Payout History -->
+            <div class="mt-12">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-2">
+                    <i class="fas fa-money-bill-transfer text-green-600"></i> Payout History
+                </h2>
+                <div class="bg-white rounded-[30px] p-6 shadow-sm border border-slate-200">
+                    <% if (!locals.payoutHistory || payoutHistory.length === 0) { %>
+                        <div class="text-center py-10">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">No payout records found.</p>
+                        </div>
+                    <% } else { %>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="border-b border-slate-100">
+                                    <tr>
+                                        <th class="p-4 text-[9px] font-black uppercase text-slate-400">Date</th>
+                                        <th class="p-4 text-[9px] font-black uppercase text-slate-400">Transaction ID</th>
+                                        <th class="p-4 text-[9px] font-black uppercase text-slate-400 text-right">Amount Paid</th>
+                                        <th class="p-4 text-[9px] font-black uppercase text-slate-400 text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    <% payoutHistory.forEach(payout => { %>
+                                        <tr>
+                                            <td class="p-4 text-xs font-bold text-slate-600"><%= new Date(payout.payoutDate).toLocaleDateString('en-IN') %></td>
+                                            <td class="p-4 text-xs font-mono text-slate-400"><%= payout.transactionId %></td>
+                                            <td class="p-4 text-right text-sm font-black text-slate-800">₹<%= payout.amount.toLocaleString() %></td>
+                                            <td class="p-4 text-center">
+                                                <span class="bg-green-100 text-green-700 text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest">Paid</span>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Show target tab
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('active');
+        }
+    </script>
+
+</body>
+</html>

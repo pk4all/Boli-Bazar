@@ -146,12 +146,12 @@
                 <!-- Form -->
                 <form action="/login" method="POST" class="space-y-6">
                     <div>
-                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2 ml-2 tracking-widest">Email Address</label>
+                        <label class="text-[10px] font-black text-gray-400 uppercase block mb-2 ml-2 tracking-widest">Mobile Number</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300">
-                                <i class="fas fa-envelope"></i>
+                                <i class="fas fa-phone"></i>
                             </span>
-                            <input type="email" id="email" name="email" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-12 py-4 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="name@company.com">
+                            <input type="tel" id="phone" name="phone" required class="w-full bg-gray-50 border border-gray-100 rounded-2xl px-12 py-4 text-sm font-bold focus:outline-none focus:border-primary transition" placeholder="9876543210">
                         </div>
                     </div>
                     <div>
@@ -187,13 +187,13 @@
                         <span>Demo Credentials — Click to autofill</span>
                     </div>
                     <div class="space-y-3">
-                        <button onclick="autofill('retailer@bolibazar.com', 'retailer123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
+                        <button type="button" onclick="autofill('9876543210', 'retailer123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
                             <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Retailer</p>
-                            <p class="text-xs font-bold text-secondary">retailer@bolibazar.com / retailer123</p>
+                            <p class="text-xs font-bold text-secondary">9876543210 / retailer123</p>
                         </button>
-                        <button onclick="autofill('admin@bolibazar.com', 'admin123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
+                        <button type="button" onclick="autofill('9999999999', 'admin123')" class="w-full bg-white p-4 rounded-xl border border-yellow-200 text-left hover:border-yellow-400 transition">
                             <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Administrator</p>
-                            <p class="text-xs font-bold text-secondary">admin@bolibazar.com / admin123</p>
+                            <p class="text-xs font-bold text-secondary">9999999999 / admin123</p>
                         </button>
                     </div>
                 </div>
@@ -214,8 +214,8 @@
     </div>
 
     <script>
-        function autofill(email, pass) {
-            document.getElementById('email').value = email;
+        function autofill(phone, pass) {
+            document.getElementById('phone').value = phone;
             document.getElementById('password').value = pass;
         }
     </script>
