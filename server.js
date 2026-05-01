@@ -16,6 +16,7 @@ const LeaderboardSnapshot = require('./models/LeaderboardSnapshot');
 const ManufacturerRequest = require('./models/ManufacturerRequest');
 const ExecutiveSnapshot = require('./models/ExecutiveSnapshot');
 const ExecutivePayout = require('./models/ExecutivePayout');
+const Voucher = require('./models/Voucher');
 const cron = require('node-cron');
 
 const app = express();
@@ -620,9 +621,103 @@ app.get('/admin', async (req, res) => {
             exec.pendingCommission = Math.round(pendingOrderValue * 0.03);
         }
 
+        // 2. NEW: Combine Orders and Vouchers into a single Ledger stream
+        const allVouchers = await Voucher.find().lean();
+        const totalExpenses = Math.round(allVouchers.reduce((sum, v) => sum + (v.amount || 0), 0));
+        const actualBalance = totalRevenue - totalExpenses;
+
+        // Create unified ledger entries
+        let allLedgerEntries = [];
+        
+        // Add all orders that have payments
+        allOrders.forEach(o => {
+            const payments = o.paymentHistory || [];
+            const amt = payments.reduce((s, p) => s + p.amount, 0);
+            
+            if (amt > 0) {
+                // Determine payment methods used
+                let methods = [];
+                payments.forEach(p => {
+                    if (p.method) methods.push(p.method);
+                });
+                
+                // If no explicit method recorded, fallback logic
+                if (methods.length === 0) {
+                    if (o.paymentMode === 'full') methods.push('Full Payment');
+                    else if (o.paymentMode === 'cod') methods.push('COD Collection');
+                }
+
+                // Format a clean label
+                const methodLabel = [...new Set(methods)].join(' + ');
+
+                allLedgerEntries.push({
+                    date: o.createdAt,
+                    type: 'credit',
+                    title: `Order #${o._id.toString().slice(-6).toUpperCase()}`,
+                    subtitle: `Retailer: ${o.username}`,
+                    paymentMethod: methodLabel,
+                    amount: amt,
+                    id: o._id
+                });
+            }
+        });
+
+        // Add all vouchers
+        allVouchers.forEach(v => {
+            allLedgerEntries.push({
+                date: v.date,
+                type: 'debit',
+                title: v.title,
+                subtitle: v.category,
+                amount: v.amount,
+                id: v._id
+            });
+        });
+
+        // Sort by date ASCENDING to calculate running balance
+        allLedgerEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        let currentRunningBalance = 0;
+        allLedgerEntries.forEach(entry => {
+            if (entry.type === 'credit') {
+                currentRunningBalance += entry.amount;
+            } else {
+                currentRunningBalance -= entry.amount;
+            }
+            entry.runningBalance = currentRunningBalance;
+        });
+
+        // Filter by date range if provided
+        const sDate = startDate ? new Date(startDate) : null;
+        const eDate = endDate ? new Date(endDate) : null;
+        if (eDate) eDate.setHours(23, 59, 59, 999);
+
+        let filteredLedgerEntries = allLedgerEntries.filter(entry => {
+            const d = new Date(entry.date);
+            if (sDate && d < sDate) return false;
+            if (eDate && d > eDate) return false;
+            return true;
+        });
+
+        // Sort back to DESCENDING for display
+        filteredLedgerEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Ledger Pagination
+        const ledgerPage = parseInt(req.query.lPage) || 1;
+        const ledgerLimit = 20;
+        const ledgerSkip = (ledgerPage - 1) * ledgerLimit;
+        const ledgerTotalEntries = filteredLedgerEntries.length;
+        const ledgerTotalPages = Math.ceil(ledgerTotalEntries / ledgerLimit);
+        const paginatedLedger = filteredLedgerEntries.slice(ledgerSkip, ledgerSkip + ledgerLimit);
+
         res.render('admin', {
             auctions, users, banners, rewards, orders,
             totalRevenue, todayRevenue, pendingCod,
+            totalExpenses, actualBalance, 
+            vouchers: allVouchers, // Keep for other uses if any
+            ledgerEntries: paginatedLedger,
+            ledgerPage,
+            ledgerTotalPages,
             retailerCount, liveProductsCount, upcomingProductsCount,
             weekLabels: chartLabels, weekData: chartTotalData, categories,
             hallOfFameSnapshots,
@@ -1387,6 +1482,36 @@ app.post('/api/admin/orders/:id/confirm-payment', async (req, res) => {
             await order.save();
         }
         res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// --- EXPENSE VOUCHER ROUTES ---
+app.post('/api/admin/vouchers', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        const { title, category, amount, note, date } = req.body;
+        const voucher = new Voucher({
+            title,
+            category,
+            amount: parseFloat(amount),
+            note,
+            date: date ? new Date(date) : new Date(),
+            addedBy: req.session.user.id
+        });
+        await voucher.save();
+        res.json({ success: true, message: 'Voucher saved successfully.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/admin/vouchers/:id', async (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'admin') return res.status(401).json({ error: 'Unauthorized' });
+    try {
+        await Voucher.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Voucher deleted.' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
